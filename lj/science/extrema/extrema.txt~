@@ -1,0 +1,45 @@
+Extreme Graphics with Extrema
+
+
+High energy physics experiments tend to generate huge amounts of data. While this data is passed through analysis software, very often the very first thing you may want to do is to graph it and see what it actually looks like. To this end, a powerful graphing and plotting program is an absolute must. One available package is called extrema. Extrema evolved from an earlier software packaged named physica. Physica was developed at the TRIUMF high energy centre at British Columbia, Canada. It has both a complete graphical interface for interactive use in data analysis and a command language that allows you to process larger data sets or repetitive tasks in a batch fashion.
+
+Installing extrema for most people is simply a matter of using your distribution's package manager. If you want the source, it is available at the SourceForge site. At SourceForge, there is also a Windows version, in case you are stuck using such an operating system. Once it is installed on your Linux box, launching it is as simply as typing in "extrema" and hitting enter. At start up, you should see two windows, a visualization window and an analysis window. [img1.png] One of the important buttons is the help. In the analysis window, you can bring it up by clicking on the question mark. [img2.png] In the help window, you can get more detailed information on all of the functions and operators available in extrema. Extrema provides 3-D contour and density plots. Fro 2-D graphing, you can control almost all of the features, like axes, plot points, colors, fonts and legends. You can also do some data analysis from within extrema. You can do various types of interpolation, such as linear, Lagrange or Fritsch-Carlson. You can fit an equation to your data, with up to 25 parameters. Extrema contains a full scripting language that includes nested loops, branches and conditional statements. You can either write scripts out in a text editor, or you can use the automatics script-writing mode that translates your point and click actions to the equivalent script commands.
+
+The first thing you will need to do is to get your data into extrema. Data is stored in variables and is referenced by this variable's name. The first character of a variable name must be alphabetic and can not be any longer than 32 characters. Other than these restrictions, variable names can contain any alphabetic or numeric characters, underscores or dollar signs. Unlike most things in Linux, variable names are case insensitive. And remember that function names are reserved, so you can't use them as variable names. String variables can contain either a single string of text or an array of text strings. Numeric variables can contain a single number, a vector (1-D array), a matrix (2-D array) or a tensor (3-D array). All numbers are stored as double-precision real values. Unlike most other programming languages, these arrays are indexed starting at 1, rather than 0. There are no limits to the size of these arrays, other than the amount of memory available on your machine. Indexing arrays in extrema can be interesting. If you want the 8th element of array "x", you can simply reference it with "x[8]". You can grab elements 8, 9 and 10 with "x[8:10]". These indices can be replaced with expressions. So you could get the 8th element with "x[2^3]". There are also special characters that you can use in indexing arrays. The statement "x[*]" referes to all of the values in the vextor. If you want the last element, you can use "x[#]". The second to last element can be referenced with "x[#-1]".
+
+You likely have all of your data stored in files. The simplest file format is a comma-separated list of values. Extrema can read these types of files in and store the data directly into a set of variables. If you have a file with two columns of data, you can load them into two variables with the statement
+   READ file1.dat x y
+You can also read in all of the data and store it into a single matrix with
+   READ\matrix file1.dat m nrows
+In order to do this, you need to provide the number of rows that are being read in. You can also generate data to be used in your analysis. If you simply need a series of numbers, you can use
+   x = [startval:stopval:stepsize]
+will give you an array of numbers starting at startval, incrementing by stepsize until you reach stopval. You can also use the GENERATE command to do this. The GENERATE command will also generate an array of random numbers with
+   GENERATE\RANDOM x min max num_points
+
+Extrema has all of the standard functions available, like the various types of trigonometric functions. The standard arithmetic operators are
+   +  addition
+   -  subtraction
+   *  multiplication
+   /  division
+   ^  exponentiation
+   () grouping of terms
+There are also special operators for matrix and vector operations
+   ><  outer product
+   <>  inner product
+   <-  matrix transpose
+   >-  matrix reflect
+   /|  vector union
+   /&  vector intersection
+There are also a full complement of logical Boolean operators which give true (1) or false (0) results.
+
+Now that you have your data, and you have seen some of the basic functions and operators available, we should probably now take a look at graphing this data and doing some analysis on it.
+
+
+
+URL's
+http://exsitewebware.com/extrema/index.html
+http://sourceforge.net/projects/extrema/
+
+Images
+img1.png - On startup, you are presented with a blank visualization window and an analysis window.
+img2.png - The help window gives you information on all of the available functions, operators and commands.

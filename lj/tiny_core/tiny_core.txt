@@ -1,0 +1,72 @@
+A New Tiny World
+
+There are several projects out there which purport to be small, run in memory, distributions. The most popular is probably puppy linux. Puppy has spawned several variations, and I have used it several times myself for older machines. But I have come across one which completely bowled me over, Tiny Core Linux. This distribution is a completely different beast and fills what I think is an as yet unfilled category.
+
+To start with, Tiny Core is tiny. Really tiny. The full desktop version weighs in at approximately 10MB. This is for a full graphical desktop. There aren't too many other options out there that can deliver something like this. People of a certain age may remember projects like Tom's root/boot, or muLinux. Tiny Core fits somewhere between these older floppy-based projects and "heavier" small distribution like puppy. Along with this full version, there is an even more stripped down version called Micro Core which weighs in at under 7MB. This version gives you a command line interface, for all of you text afficianados. Tiny Core is designed to be run completely, or partially, from RAM. This means that the system can end up being very fast and responsive. You can also set the system up so that the system is loaded fresh on every boot, so that the probability of cruft working itself into your system goes down dramatically.
+
+You download Tiny Core as an ISO image, which can be burned to a CD, or copied to a USB device. Basically, you can put it on anything bootable. When you boot it up, you get the full desktop in a matter of a few seconds (in a virtual machine on my Mac, it takes less than 5 seconds). [gui1.png] The default gives you a window manager (flwm), a set of custom tools, and a terminal (aterm). Everything else is available as an installable package, using its own custom package system called the AppBrowser. [gui2.png] As of writing this, there are 3170 packages available. Packages are constantly being added, and there are very clear instructions on how you can create and add your own packages. When you boot Tiny Core, you initially get dumped at a boot prompt [boot1.png]. If you don't do anything, it will time out and place you on the desktop. However, you have the ability to use bootcodes. They have the form "tinycore option1 option2 ...". Some of these boot codes include
+   tce={hda1|sda1}     specify restore TCE apps directory
+   waitusb=X           wait X seconds for slow USB devices
+   swapfile{=hda1}     scan for or specify a swap partition
+   base                skip TCE and load only the base system
+   xsetup              prompt user for Xvesa setup
+   text                startup in textmode
+   {cron|syslog}       start various daemons at boot time
+   host=XXXX           set hostname to XXXX
+   noautologin         skip automatic login
+   desktop=xyz         use alternate window manager
+There are lots of other options available. You can find them on the Tiny Core wiki, or you can actually list them during bootup. By default, you get automatically logged in as user tc and end up at the desktop with flwm as the window manager.
+
+One of the features of Tiny Core is that you have a fresh system on every boot. But what if you want to save any settings over a reboot, what are your options? In Tiny Core, you have the option to backup any necessary files at shutdown and to have them automatically recovered on boot. These files get saved to the file mydata.tgz. By default, the system will save all of the files and directories that exist under /home/tc. You can control what actually gets backed up and what gets ignored by using the files /opt/.filetool.lst and /opt/.xfiletool.lst. In .filetool.lst, you can add any files that you want to include in the backup. The file .xfiletool.lst contains a list of files to exclude from the backup. This backed up home directory resides in RAM, so if you have a lot of files in your home directory, these will take up precious RAM. Also, as your home directory gets bigger and bigger, the startup and shutdown times grow as those files are being backed up and restored. Another option is to actually create a persistant home directory. You can tell Tiny Core where to find this with the boot code "home=xxx", where xxx is the device partition storing your home directory (for example, sda1 for the first partition on the first drive). If you want to put the home directory inside a subdirectory, you can hand this in with 
+   home=xxx/yyy
+where yyy is the subdirectory name.
+
+This gives you a really fast basic desktop, which is fine for everyday use. But what if you want to adjust the distribution for some special case? To figure out how you can personalize it, we'll need to take a step back and look at how Tiny Core is put together and how it works. Then you'll know how to change the system to suit your application. The core part of the system is stored in a compressed file system that gets copied to RAM. Any extra applications are mounted from wherever they are stored as loopback devices, by default. They can be selected to be actually copied to RAM along with the core system, if you prefer. The advantage of this "run from RAM" system is that once the system has finished booting up, you can remove the storage media.
+
+In the first case, let's assume that you have the system booting from a USB device that you don't need to remove. Then, you have two options on how to setup the system. The first, mount mode, is to create a directory called "tce" on the USB device. In this directory, you can dump packages for all of the applications you want to have available. These then get mounted as loopback devices. There is a utility, called appsaudit, that you can use to maintain these packages. You have the choice of getting these packages mounted at boot time, or you can choose to have them mounted "on demand". [gui3.png] The other option you have is called copy mode. In copy mode Tiny Core actually takes the contents of the package files and copies them all into RAM. This costs a bit more in boot time, but then the entire system is again running from RAM, so you get the expected speedup once everything is booted up. You can actually control which packages get copied into RAM on an individual basis through the configuration file copy2fs.lst. The system can use this file to decide what gets copied and what gets mounted.
+
+These aren't the only methods available to you if you want to make a tailored distribution. Since Tiny Core is under the GPL, you can grab the source code and mess around as much as you please. You can actually just remaster the ISO to add in any extra packages you need for your application.In the ISO there is a gzipped cpio archive named tinycore.gz. This file contains the core filesystem that gets mounted in RAM when Tiny Core boots. You can do this work on any Linux box, or even from within Tiny Core. If you want to do it in Tiny Core, you'll need to install a few extra packages before you start: advcomp.tcz and mkisofs-tools.tcz. Once you have all the tools you'll need, you can mount the ISO image
+   sudo mount tinycore.iso /mnt -o loop,ro
+where "/mnt" is the directory you wish to mount to. You'll also need a directory that you can extract the Tiny Core filesystem into, which for this piece we'll call "/temp/extract". To get the files, you'll need to execute
+   cp -a /mnt/boot /temp
+   cd /temp/extract
+   zcat /temp/boot/tinycore.gz | sudo cpio -i -H newc -d
+Once this command is done, you can go ahead and change files, add new ones, or delete others. This way, you can add extra binaries (let's say for a point-of-sale application) directly as part of the system. If you want to be able to handle special harware, where you'll need a new kernel module, you can go ahead and add it to the filesystem. But then you'll need to run
+   sudo depmod -b /temp/extract 2.6.29.1-tinycore
+You may also need to add new shared libraries to provide support for any new binaries you installed. If you did, you'll need to run
+   sudo ldconfig -r /temp/extract
+
+Once you've finished creating a personalized filesystem for Tiny Core, you need to get it ready to use. The first step is to pack the filesystem back up into a gzipped cpio archive. You'll need to run the commands
+   cd /temp/extract
+   find | sudo cpio -o -H newc | gzip -2 > /temp/tinycore.gz
+   cd ..
+   advdef -z4 tinycore.gz
+This will give you a brand spanking new core file. If you are using some other system than a CD to boot from (like some form of hard drive), then you simply need to copy tinycore.gz and the kernel to that device. If you wanted to create a new ISO image that you can use over and over again, then you'll need to execute the following commands
+   cd /temp
+   mv tinycore.gz boot
+   mkdir newiso
+   mv boot newiso
+   mkisofs -l -J -R -V TC-custom -no-emul-boot \
+      -boot-load-size 4 -boot-info-table \
+      -b boot/isolinux/isolinux.bin \
+      -c boot/isolinux/boot.cat -o TC-remastered.iso newiso
+   rm -rf newiso
+You now have a nice new ISO that you can put to work.
+
+This kind of work happens often enough that the Tiny Core team have put together a GUI application that can help simplify these steps called ezremaster. You need to install it using the AppBrowser. This way, all of the required dependencies will also get installed. You'll also need to either have the ISO available, or a CD mounted. Once you've done all of these steps, you'll need to open up a terminal and run ezremaster from the command line, and you should see [ez1.png]. Here you can point it to the locations it needs and you shuld end up with [ez2.png]. From here, you can set all kinds of options to customize your ISO image. The sections available are
+   Boot Codes
+   Display Settings and mydata.tgz Backup
+   Security settings and users
+   Which services would you like enabled?
+   Network Settings
+   Window Manager, Core Elements, and Xorg Settings
+   ISOLINUX settings and 64 bit kernel
+   Startup and Shutdown scripts
+   Extension Installation
+Once you have all of these steps done, you move on to "Remaster step #1" where the filesystem for the new ISO is created. Once this step is done, you move on to the last step, "Remaster step #2", where the actual ISO image is created. It ends up in the temporary directory you defined in the first screen. And now you're ready to deploy your awesome customized Linux on the world.
+
+This short introduction to Tiny Core borrowed heavily from the Tiny Core website and wiki. If you have any questions, head there to dig for some answers. There is also a very active forum at the main site where people are always happy to answer questions. Hopefully this project can give you a quick start for generating your own custom distributions for your smaller projects.
+
+[Links]
+Tiny Core Home Page - http://www.tinycorelinux.com
+

@@ -1,0 +1,100 @@
+A Sage Experience
+
+There are lots of mathematics packages available on the internet under the GPL. You can find some package to help you with almost any work you need to do. In a way, you are almost spoiled for choice. If your work covers several areas of research, the one thing you are likely missing is a uniform interface to these tools. This is the role sage fills. Like most open source software, sage is available as packages for Linux, Windows, Mac OSX and Solaris. You can also download a live CD which boots up in a Linux environment based on Puppy Linux. And of course, you can always download the source code and build it yourself. All of these options are available for download from tyhe main site. The documentation available is also very useful, and you sould go there as soon as you are done here to get even more information.
+
+The basic idea behind sage is to be able to provide a unified experience when using the bundled packages. This is done through a Python framework wrapped around all of these packages. You can use sage interactively two different ways. There is a graphical interface that you can use in your web browser. When you start sage, it starts up a web server with a default port 8000. Once it has finished starting up (and it can take some time on some systems), you can simply point your browser at http://localhost:8000. [pic1.png] With this interface, you can create and manage your worksheets. There is also a terminal interface that you can use, too. [pic2.png] This will be familiar to anyone who has used the command line interface to programs like maple, mathematica, maxima, etc. Along with these interactive uses, you can also use sage in your own programs. You can link sage into your own interpreted or compiled code, or you can write stand-alone Python scripts. This gives you access to all of the included libraries and packages, like GMP, PARI or Maxima.
+
+For those of you who have used other computer mathematics packages, the basics of sage should be easy to pick up. The assignment operator is "=". The usual comparison operators are available: "==", "<=", "=>", "<", and ">". The operators "+", "*", and "-" mean what you expect. With division, you need to be more careful when dealing with differences between reals and integers. The operator "%" will give you the remainder from a division operation. If you are interested in the integer quotient, you can get it by using "//". Exponentiation can be achieved using "**", or "^", which is a synonym. You also have access to lots of mathematical functions. For example, you have trigonometric functions like sin(), cos() and tan(). You have basic functions like sqrt(), or exp().
+
+A strong point of sage is the documentation available. From within the system, you have access to lots of help. You can pull up a description of a function, along with examples, with the command "func?". For example, if you want to know more about the sine function you could type in
+   sage: sin?
+   Base Class:     <class 'sage.functions.trig.Function_sin'>
+   String Form:    sin
+   Namespace:      Interactive
+   File:           /Users/bernardj/Desktop/Sage-4.6.2-OSX-64bit-10.6.app/Contents/Resources/sage/local/lib/python2.6/site-packages/sage/functions/trig.py
+   Definition:     sin(self, *args, coerce=True, hold=False, dont_call_method_on_arg=False)
+   Docstring:
+          The sine function.
+    
+          EXAMPLES:
+    
+             sage: sin(0)
+             0
+             sage: sin(x).subs(x==0)
+             0
+             sage: sin(2).n(100)
+             0.90929742682568169539601986591
+             sage: loads(dumps(sin))
+             sin
+    
+          We can prevent evaluation using the ``hold`` parameter:
+    
+             sage: sin(0,hold=True)
+             sin(0)
+    
+          To then evaluate again, we currently must use Maxima via
+          ``sage.symbolic.expression.Expression.simplify()``:
+If you don't know the full name of the function, you can try sage's tab completion. It behaves just like the tab completion in bash, so it should be comfortable to users of most Linux distributions.
+
+You can create your own functions with relative ease. You can define a function with the command "def". Input variables simply need to be listed in the definition. You don't need to specify type for any variables. The body of your function follows the rules of python coding. Unlike other programming languages, we don't use special characters (like parentheses) to define sections of code. Blocks of code are defined by indentation level. Lines of code at the same indentation level belong to the same block. As a really silly example, let's say you wanted a function to calculate the cube of a number. You could define a function called cube in this way:
+   sage: def cube(x):
+            answer = x * x * x
+            return answer
+You would then be able to call this function just like you would with any other function.
+   sage: cube(3)
+   27
+
+Within sage, there is support for the common fundamental data types: integers, reals, strings, etc. There is also support for the compound data type, list. The list is opened with "[" and closed with "]". Also, a list can contain any combination of data types. For example, a list could be defined as
+   sage: a = [1, 5, "a string", 1/2, exp(10)]
+You can access individual elements with an index. The index is 0-based. So, to pull out the 3rd entry you would use
+   sage: s[2]
+   'a string'
+You can use the command "len" to find the length of your array. You can add or delete elements with the command ".append()" or "del". As an example, if you wanted to delete the string and tack it onto the end of the array, you could use
+   sage: b = a[2]
+   sage: del a[2]
+   sage: a.append(b)
+
+A more structured compound data type is the dictionary or associative array. This is like a list, except each entry has a label along with a value. You could set up a mapping between letters and numbers with
+   sage: mapping = {'a':1, 'b':2, 'c':3}
+   sage: mapping['b']
+   2
+As you can see, you also define a dictionary with "{" and "}", rather than "[" and "]". Even more complex data type can be defined by creating a new class. A class has a couple of standard functions that you will want to override, __init__ and __repr__. The function __init__ gets called whenever a new instance of the class gets created. You can place any initialization code here. The function __repr__ gets called whenever we want a representation of the object printed. 
+
+A common task you will likely want to do is to solve equations, either exactly or numerically. You can do this with the command solve. You need to define the variables you want to use with the var command. A simple example would be
+   sage: x = var('x')
+   sage: solve(x^2 + 3*x +2, x)
+   [x == -2, x == -1]
+You can also solve equations with multiple variables.
+   sage: x, y = var('x', 'y')
+   sage: solve([x+y==6, x-y==4], x, y)
+   [[x == 5, y == 1]]
+If you're more interested in calculus, you can do differentiation and integration. For example,
+   sage: x = var('x')
+   sage: diff(sin(x), x)
+   cos(x)
+
+   sage: y = var('y')
+   sage: integral(y, y)
+   1/2*y^2
+
+Sage is capable of handling 2-D and 3-D graphs. You can draw shapes, such as circles or polygons, by using commands with parameters to define dimensions. You can draw graphs of functions with the command plot.
+   sage: x = var('x')
+   sage: plot(x^2, (x, -2, 2))
+This will display your plot immediately. If you want to hold off on the actual display, you can assign the plot to a variable with
+   sage: p1 = plot(x^2, (x, -2, 2))
+To then plot this function, you can use "show(p1)". This is useful if you want to plot more than one function on the same graph. For example,
+   sage: x= var('x')
+   sage: p1 = plot(x^2, (x, -2, 2))
+   sage: p2 = plot(x^3, (x, -2, 2))
+   sage: show(p1+p2)
+will give you the following graph. [pic3.png]
+
+You can write your own sage scripts for more complex applications. These can be written in a simple text file. Once you have written it, you can read it in and run it within sage with the load command. For example, if you had a script named "test1.sage", you would run it with
+   sage: load "test1.sage"
+Using load, sage only reads in the file once. If you are working on development of a script, you can use the attach command instead. This attaches the script to your sage session and reloads it whenever it changes. This will be very useful while you develop your own procedures.
+
+The last step you will probably want to do is to generate some kind of documentation around the fabulous discovery you made. Sage includes latex functionality to allow you to produce really pretty output. You also have access to jsMath for pretty printing mathematical equations. All of the elements in this article only graze what you can do with sage. With nearly 100 packages included, you definitely need to go through the documentation on the web site to see how it can help you get your work done.
+
+Links
+http://www.sagemath.org
+

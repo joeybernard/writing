@@ -1,0 +1,31 @@
+\documentclass{beamer}
+
+\title{This is my presentation}
+\author{Joey Bernard}
+\date{January 2010}
+
+\begin{document}
+\maketitle
+
+\begin{frame}
+   \frametitle{My First Slide}
+   This is some heading text.
+   \begin{itemize}
+      \item This is the first point.
+      \item This is the second point.
+      \item This is the third point.
+   \end{itemize}
+   This is some ending text.
+\end{frame}
+\begin{frame}
+   \frametitle{My Second Slide}
+   \begin{itemize}
+      \item<1-> We start on slide 1 and are visible forever.
+      \item<2-> We show up on slide 2.
+      \item<2-3> We are visible until slide 3.
+   \end{itemize}
+This is a test.
+\end{frame}
+
+\end{document}
+

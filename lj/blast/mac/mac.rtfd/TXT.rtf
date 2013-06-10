@@ -1,0 +1,78 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1038\cocoasubrtf320
+{\fonttbl\f0\froman\fcharset0 Times-Roman;\f1\fmodern\fcharset0 Courier;\f2\fswiss\fcharset0 Helvetica;
+}
+{\colortbl;\red255\green255\blue255;\red0\green49\blue224;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\margl1440\margr1440\vieww9000\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\sa280\ql\qnatural
+
+\f0\b\fs36 \cf0 Mac OS X, It's Not Linux, but It's Close\
+\pard\pardeftab720\sa240\ql\qnatural
+
+\b0\fs24 \cf0 In the past, the Mac OS was a fairly unique entity, not having much in common with other OSes, such as Windows or UNIX, which made cross-platform work a bit convoluted. However, the advent of the latest incarnation of the Mac OS, called OS X or Darwin, provides a very comfortable alternative for Linux geeks. Because Darwin is based on BSD UNIX, it is possible to use POSIX-compliant applications on the Mac.\
+Apple provides a package called Xcode on its developer site. Xcode has the necessary tools for compiling programs on the Mac, and it includes a nice graphical IDE and lots of examples for developing applications for OS X. Xcode is based on the GNU toolset, providing tools like gcc, libtool, make and so on. That means, with Xcode, most command-line applications can be compiled and run on the Mac. So, a simple little hello world program:\
+\pard\pardeftab720\ql\qnatural
+
+\f1 \cf0 #include <stdio.h>\
+#include <stdlib.h>\
+int main (int argc, char **argv) \{\
+  printf("Hello World\\n");\
+\}\
+\
+\pard\pardeftab720\sa240\ql\qnatural
+
+\f0 \cf0 compiles fine with gcc, giving you an executable that prints out \'93Hello World\'94 on the command line. Basically, anything that is POSIX-compliant should compile and run with no issues.\
+Getting graphical programs to run can be a bit more involved. Mac OS X does provide an X server and all the standard development libraries you would need for a pure X11 application, like Xlib. However, none of the other standard libraries, like GTK or Qt, are available by default. You have to download, compile and install them yourself, which works fairly well, but you have to choose the correct configuration options and collect all the required dependencies. But, you shouldn't need to go through so much pain. Two projects in active development provide some form of package management for GNU software: Fink and MacPorts. Using these, getting and installing GNU software is as easy to do as it is with most Linux distros.\
+The Fink Project started in 2001 and is based on the Debian package management system, so you can use the Debian package tools like dpkg, dselect and apt-get, making it familiar for Debian-based distro users. Once the base installation is done, you can start to install packages. If you like a text-based manager, use dselect (Figure 1). If you prefer a graphical manager instead, use the following command to get synaptic (Figure 2):\
+\pard\pardeftab720\ql\qnatural
+
+\f1 \cf0 sudo apt-get install synaptic\
+\pard\pardeftab720\sa240\ql\qnatural
+
+\f0 \cf0 Using these applications, you can install many of the packages you are familiar with in Linux. The package count, at the time of this writing, is 10,872.\
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://www.linuxjournal.com/files/linuxjournal.com/linuxjournal/articles/105/10532/10532macf1.jpg"}}{\fldrslt 
+\f2 \cf0 {{\NeXTGraphic 10532macf1.inline.jpg \width9718 \height6074 \noorient
+}¬}}}\pard\pardeftab720\ql\qnatural
+\cf0 \
+\pard\pardeftab720\sa240\ql\qnatural
+\cf0 Figure 1. dselect Package Manager\
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://www.linuxjournal.com/files/linuxjournal.com/linuxjournal/articles/105/10532/10532macf2.jpg"}}{\fldrslt 
+\f2 \cf0 {{\NeXTGraphic 10532macf2.inline.jpg \width9718 \height6357 \noorient
+}¬}}}\pard\pardeftab720\ql\qnatural
+\cf0 \
+\pard\pardeftab720\sa240\ql\qnatural
+\cf0 Figure 2. synaptic Package Manager\
+However, not all packages are available as a binary install using these tools. For that class of packages, Fink installs them directly from source, compiling and installing on your Mac. So, for example, if you want to install gramps and do some genealogy work, execute the following:\
+\pard\pardeftab720\ql\qnatural
+
+\f1 \cf0 sudo fink install gramps\
+\pard\pardeftab720\sa240\ql\qnatural
+
+\f0 \cf0 Even installing from source, Fink deals well with dependency issues, because it still is based on the Debian package management system.\
+The MacPorts Project started in 2002 and models itself after the BSD port packaging system. Thus, you use the command to manage the packages on your system. Once you have done the base install, you can install other software packages simply by running the command:\
+\pard\pardeftab720\ql\qnatural
+
+\f1 \cf0 sudo port install stellarium\
+\pard\pardeftab720\sa240\ql\qnatural
+
+\f0 \cf0 Several graphical interfaces are available as well, such as Porticus. However, those typically are independent projects, as opposed to the Debian tools available in Fink. As such, their development cycle and behavior tend to be a bit more erratic and unstable than the older and more mature Debian tools. But still, they may be exactly what you're looking for if you prefer a graphical interface. Like the Fink Project, both binary packages and source packages are available. There are 5,829 packages available in the MacPorts Project.\
+Both projects provide access to the full wealth of open-source applications that has been available to Linux users, and the number of packages provided by both projects continues to grow.\
+Once you have one, or both, of these projects installed (they will coexist on your system), you will have all the tools necessary to do your own code development. I have used anjuta (Figure 3) on my MacBook to develop some small GNOME applications. These compile and run equally well on my MacBook and my Netbook running Ubuntu. Although there isn't binary compatibility between OS X and Linux, with source compatibility, it is (at least in theory) simply a matter of recompiling for the other system.\
+\pard\pardeftab720\ql\qnatural
+{\field{\*\fldinst{HYPERLINK "http://www.linuxjournal.com/files/linuxjournal.com/linuxjournal/articles/105/10532/10532macf3.jpg"}}{\fldrslt 
+\f2 \cf0 {{\NeXTGraphic 10532macf3.inline.jpg \width9718 \height5831 \noorient
+}¬}}}\pard\pardeftab720\ql\qnatural
+\cf0 \
+\pard\pardeftab720\sa240\ql\qnatural
+\cf0 Figure 3. Anjuta IDE\
+Running Mac OS X code on Linux is not as easy as running Linux code on Mac OS X. The real stumbling block is the graphical interface called Quartz on the Mac OS. Although the kernel and most of the command-line tools have been released as open-source software, Quartz still is closed. At the time of this writing, I could not find any references to a reverse-engineered, open-source replacement for Quartz. So the only option available is running OS X inside a virtual machine. Although this is not technically running Mac applications on Linux, it does provide the ability to run OS X on a Linux box.\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa240\ql\qnatural
+\ls1\ilvl0\cf0 {\listtext	\'95	}Apple Developer Connection: {\field{\*\fldinst{HYPERLINK "http://developer.apple.com/"}}{\fldrslt \cf2 \ul \ulc2 developer.apple.com}} \
+{\listtext	\'95	}Open-Source Apple: {\field{\*\fldinst{HYPERLINK "http://www.opensource.apple.com/"}}{\fldrslt \cf2 \ul \ulc2 www.opensource.apple.com}} \
+{\listtext	\'95	}Fink Project: {\field{\*\fldinst{HYPERLINK "http://www.finkproject.org/"}}{\fldrslt \cf2 \ul \ulc2 www.finkproject.org}} \
+{\listtext	\'95	}MacPorts Project: {\field{\*\fldinst{HYPERLINK "http://www.macports.org/"}}{\fldrslt \cf2 \ul \ulc2 www.macports.org}} \
+}

@@ -1,0 +1,29 @@
+Real Work on Virtual Terminals
+
+There have been many articles on using screen. Screen is very good at multiplexing a terminal and running several login sessions over a single terminal connection. If you are SSH'ing into a server, then screen is your best choice allowing you to run multiple applications easily over that one connection. But what if you are sitting down at your desktop or laptop? By using the tools mentioned here, you don't really need to limit yourself to using a single virtual terminal anymore.
+
+By default, most distributions are setup to activate 6 virtual terminals. This is done through the file /etc/default/console-setup. The number of virtual terminals initially activated can be set by editing the line
+     ACTIVE_CONSOLES="/dev/tty[1-6]"
+and changing the value to whatever number of virtual terminals you'd like to have on boot up. Your system may instead have the file /etc/inittab, which contains a series of commands to initialize these six terminals. You can switch between the different virtual terminals by using the keys Alt-F1 to Alt-F6. There is also a command line tool to do the same thing. You can simply type in
+     chvt N
+which will change to the virtual console number N.
+
+You aren't limited to only using these virtual terminals which are created on boot up. There are commands which allow you to create, destroy and interact with virtual terminals on the fly. The first thing you may need to know is which terminal you are on. The command fgconsole gives you that by printing out the number of the current console. It can also tell you the next available console number by using the option
+     fgconsole --next-available
+To open a new console you simply type in the command
+     open bash
+You can replace bash with any other command you would like to execute on the newly opened virtual terminal. If you do not give a command to open, a bash shell is started. By default, your program will run and the output will be written on the newly created terminal without actually switching there. If you want to automatically switch to the new terminal, simply add the command line option "-s" to the open command. You may also experience the error "Unable to open /dev/ttyN: Permission denied", depending on the level of security on your machine. If you get this, you simply need to run the command with sudo appended to the front so that you have root privileges. But then the newly created bash shell will be run as root. If you want to actually run the given command as yourself, use the command line option "-u". This tells open to figure out who the current user is and to run the command given to open as that user.
+
+You can find which users are logged into the various virtual terminals by using the command who. This will tell you what the user name is, their virtual terminal and when they logged in. You can send a message to one of the other users by using the command write. If they are logged in to more than one virtual terminal write will default to sending the message to the virtual terminal with the lowest idle time. Or you can explicitly send the message to a particular virtual terminal by executing
+     write username ttyN
+Everything you write will then be mirrored on the remote virtual terminal. When you are done you finish by typing control-d. If you don't wish to receive messages from other users, you can turn off reception by using the command
+     mesg n
+This will block all users (except for the super-user) from being able to send you messages. When you are ready to receive messages again, you can simply type
+     mesg y
+If you want to send a message to everyone at once, simply use the command wall.
+
+How do you work with your consoles, now? You can clear output two ways. The first, with the command clear, simply clears away the currently displayed output. But, you can still scroll backwards and see the previously displayed output. If you wish to also clear this history, you need to use the command clear_console. If you want to record what you are doing at the terminal, you can use the command script. All of the output printed on your terminal is copied into a file. The default file name is typescript, but you can change this by adding a file name to the end of the command. Once you execute the command script, everything else that gets displayed on your terminal will also be copied out to this file. When you are done, simply type control-d to finish off. You now have a full transcript of what just appeared on your terminal.
+
+When you are all done with your virtual terminals you can shut them down by using the command deallocvt. If you simply execute deallocvt, it will deallocate all of the unused virtual terminals. If you wish to deallocate a particular virtual terminal you can execute
+     deallocate N
+where N is the virtual terminal you wish to deallocate. Now you are ready to play with the virtual terminals on your desktop.

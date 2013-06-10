@@ -1,0 +1,9 @@
+Lightspeed on Your Desktop
+
+One of the more difficult areas of physics that is hard to wrap your head around is relativity. Relativity, basically, breaks down into general and special relativity. General relativity deals with large masses and high energies and describes how spacetime is warped by these. Special relativity deals with what happens during high velocities. There are many odd and counter-intuitive effects that happen when speeds get close to the speed of light, or c. The problem is that these types of conditions are quite far outside normal experience, and so people don't have any frame of reference as to what these effects would look like. Enter lightspeed.
+
+Lightspeed is an OpenGL program that shows you what an object would look like as it travels closer and closer to the speed of light. Lightspeed actually models 4 different effects that occur when you get close to the speed of light. The first effect is called Lorentz contraction. This effect causes objects to appear to shrink in the direction of travel. This is scaled by a factor called gamma. Gamma is calculated by
+   1 / sqrt(1 - v^2/c^2)
+So, as you can see, as your velocity (v) gets closer to the speed of light (c), the value gamma increases toward infinity. The length contraction is calculated by
+  l' = l / gamma
+So this means that the length of an object in the direction of travel (l) decreases towards zero as the velocity increase towards the speed of light.

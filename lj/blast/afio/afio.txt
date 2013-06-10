@@ -1,0 +1,44 @@
+Stupid afio Tricks
+
+We've already looked at tar, and all of the wonderful ways that it can be used. But it is not the only tool at our disposal. Another tool that gets used quite a bit for doing backups is afio. Depending on your distribution, it may or may not be already installed. In Ubuntu, for example, you would have to run
+
+   sudo apt-get install afio
+
+to get it installed on your system. Once you do, you have a fairly powerful tool at your disposal for archiving files and making backups.
+
+By default, afio reads and writes the files being archived on standard input and standard output. This means that you can create your list of files to archive with another program, like find, and pipe it to afio to do the actual archive. Once you have your list of files, you can apply 5 basic commands to those files
+
+   -o   create an archive
+   -i   install (or unpack) an archive
+   -t   test (or list) the files stored in an archive
+   -r   verify the files stored in an archive against the file system
+   -p   copy the files to a given directory location
+
+If you want to create a simple archive of all of your C source code files, you would execute
+
+   find . -name *.c -print | afio -o -Z source_code
+
+When you want to extract these files again, you would execute
+
+   afio -i -Z source_code
+
+When you run afio as a regular user, all file paths are stored with no leading "/". This means that when you unpack an archive, it will unpack in the current directory. The idea is to hopefully avoid accidentally overwriting system files. To keep the leading "/", you need to use the command line option "-x". If you run afio as the superuser, then this behavior is reversed. Any leading "/" is maintained, and you need to use the command line option "-X" to get the usual behavior of stripping leading "/".
+
+If space is at a premium, afio can also compress your archive, just like tar can. This is done by using the command line option "-Z". There is one very big difference, however. When you compress a tar archive, the entire archive file gets compressed. This means that if you have a corruption in one part of the file, you could potentially lose all of the files in the archive. When you compress an afio archive, the archived files are actually compressed individually. This means that if one file becomes corrupted, by whatever means, you won't actually lose any of the other files in the archive. When you do compress an archive, afio uses gzip by default. You can tell gzip what compression factor to use with the command line option "-G num", where num is the amount of compression gzip is to apply to the archived files. This is a number between 0 (for no compression) and 9 (for maximum compression), with a default of 6. You may need to balance how much CPU and how much IO time is being used during the compression phase. If so, you can put limits on when compression is to be used. The command line option "-T threshold" tells afio not to try and compress a file unless it is at least threshold bytes in size. The default setting is "-T 0k", so afio tries to compress all files, no matter how small. At the other end of the spectrum, you may want to limit how large a file can be before afio tries to compress it. You can do this with the command line option "-2 max", where max is the maximum file size. The default in this case is "-2 200m", so afio won't try and compress files larger than 200MB.
+
+What if you don't want to use gzip as your compression method? You can change this by using the command line option "-P progname", where progname is the name of the executable to use to do the compression. If you need to hand options in to this alternate program, you can do this with the option "-Q opt". You need to use separate "-Q" options for each option you need to hand in to the alternate program. Because afio simply executes this alternate program, you can run anything at this stage. This could include an encryption program, allowing you to encrypt your archive. To encrypt your archive using PGP, you could execute
+
+   export PGPPASSFD=3
+   find . -name *.c -print | afio -ovz -Z -U -P pgp -Q -fc -Q +verbose=0 -3 3 archive 3<passphrasefile
+
+This would run PGP on each file in the archive as they are added.
+
+The last small trick with afio is that you also have the ability to interact with archives on external systems. The way you do this is similar to how you do it with tar. The format looks like
+
+   [user@]host[%rsh][=afio]:file
+
+The option "user@" is the user name you would use to access the external system. The default communications mechanism is rsh, but you could change that to ssh by using the option "%ssh". You can define the command to use on the external system by using the option "=afio". You can use this if the executable is named something else, or in an odd location.  So, if you wanted to archive all of your source code files onto an external server over ssh, you could execute
+
+   find . -name *.c -print | afio -o -Z user@server%ssh:archive
+
+Using afio, you can now go forth and ensure that you have proper backups of all of your important information. So now you don't have any excuses anymore.

@@ -1,0 +1,17 @@
+screenshot-3
+A report of all of the running programs on your system
+
+screenshot-4
+A report of Sun Grid Engine, looking at its symbols
+
+screenshot-5
+A callgraph report of Sun Grid Engine
+
+screenshot-6
+Annotated assembly code disassembly of a program
+
+screenshot-7
+Using OProfile statistics in gprof
+
+screenshot-8
+List of possible events to track on an AMD64 processor

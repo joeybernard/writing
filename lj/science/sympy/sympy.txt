@@ -1,0 +1,106 @@
+Symbolic Math with Python
+
+Many programming languages include libraries to do more complicated math. You can do statistics, numerical analysis or handling big numbers. One topic many programming languages have difficulty with is symbolic math. If you use Python, you have access to sympy, the symbolic math library. Sympy is under constant development, and is aiming to be a full features computer algebra system (CAS). It is also written completely in Python, so you won't have to install any extra requirements. You can download a source tarball or a git repository if you want to get the latest and greatest. Most distributions also provide a package for sympy for those of you less concerned about being bleeding edge. Once it is installed, you will be able to access the sympy library two ways. You can access it like any other library with the import statement. But sympy also provides a binary, called isympy, that is modeled after ipython.
+
+In it's simplest mode, sympy can be used as a calculator. Sympy has builtin support for three numeric types: float, rational and integer. Float and integer are intuitive, but what is a rational? A rational number is made of a numerator and a denominator. So, Rational(5,2) is equivalent to 5/2. There is also support for complex numbers. The imaginary part of a complex number is tagged with the constant I. So, a basic complex number is
+   a + b*I
+You can get the imaginary part with "im", and the real part with "re". You need to tell functions explicitly when they need to deal with complex numbers. For example, when doing a basic expansion, you get
+   exp(I*x).expand()
+   exp(I*x)
+To get the actual expansion, you need to tell "expand" that it is dealing with complex numbers. This would then look like
+   exp(I*x).expand(complex=True)
+All of the standard arithmetic operators, like addition, multiplication, and power are available. All of the usual functions are also available, like trigonometric functions, special functions, and so on. Special constants, like e and pi, are treated symbolically in sympy. They won't actually evaluate to a number, so something like "1+pi" remains "1+pi". You actually have to explicitly use evalf to get a numeric value. There is also a class, called "oo", which represents the concept of infinity. A handy extra when doing more complicated mathematics.
+
+While this is useful, the real power of a CAS is the ability to do symbolic mathematics, like calculus or solving equations. Most other CAS's automatically create symbolic variables when you use them. In sympy, these symbolic entities exist as classes, so you will need to explicitly create them. You create them by using
+   x = Symbol('x')
+   y = Symbol('y')
+If you have more than one symbol at a time to define, you can use
+   x,y = symbols('x', 'y')
+Then, you can use them in other operations, like looking at equations. For example,
+   (x+y)**2
+You can then apply operations to these equations, like expanding it
+   ((x+y)**2).expand()
+   x**2 + 2*x*y + y**2
+You can also substitute these variables for other variables, or even numbers, using the substitution operator. For example,
+   ((x+y)**2).subs(x,1)
+   (1+y)**2
+You can decompose or combine more complicated equations, too. For example, lets say you have the following
+   (x+1)/(x-1)
+Then you can do a partial fraction decomposition with
+   apart((x+1)/(x-1),x)
+   1 + 2/(x-1)
+You can then combine things back together again with
+   together(1 + 2/(x-1))
+   (x+1)/(x-1)
+When dealing with trigonometric functions, you need to tell operators like "expand" and "together" about it. For example, you could use
+   sin(x+y).expand(trig=True)
+   sin(x)*cos(y) + sin(y)*cos(x)
+
+The really big use-case for a CAS is calculus. Calculus is the backbone of scientific calculations and is used in many situations. One of the fundamental ideas in calculus is the limit. Sympy provides a function called "limit" to handle just this. You need to provide a function, a variable and the value towards which the limit is being calculated. So, if you wanted to calculate the limit of (sin(x)/x) as x goes to 0, you would use
+   limit(sin(x)/x, x, 0)
+   1
+Because sympy provides an infinity object, you can calculate limits as they go to infinity. So, you can calculate
+   limit(1/x, x, oo)
+   0
+
+Sympy also allows you to do differentiation. It can understand basic polynomials, as well as trigonometric functions. If you wanted to differentiate sin(x), then you could use
+   x = Symbol('x')
+   diff(sin(x), x)
+   cos(x)
+You can calculate higher derivatives by adding an extra parameter to the "diff" function call. So, calculating the first derivative of (x**2) can be done with
+   diff(x**2, x, 1)
+   2*x
+while the second derivative can be done with
+   diff(x**2, x, 2)
+   2
+Sympy provides for calculating solutions to differential equations. You can define a differential equation with the "diff" function, for example
+   f(x).diff(x,x) + f(x)
+where f(x) is the function of interest, and "diff(x,x)" takes the second derivative of f(x) with respect to x. To solve this equation, you would use the function "dsolve"
+   dsolve(f(x).diff(x,x) + f(x), f(x))
+   f(x) = C1*cos(x) + C2*sin(x)
+This is a very common task in scientific calculations.
+
+The opposite of differentiation is integration. Sympy provides support for both indefinite and definite integrals. You can integrate elementary functions with
+   integrate(sin(x), x)
+   -cos(x)
+You can integrate special functions, too. For example,
+   integrate(exp(-x**2)*erf(x), x)
+Definite integrals can be calculated by adding limits to the integration. If you integrate sin(x) from 0 to pi/2, you would use
+   integrate(sin(x), (x, 0, pi/2))
+   1
+Sympy can also handle some improper integrals. For example,
+   integrate(exp(x), (x, 0, oo))
+   1
+Sometimes, equations are too complex to deal with analytically. In these cases, you need to generate a series expansion and calulate an approximation. Sympy provides the operator "series" to do this. For example, if you wanted a fourth order series expansion of cos(x) about 0, you would use
+   cos(x).series(x, 0, 4)
+   1 - (x**2)/2 + (x**4)/24
+
+Sympy handles linear algebra through the use of the Matrix class. If you are dealing with just numbers, you can just use
+   Matrix([[1,0], [0,1]])
+If you want to, you can explicitly define the dimensions of your matrix. This would look like
+   Matrix(2, 2, [1, 0, 0, 1])
+You can also use symbolic variables in you matrices
+   x = Symbol('x')
+   y = Symbol('y')
+   A = Matrix([[1,x], [y,1]])
+Once a matrix is created, you can operate on it. There are functions to do dot products, cross products or calculate determinants. Vectors are simply matrices made of either one row or one column. 
+
+Doing all of these calculations is a bit of a waste if you can't print out what you are doing in a form that you can use. The most basic output is generated with the print command. If you want to dress it up some, you can use the pprint command. This command does some ascii pretty-printing, using ascii characters to display things like integral signs. If you want to generate output that you can use in a published article, you can get sympy to generate LaTeX output. This is done with the latex function. Just using the plain function will generate generic LaTeX output. For example,
+   latex(x**2)
+   x^{2}
+You can hand in modes, however, for special cases. If you wanted to generate inline LaTeX, you could use
+   latex(x**2, mode='inline')
+   $x^{2}$
+You can generate full LaTeX equation output with
+   latex(x**2, mode='equation')
+   \begin{equation}x^{2}\end{equation}
+
+To end, we'll look at some gotchas that may crop up. The first thing to look at is the equals sign. A single equal sign is the assignment operator, while two equal signs are used for equality testing. Equality testing only applies to actual equality, not symbolic. So, testing 
+   (x+1)**2 == x**2 + 2*x + 1
+will return false. If you want to test whether two equations are equal, you will need to subtract one from the other, and through careful use of the expand, simplify and trigsimp and see whether you end up with 0. Sympy doesn't use the default Python int and float since it provides more control. If you have an expression that only contains numbers, then the default Python types are used. If you want to use the sympy data types, you can use the function sympify(), or S(). So, using Python data types, you get
+   6.2 -> 6.2000000000000002
+whereas the sympy data types give
+   S(6.2) -> 6.20000000000000
+Expressions are immutable in sympy. Any functions applied to them do not change the expressions themselves, but instead return new expressions.
+
+This article only touched the most basic elements of sympy. But hopefully you have seen that it could be very useful in doing scientific calculations. And by using the isympy console, you have the flexibility to do interactive scientific analysis and work. If some functionality isn't there yet, remember that it is under active development, and also remember that you can always chip in and offer to help out.

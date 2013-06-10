@@ -1,0 +1,3 @@
+Multidimensional R in Parallel
+
+R is one of the most powerful open-source options out there for people do statistical analysis. It has been around for decades, and a large number of people have worked at adding functionality through add-on packages. This workshop will start with a basic introduction to R, how it works, how to install packages and how to use them. Then we will move on to some of the packages available for doing multidimensional data analysis. Finally we will look at how to do this analysis in parallel on a cluster in order to maximize the amount of work you can get done.

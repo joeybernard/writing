@@ -1,0 +1,68 @@
+This month we will dive into chemistry again. There are many packages, both commercial and open source, available to make chemistry calculations at the quantum level. The one we will be looking at is gromacs. Your distribution should have it available in whatever package management system they use. The gromacs package is actually a full complement of small applications to take care of all of the steps from creating the initialization files, to doing the computational run, to doing analysis and visualization of the results. You may also notice more than one version available. For example, in Ubuntu, you have both a single processor version and a MPI version available to do the calculations on a parallel machine. If you have a multi-core machine available, or have a cluster of machines at your disposal, this can help speed up your calculations by quite a bit.
+
+Before we start, we should look at a little background as to what types of calculations are possible and what methods gromacs uses. Ideally in computational chemistry, we should be able to take the Schrodinger's equations for the system in question and solve them completely. But, outside of very simple systems of only a few atoms, this becomes impossible very quickly. This means that some sort of approximation is required to actually get a result. In gromacs, the approximation method is molecular dynamics (MD). MD simulations solve Newton's equation for a set of interacting particles to get their trajectories. The total force on a particle from all of the other particles is calculated, and then divided by the mass of the particle to get its acceleration. This gets calculated for all of the particles, and everyone moves according to their acceleration. Then time is stepped one unit and the whole thing is calculated again. You can increase the spatial and temporal resolution, at the cost of more computer time, until you get results that are accurate enough for your purposes.
+
+There are several limitations to MD simulations. The first is that it is a classical simulation. In most cases, this is fine. But there are situations where you need to know the quantum effects of the atoms in your system. The second limitation is that electrons are in their ground state and are treated as if they move instantly to remain in orbit around their atoms. This means that you can't model chemical reactions, or any other electronic interactions. The next limitation is that long-range interactions are cut-off. This becomes a serious issue when dealing with charged particles. The last limitation that we'll look at is the fact that periodic boundary conditions are being used to try and simulate bulk systems. This, combined with the cut-off mentioned above, means that you can end up with some unphysical results, especially during long runs.
+
+Now that we have some background, how do you actually use gromacs? You need to start with the inputs: the initial position of all of the atoms, the initial velocities and the interaction potential describing the forces between all of the atoms. The center-of-mass of the entire system is usually defined as having zero velocity, meaning that there are no external forces on the system. Once this initial data is entered, gromacs needs to calculate the forces, apply these forces to each particle and calculate their new positions. Once they have moved, gromacs needs to recalculate the forces. This is done using the leap-frog algorithm. To get a better feel for what this looks like, we'll look at a concrete example: a protein in water.
+
+The first step is to come up with the initialization files needed to do your calculation. This can be done completely from scratch, but in many cases it isn't necessary. In the case of proteins, there is the Protein Data Bank (PDB), located at http://www.pdb.org. Make sure that the protein structure has the required detail that you are looking for in your simulation. You can also load it up in pymol and see what it looks like. When you are happy with your selection, you can use it to generate the required initialization files for gromacs with pdb2gmx.
+   pdb2gmx -f my_protein.pdb -water tip3p
+where "tip3p" is one of the water models that you can select from. This command generates several output files, the most important of which are "conf.gro", "topol.top" and "posre.itp". At this point, we still haven't added the water to the initialization files. To do this, we need to first define a box to hold the water and the protein. To do this, you would edit the configuration files with
+   editconf -f conf.gro -bt dodecahedron -d 0.5 -o box.gro
+This defines a box with the shape of a dodecahedron, and a diameter of 0.5 nm. You can also use boxes with cubic or octahedron shapes. Now that you have a box, you can add the water with the command
+   genbox -cp box.gro -cs spc216.gro -p topol.top -o solvated.gro
+This command takes our box (box.gro) and fills it with water molecules as defined in the file "spc216.gro". The "-p topol.top" option adds this water to the topology of the system. Finally, all of this is written out to the file "solvated.gro".
+
+If you tried to run it now, you would probably run into issues because of large forces caused by the introduced water molecules. To deal with this, you can minimize the energy of the system before actually doing any calculations. You can do this by creating a parameter file to define how to do the minimization. For example
+   ------em.mdp------
+   integrator   = steep
+   nsteps       = 200
+   nstlist      = 10
+   rlist        = 1.0
+   coulombtype  = pme
+   rcoulomb     = 1.0
+   vdw-type     = cut-off
+   rvdw         = 1.0
+   nstenergy    = 10
+   ------------------
+In this example, the minimization is being done by steepest-descent, over 200 steps. You can look up the details of all of the other options in the gromacs documentation. With this done, you can do all of the necessary preprocessing with the command grompp
+   grompp -f em.mdp -p topol.top -c solvated.gro -o em.tpr
+The actual minimization is handled through
+   mdrun -v -deffnm em
+The prefix "em" is used for all of the relevant filenames, with different extensions. This makes it easier to do all of the preprocessing and getting the initialization steps completed on your desktop, then doing the actual run on a supercomputer.
+
+When you are ready to do the final run, you need to set up a parameter file describing the details. In this example, you could use something like
+   ------run.mdp------
+   integrator   = md
+   nsteps       = 5000
+   dt           = 0.002
+   nstlist      = 10
+   rlist        = 1.0
+   coulombtype  = pme
+   rcoulomb     = 1.0
+   vdw-type     = cut-off
+   rvdw         = 1.0
+   tcoupl       = Berendsen
+   tc-grps      = protein non-protein
+   tau-t        = 0.1 0.1
+   ref-t        = 298 298
+   nstxout      = 1000
+   nstvout      = 1000
+   nstxtcout    = 100
+   nstenergy    = 100
+   ------------------
+With this parameter file, you can do the preprocessing with
+   grompp –f run.mdp –p topol.top –c pr.gro –o run.tpr
+The actual MD calculation is done with the command
+   mdrun –v –deffnm run
+Now you can go off and drink a few days worth of coffee. The actual runtime will depend on how many processors you have to throw at the problem.
+
+Once this run is completed, you still need to analyze it to see what you can learn from it. You can compare the results to experimental results from X-ray structure measurements. You can measure the displacement of the heavy atoms from the X-ray structure with the program "g_rms". You can analyze distance and hydrogen bonds witht he programs "g_dist" and "g_hbond". You can even make a movie with the program "trjconv":
+   trjconv -s run.gro -f run.xtc -e 2500.0 -o movie.pdb
+This will export 2.5ns to a movie of the trajectories. You can then view it using PyMOL.
+
+This short article has been only the faintest taste of what gromacs can do. It is only meant to get you nterested so that you can go and learn more about it. Hopefully, it has succeeded at that and you do go off and read up on it and get some new and interesting work done.
+
+URL
+http://www.gromacs.org

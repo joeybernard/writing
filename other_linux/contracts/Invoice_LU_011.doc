@@ -1,0 +1,102 @@
+{\rtf1\ansi\ansicpg1252\deff0
+{\fonttbl
+{\f0\fnil\fcharset0\fprq0\fttruetype Times New Roman;}
+{\f1\fnil\fcharset0\fprq0\fttruetype Arial;}
+{\f2\fnil\fcharset0\fprq0\fttruetype Dingbats;}
+{\f3\fnil\fcharset0\fprq0\fttruetype Symbol;}
+{\f4\fnil\fcharset0\fprq0\fttruetype Courier New;}}
+{\colortbl
+\red0\green0\blue0;
+\red255\green255\blue255;
+\red255\green255\blue255;}
+{\stylesheet
+{\s1\tx1584\sbasedon39\snext24 Chapter Heading;}
+{\s2\fi-431\li720 Box List;}
+{\s3\fi-431\li720 Star List;}
+{\s4\keepn\sb240\sa120\f1\fs28\lang1033\sbasedon24\snext30 Heading;}
+{\s5\fi-431\li720\sbasedon19 Lower Case List;}
+{\s6\qc\f0\fs24\b\lang1033\sbasedon29\snext6 Table Heading;}
+{\s7\fi-431\li720 Triangle List;}
+{\s8\fi-431\li720\sbasedon19 Upper Case List;}
+{\s9\sb440\sa60\f1\fs28\b\sbasedon24\snext24 Heading 2;}
+{\s18\sb440\sa60\f1\fs24\b\sbasedon24\snext24 Heading 3;}
+{\s11\sb440\sa60\f1\fs24\b\sbasedon24\snext24 Heading 4;}
+{\s12\fi-431\li720 Heart List;}
+{\s13\li1440\ri1440\sa120\sbasedon24 Block Text;}
+{\s14\fi-431\li720 Square List;}
+{\s15\qc\sb240\sa120\f1\fs32\b\sbasedon24\snext24 Contents Header;}
+{\s16\sb440\sa60\f1\fs34\b\sbasedon24\snext24 Heading 1;}
+{\s17\fs20\sbasedon24 Footnote Text;}
+{\s10\fi-431\li720 Bullet List;}
+{\s19\fi-431\li720 Numbered List;}
+{\s20\fi-431\li720 Diamond List;}
+{\s21\fi-431\li720 Hand List;}
+{\s22\sa120\f0\fs24\lang1033\sbasedon30\snext22 List;}
+{\s23\fi-431\li720\sbasedon19 Upper Roman List;}
+{\s24\f0\fs24\lang1033\snext24 Normal;}
+{\s25\sb120\sa120\f0\fs24\i\lang1033\sbasedon24\snext17 Caption;}
+{\s26\f4\sbasedon24 Plain Text;}
+{\s27\f0\fs24\lang1033\sbasedon24\snext27 Index;}
+{\s28\tx1584\sbasedon39\snext24 Section Heading;}
+{\s29\f0\fs24\lang1033\sbasedon24\snext29 Table Contents;}
+{\s30\sa120\f0\fs24\lang1033\sbasedon24\snext30 Text body;}
+{\s31\fi-431\li720 Implies List;}
+{\s32\fi-431\li720 Tick List;}
+{\s33\fi-288\li288\sbasedon24 Endnote;}
+{\s34\fi-431\li720 Dashed List;}
+{\s35\fi-431\li720\sbasedon24 Lower Roman List;}
+{\*\cs36\fs20\super Footnote Reference;}
+{\s37\sbasedon24 Endnote Text;}
+{\*\cs38\fs20\super Endnote Reference;}
+{\s39\tx431\sbasedon16\snext24 Numbered Heading 1;}
+{\s40\tx431\sbasedon9\snext24 Numbered Heading 2;}
+{\s41\tx431\sbasedon18\snext24 Numbered Heading 3;}
+{\s42\fi-288\li288\fs20\sbasedon24 Footnote;}
+{\s43\fi-431\li720\sbasedon24\snext24 Contents 1;}
+{\s44\fi-431\li1440\sbasedon24\snext24 Contents 2;}
+{\s45\fi-431\li2160\sbasedon24\snext24 Contents 3;}
+{\s46\fi-431\li2880\sbasedon24\snext24 Contents 4;}}
+\kerning0\cf0\ftnbj\fet2\ftnstart1\ftnnar\aftnnar\ftnstart1\aftnstart1\aenddoc\revprop3{\*\rdf}{\info\uc1{\title Invoice}{\author amuzzall}}\deftab720\viewkind1\paperw12240\paperh15840\margl1440\margr1440\widowctrl
+\sectd\sbknone\colsx360\marglsxn1800\margrsxn1800\pgncont\ltrsect
+\pard\plain\ltrpar\qc\s24\itap0{\s24\f0\fs36\b\ul\lang2057{\*\listtag0}\abinodiroverride\ltrch Invoice}{\s24\f0\fs36\b\ul\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qc\s24\itap0{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch Joey Bernard}{\s24\f0\fs28\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch 116 Tudor Ave}{\s24\f0\fs28\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch Fredericton, NB}{\s24\f0\fs28\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch E3C 1X6}{\s24\f0\fs28\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch Canada}{\s24\f0\fs28\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch Oct. 31, 2012}{\s24\f0\fs28\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\qr\s24\itap0{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch LU-011}{\s24\f0\fs28\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\itap0{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\itap0{\*\abitableprops table-line-thickness:0.8pt; table-col-spacing:0.03in; table-column-leftpos:-0.1132in; table-column-props:1.3250in/2.7750in/2.1264in/1.3250in/2.7750in/2.1264in/; table-sdh:0xa0249a8}\par{\*\abicellprops left-attach:0; right-attach:1; top-attach:0; bot-attach:1; color:000000; bot-color:000000; bot-style:1; bot-thickness:0.500000px; left-color:000000; left-style:1; left-thickness:0.500000px; right-color:000000; right-style:1; right-thickness:0.000000px; top-color:000000; top-style:1; top-thickness:0.500000pt; background-color:ffffff}{
+\trowd \itap1\trgaph10\trql\trrh0\trleft-163\clvertalt\cltxlrtb\clbrdrt\brdrs\brdrw10\brdrcf0 \clcbpat1\clbrdrl\brdrs\brdrw10\brdrcf0 \clbrdrb\brdrs\brdrw10\brdrcf0 \clbrdrr\brdrs\brdrw0\brdrcf0 \cellx1766\clvertalt\cltxlrtb\clbrdrt\brdrs\brdrw10\brdrcf0 \clcbpat1\clbrdrl\brdrs\brdrw10\brdrcf0 \clbrdrb\brdrs\brdrw10\brdrcf0 \clbrdrr\brdrs\brdrw0\brdrcf0 \cellx5762\clvertalt\cltxlrtb\clbrdrt\brdrs\brdrw10\brdrcf0 \clcbpat1\clbrdrl\brdrs\brdrw10\brdrcf0 \clbrdrb\brdrs\brdrw10\brdrcf0 \clbrdrr\brdrs\brdrw10\brdrcf0 \cellx8824
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs28\lang2057{\*\listtag0}\abinodiroverride\ltrch Purchase Order Number}\cell{\*\abiendcell}{\*\abicellprops left-attach:1; right-attach:2; top-attach:0; bot-attach:1; color:000000; bot-color:000000; bot-style:1; bot-thickness:0.500000px; left-color:000000; left-style:1; left-thickness:0.500000px; right-color:000000; right-style:1; right-thickness:0.000000px; top-color:000000; top-style:1; top-thickness:0.500000pt; background-color:ffffff}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs28\lang2057{\*\listtag0}Description of Work Completed}\cell{\*\abiendcell}{\*\abicellprops left-attach:2; right-attach:3; top-attach:0; bot-attach:1; color:000000; bot-color:000000; bot-style:1; bot-thickness:0.500000px; left-color:000000; left-style:1; left-thickness:0.500000px; right-color:000000; right-style:1; right-thickness:0.500000px; top-color:000000; top-style:1; top-thickness:0.500000pt; background-color:ffffff}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs32\lang2057{\*\listtag0}Amount}\cell{\*\abiendcell}{\*\abicellprops left-attach:0; right-attach:1; top-attach:1; bot-attach:2; color:000000; bot-color:000000; bot-style:1; bot-thickness:0.500000px; left-color:000000; left-style:1; left-thickness:0.500000px; right-color:000000; right-style:1; right-thickness:0.000000px; top-color:000000; top-style:1; top-thickness:0.500000pt; background-color:ffffff}\row
+\trowd \itap1\trgaph10\trql\trrh0\trleft-163\clvertalt\cltxlrtb\clbrdrt\brdrs\brdrw10\brdrcf0 \clcbpat1\clbrdrl\brdrs\brdrw10\brdrcf0 \clbrdrb\brdrs\brdrw10\brdrcf0 \clbrdrr\brdrs\brdrw0\brdrcf0 \cellx1766\clvertalt\cltxlrtb\clbrdrt\brdrs\brdrw10\brdrcf0 \clcbpat1\clbrdrl\brdrs\brdrw10\brdrcf0 \clbrdrb\brdrs\brdrw10\brdrcf0 \clbrdrr\brdrs\brdrw0\brdrcf0 \cellx5762\clvertalt\cltxlrtb\clbrdrt\brdrs\brdrw10\brdrcf0 \clcbpat1\clbrdrl\brdrs\brdrw10\brdrcf0 \clbrdrb\brdrs\brdrw10\brdrcf0 \clbrdrr\brdrs\brdrw10\brdrcf0 \cellx8824
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs32\lang2057{\*\listtag0}34373}\cell{\*\abiendcell}{\*\abicellprops left-attach:1; right-attach:2; top-attach:1; bot-attach:2; color:000000; bot-color:000000; bot-style:1; bot-thickness:0.500000px; left-color:000000; left-style:1; left-thickness:0.500000px; right-color:000000; right-style:1; right-thickness:0.000000px; top-color:000000; top-style:1; top-thickness:0.500000pt; background-color:ffffff}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs32\lang2057{\*\listtag0}Tutorial: Monitor your server with tmux}{\s24\f0\fs32\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs32\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs32\lang2057{\*\listtag0}\abinodiroverride\ltrch Total:}\cell{\*\abiendcell}{\*\abicellprops left-attach:2; right-attach:3; top-attach:1; bot-attach:2; color:000000; bot-color:000000; bot-style:1; bot-thickness:0.500000px; left-color:000000; left-style:1; left-thickness:0.500000px; right-color:000000; right-style:1; right-thickness:0.500000px; top-color:000000; top-style:1; top-thickness:0.500000pt; background-color:ffffff}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs32\lang2057{\*\listtag0}\'a3240}{\s24\f0\fs32\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs32\lang2057{\*\listtag0}\abinodiroverride\ltrch \'a3240}{\s24\f0\fs32\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\intbl\itap1\cell{\*\abiendcell}\row}{\*\abiendtable}
+\pard\plain\ltrpar\ql\s24\itap0{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s24\itap0{\s24\f0\fs24\lang1033{\*\listtag0}\par}
+\pard\plain\ltrpar\qc\s24\itap0{\s24\f0\fs32\lang2057{\*\listtag0}\abinodiroverride\ltrch Please make Cheques payable to:}{\s24\f0\fs32\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\qc\s24\itap0{\s24\f0\fs36\b\ul\lang2057{\*\listtag0}\abinodiroverride\ltrch Joey Bernard}{\s24\f0\fs36\b\ul\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\itap0{\f0\fs24\lang4105{\*\listtag0}\par}}

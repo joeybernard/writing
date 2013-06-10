@@ -1,0 +1,90 @@
+Maximum Theory with maxima
+
+Last month we looked at using scilab to analyze the results of an experiment. In the specific case, we were looking at a pendulum and seeing how it behaved with different lengths and weights. In science, there is usually some theory being tested with an experiment. This month, we'll look at how to use maxima to help us derive the equations describing the motion of a pendulum.
+
+First, what is maxima? Maxima is a calculating engine. It runs on the console. However, there are several GUI front-ends for it. For example, wxMaxima. Maxima and its GUIs should be available for your distribution. If not, you can find the source code at the main web site (http://maxima.sourceforge.com).
+
+To start maxima on the command line, it's as simple as running "maxima". You should get some licensinf information, then get dumped at a prompt. [text1.png] To get a GUI, you would run "wxmaxima". [gui1.png] Maxima runs as a continuous session, much like you would have in Maple or Mathematica. In order to end your session and exit the program, you would execute the "quit();" command. Notice that commands within maxima end with a semi-colon. Anyone used to coding in C should be used to this. If you end a command with a "$" instead, the output from that command will not be displayed.
+
+Sometimes, you may run a command in maxima and not realize just how long it will take to finish. If you run into something like this, you can stop execution by entering ctrl-C. Like in bash, ctrl-C stops execution of the currently running command. Because this is a forced stop, you will get an error message like [text2.png]. Don't worry about following up on the details of this error message unless you suspect that there is something deeper happening. Maxima also contains help files for all of its builtin functions. To see detailed information about a function, you simply need to execute "? command" to get a help page on the given command. For most commands and functions, you should get some examples as well.
+
+When you first start maxima, the prompt is simply
+   (%i1)
+Every input line is labeled in a similar fashion, with the numbers incrementing. So the following input prompts would be "%i2", "%i3", "%i4", and so on. The output from commands are displayed immediately following the command, and are labeled with tags of the form "%o1", "%o2", "%o3", and so on. These behave the same as variables in maxima. This means that you can refer to earlier commands, or their results, by simply using the label. If you wanted to rerun the very first command you ran in this session, you would simply execute "%i1;" There are shortcuts for the last command and the last result. For the last command, you simply type in two single quotes (''). For the last computed result, you can type in a single percent sign (%). The percent sign also marks special, built-in values. For example, %e (natural log base), %i (square root of -1) or %pi (3.14159...).
+
+Maxima can handle arithmetic very easily. The most common arithemtic operations are
+   +         addition
+   -         subtraction
+   *         scalar multiplication
+   /         division
+   ^ or **   exponentiation
+   .         matrix multiplication
+   sqrt(x)   square root of x
+You can apply these to both numbers and variables. Arithmetic is done exactly, whenever possible. This means that things like fractions are kept as fractions until you explicitly ask for a numeric result. So you see behaviour like
+   (%i1) 1/100 + 1/101;
+   (%o2)             201
+                    -----
+                    10100
+
+Variables are easy to use in maxima. They are simply alphanumeric strings. Assigning a value to a vriable is done with the colon character. For example, if you wanted to find the square of a number, you could use
+   (%i1) x: 2;
+   (%o1)             2
+   (%i2) x^2;
+   (%o2)             4
+You can also assign more complex functions to a variable. For example,
+   (%i3) w: sin(0.5 * %pi);
+   (%o3)            sin(0.5 %pi)
+   (%i4) w^2;
+   (%o4)            sin^2(0.5 %pi)
+In certain cases, maxima will leave results in a partly computed state. If you want to force maxima to give you a number, you can add ", numer" to the end of your command. So, for the above, you would type in
+   (%i5) %o4, numer;
+   (%o5)             1
+
+This use of "numer" will give you 16 significant figures, but maxima can handle arbitrarily large numbers. The function bfloat will convert your result to a numeric representation. The number of significant figures used by bfloat is set by the variable fpprec (the default is 16). As an example of really large numbers, you could try
+   (%i1) %pi;
+   (%o1)                                 %pi
+   (%i2) %pi, numer;
+   (%o2)                          3.141592653589793
+   (%i3) bfloat(%pi);
+   (%o3)                         3.141592653589793b0
+   (%i4) fpprec: 100;
+   (%o4)                                 100
+   (%i5) bfloat(%pi);
+   (%o5) 3.1415926535897932384626433832795028841971693993751058209749445923078164\
+   06286208998628034825342117068b0
+
+The last item we will need for figuring out what theory says we should get for a pendulum is algebra. Maxima handles this very easily. The expand function can be used to expand a polynomial. For example:
+   (%i1) (x + 3*y + z)^2;
+                                                2
+   (%o1)                           (z + 3 y + x)
+   (%i2) expand(%);
+                        2                      2            2
+   (%o2)               z  + 6 y z + 2 x z + 9 y  + 6 x y + x
+You can do a variable replacement very easily with
+   (%i3) %o2, x=5/z;
+                          2           30 y   25      2
+   (%o3)                 z  + 6 y z + ---- + -- + 9 y  + 10
+                                       z      2
+                                             z
+If you want to figure out the factors for the above example, you can use
+   (%i4) factor(%);
+                                    2             2
+                                  (z  + 3 y z + 5)
+   (%o4)                          -----------------
+                                          2
+                                         z
+The last set of algebra functions that you might need are "trigexpand" and "trigreduce". These do the same kind of function as "expand" and "factor". The function "trigexpand" uses the sum of angles formulas to make the argument of each trigonometric function as simple as possible. "trigreduce" does the opposite and tries to make the expression such that it is a sum of terms with only one sin or cos function in each term.
+
+Now, we should have enough to use maxima and figure out what we should have found last month with the pendulum. The only force that is applied to a pendulum is gravity, constantly trying to pull the pendulum straight down. This is called a restoring force and is 
+   F = -mg sin(O)
+where m is the mass of the pendulum bob, g is the acceleration due to gravity, and O is the angle the string makes with perpendicular pointing straight down. The sin function is a bit difficult to work with, so we should look at what we can replace it with. If we do a Taylor expansion of sin, we get
+   (%i2) taylor(sin(x),[x],0,5);
+                                     3    5
+                                    x    x
+   (%o2)/T/                     x - -- + --- + . . .
+                                    6    120
+From this, we can see that we can probably replace the sin function with just O, as long as this angle isn't too big. This will give us
+   F = -mgO
+If the angle O is measured in radians, then it is equal to x/L, where x is the actual amount of the arc that the pendulum bob travels along, and L is the length of the pendulum string. Once we do this, we've essentially minimized the nonlinear part to the point were we can treat the pendulum as a simple harmonic motion, with the force constant of (mg/L). If we plug this into the equation for harmonic motion, we get the time for an oscillation given by 2*pi*sqrt(L/g). In a maxima session, this would look like [gui2.png]. We can see that we get a result from theory that is really close to what we actually measured.
+
+In the upcoming months, we'll look at many of the other abilities that maxima has, including advanced algebra, calculus, and even plotting. Until then, go out and do some science of your own.

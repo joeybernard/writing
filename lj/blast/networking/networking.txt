@@ -1,0 +1,76 @@
+Networking on the Command Line
+
+
+There are lots of GUI tools available to help setup and maintain network connections. Two common ones are NetworkManager and wicd. But, since these articles have been about doing things on the command line, how can you configure your network connections and be sure they are behaving correctly? 
+
+The first utility to learn about is ifconfig. You can learn about and set all kinds of parameters for the network interfaces. When you simply run it with no options, you'll get a list of all of the network interfaces on your machine along with details for each.  It looks a bit like
+
+   eth0      Link encap:Ethernet  HWaddr 00:1e:8c:71:d4:1f  
+             UP BROADCAST MULTICAST  MTU:1500  Metric:1
+             RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+             TX packets:0 errors:0 dropped:0 overruns:0 carrier:1
+             collisions:0 txqueuelen:1000 
+             RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+             Memory:fbfc0000-fc000000 
+
+   lo        Link encap:Local Loopback  
+             inet addr:127.0.0.1  Mask:255.0.0.0
+             inet6 addr: ::1/128 Scope:Host
+             UP LOOPBACK RUNNING  MTU:16436  Metric:1
+             RX packets:264 errors:0 dropped:0 overruns:0 frame:0
+             TX packets:264 errors:0 dropped:0 overruns:0 carrier:0
+             collisions:0 txqueuelen:0 
+             RX bytes:19232 (19.2 KB)  TX bytes:19232 (19.2 KB)
+
+   wlan0     Link encap:Ethernet  HWaddr 00:15:af:6b:59:ec  
+             inet addr:192.168.2.101  Bcast:192.168.2.255  Mask:255.255.255.0
+             inet6 addr: fe80::215:afff:fe6b:59ec/64 Scope:Link
+             UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+             RX packets:3228 errors:0 dropped:0 overruns:0 frame:0
+             TX packets:1639 errors:0 dropped:0 overruns:0 carrier:0
+             collisions:0 txqueuelen:1000 
+             RX bytes:2994761 (2.9 MB)  TX bytes:205416 (205.4 KB)
+
+You can set all kinds of options for your network interfaces with ifconfig. These are applied to the interface you use on the command line. In the examples below, we'll use eth1. You can set the usual things like the netmask 
+   ifconfig eth1 netmask 255.255.255.0
+or the MTU 
+   ifconfig mtu 1500
+You can set a network device to promiscuous mode 
+   ifconfig promisc
+so that it will receive all packets on the network, not just the ones addressed for your machine. Setting the address is as simple as
+   ifconfig eth1 192.168.4.4
+There are several other more esoteric options available, but they usual only apply to specific hardware. Check the man page for more details.
+
+Now that you can get your network interfaces configured on the command line, you probably want to be able to get this configuration applied on each reboot. This is where the file /etc/network/interfaces comes in. You define each interface, and whether or not each interface should be brought up at boot time. The most basic entry would be for a wired network interface that is using DHCP. In this case, it would look like
+
+   iface eth1 inet dhcp
+
+You would replace 'eth1' with the label for the specific interface you want to configure. If your interface is static, then you can set the address, network, netmask and broadcast values. If you wish to have this interface come up automatically at boot time, you simply need to add 'auto eth1' to the interfaces file. A full example would look like
+
+   auto eth1
+   iface eth1 inet static
+       address 192.168.2.34
+       network 192.168.2.0
+       netmask 255.255.255.0
+       broadcast 192.168.2.255
+
+There are more options involved when you want to configure a wireless network interface. These extra options begin with "wireless-". In these cases, you will probably want to set the SSID of the wireless network you actually want to connect to. Also, if there are any security settings that you need to make your connection, you can also add them here by using the option "wireless-key xxxxxxxxx". A basic example, consisting of an unsecured WiFi connection and using DHCP would look like
+
+   iface wlan0 inet dhcp
+       wireless-essid "mynetwork"
+
+If you are a bit more safety conscious and have chosen to use WPA, you can enter your credentials with "wpa-" options. This tells the network subsystem to start up wpa_supplicant in the background to handle these parts. A simply example would look like
+
+   iface wlan1 inet dhcp
+       wpa-ssid mynetwork
+       wpa-psk mysecretpassphrase
+
+More complex examples, like those using EAP-TLS, can use an external configuration file to handle authentication. This would look like
+
+   auto wlan0
+   iface wlan0 inet dhcp
+       wpa-conf /etc/wpa-supplicant/wpa-supplicant.conf
+
+where all of the extra parameters needed to connect are located in the named file. More details on what can be put in this file can be found on the man page for wpa_supplicant.conf.
+
+Once you have all of this configured, how can you activate and deactivate the various network interfaces? This is where you can use the utilities ifup and ifdown. These use the network interfaces you defined in the file /etc/network/interfaces. When you want to bring up a particular interface, it's as simple as 'ifup eth1'. Bringing down an interface is as simple as 'ifdown wlan0'. If you aren't sure whether a particular interface is up or not, you can use 'ifstatus eth0' to check on the status of the network interface eth0. If you get your IP address through DHCP, you may need to renew your lease. You can do this simply with 'ifrenew eth1'. This accomplishes the DHCP renewal without actually cycling your network interface. And now you should be able to get your network up and running with out having to resort to the GUI at all.

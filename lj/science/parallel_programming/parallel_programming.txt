@@ -1,0 +1,62 @@
+Parallel Programming Crash Course
+
+We've been looking at various scientific programs for the last few months, but sometimes you can't find a package that does what you need. In those cases, you need to go ahead and write your own code. When you are involved with heavy-duty scientific computing, you usually need to go to parallel computing in order to get the runtimes down to something reasonable. This month we'll look at a crash course in parallel programming so that you can get a feel for what is involved.
+
+There are two broad categories of parallel programs, shared-memory and message passing. You will likely see both types being used in various scientific arenas. Shared-memory programming is when all of the processors you are using are on a single box. This limits you as to how big your problem can be. When you use message passing, you can link together as many machines as you have access to over some interconnection network. We'll first start by looking at message passing parallel programming. The most common version in use today is MPI (Message Passing Interface). MPI is actually a specification, so there are many different implementations available. These include Open MPI, MPICH and LAM, among others. These implementations are available for C, C++ and FORTRAN. There are also implementations available for Python, OCaml and .NET.
+
+An MPI program consists of multiple processes (called slots), running on one or more machines. Each of these processes can communicate with all other processes. Essentially, they are in a fully connected network. Each process runs a full copy of your program as its executable content and runs independently of the others. The parallelism comes into play when these processes start sending messages to each other. Assuming you already have some MPI code, the first step to using it is to compile it. MPI implementations include a set of wrapper scripts that handle all of the compiler and linker options for you. They are called mpicc, mpiCC, mpif77 and mpif90, for C, C++, FORTRAN 77 and FORTRAN 90. You can add extra options for your compiler as options to the wrapper scripts. One very useful option is "-showme". This options simply prints out the full command line that would be used to invoke your compiler. This is useful if you have multiple compilers and/or libraries on your system and you need to verify that the wrapper is doing the right thing.
+
+Once you have your code compiled, you need to run it. You don't actually run your program directly. There is a support program called mpirun that actually takes care of setting up the system and running your code. You need to tell mpirun how many processors you want to run and where they are located. If you are running on one machine, you can hand in the number processors with the option "-np X". If you are running over several machines, you can hand in a list of hostnames either on the command line or in a text file. If this list of hostnames has repeats, then mpirun assumes that you want to start one process for each repeat.
+
+Now that we know how to compile and run our code, how do you actually write an MPI program? The first step needs to be to initialize the MPI subsystem. There is a function to do this, which in C is
+   int MPI_Init(&argc, &argv);
+Until you call this function, your program is running a single thread of execution. Also, you can't call any other MPI functions before this, except for "MPI_Initialized". Once you run "MPI_Init", MPI starts up all of the parallel processes and sets up the communication network. After this initialization work is finished, you are running in parallel, with each process running a copy of your code. When you've finished all of your work, you need to cleanly shutdown all of this infrastructure. The function that does this is
+   int MPI_Finalize();
+Once this finishes, you are back to running a single thread of execution. After calling this function, the only MPI functions that you can call are "MPI_Get_version", "MPI_Initialized" and "MPI_Finalized".
+
+From above, you should remember that once your code goes parallel each processor is running a copy of your code. If so, then how does each copy know what it should be doing? In order to have each process do something unique, you need some way to identify different processes. This can be done with the function
+   int MPI_Comm_rank(MPI_Comm comm, int *rank);
+This function will give a unique identifier, called the rank, of the process calling it. Ranks are simply integers, starting from 0 to N-1, where N is the number of parallel processes. You may also need to know how many processes are running. To get this, you would need to call the function
+   int MPI_Comm_size(MPI_Comm comm, int *size);
+
+Now, you've initialized the MPI subsystem and found out who you are and how many processes are running. The next thing you will likely need to do is to send and receive messages. The most basic method for sending a message is 
+   int MPI_Send(void *buf, int count, MPI_Datatype type, int dest, int tag, MPI_Comm comm);
+In this case, you need a buffer ('buf') containing 'count' elements of type 'type'. The parameter 'dest' is the rank of the process that you are sending the message to. You can also label a message with the parameter 'tag'. Your code can decide to do something different based on the tag value you set. The last parameter is the communicator, which we'll look at a little later. On the receiving end, you would need to call
+   int MPI_Recv(void *buf, int count, MPI_Datatype type, int source, int tag, MPI_Comm comm, MPI_Status *status);
+When you are receiving a message, you may not necessarily care who sent it, or what the tag value is. In these cases, you can set these parameters tot eh special values MPI_ANY_SOURCE and MPI_ANY_TAG. You can then check what the actual values were after the fact by looking at the status struct. The status contains the values
+   status->MPI_source
+   status->MPI_tag
+   status->MPI_ERROR
+Both of these functions are blocking. This means that when you send a message, you end up being blocked until the message has finished being sent. Alternatively, if you try and recieve a message, then you will block until the message has been sent. This also applies when you try and receive a message; the function call blocks until the message has been received. Because these calls block until they complete, it is very easy to cause deadlocks. So if you have problems with your code, these calls are usually the first place to look.
+
+These functions are point-to-point calls. But what if you want to talk to a group of other processes? MPI has a broadcast function.
+   int MPI_Bcast(void *buf, int count, MPI_Datatype type, int root, MPI_Comm comm);
+This function takes a buffer containing 'count' elements of type 'type' and broadcasts to all of the processors, including the root process. The root process (from the parameter 'root') is the process who actually has the data. Everybody else receives the data. Everyone calls MPI_Bcast and the MPI subsystem is responsible for sorting out who has the data and who is receiving. This call also send the entire contents of the buffer to everyone, but sometimes you want each process to work on a chunk of the data. In these cases, it doesn't make sense to send the entire data buffer to everyone. There is an MPI function to handle this
+   int MPI_Scatter(void *send, int sendcnt, MPI_Datatype type,
+                   void *recv, int recvcnt, MPI_Datatype type,
+                   int root, MPI_Comm comm);
+In this case, everyone calls the same function, and the MPI subsystem is responsible for sorting out who is root (the process with the data) and who else is receiving data. MPI will then divide the send buffer into even sized chunks and send it out to all of the processes, including the root process. Then each process can work away on their chunk. When they're done, you can gather up all the results with
+   int MPI_Gather(void *send, int sendcnt, MPI_Datatype type,
+                  void *recv, int recvcnt, MPI_Datatype type,
+                  int root, MPI_Comm comm);
+This is a complete reversal of MPI_Scatter. In this case, everyone sends their little chunk and the root process gathers them all up and puts them in its receive buffer.
+
+Taking all of the information from above and putting it together, we can put together a basic boilerplate example
+   #include <mpi.h>
+   // Any other include files
+
+   int main(int argc, char **argv){
+      int id,size;
+      // all of your serial code would
+      // go here
+      MPI_Init(&argc, &argv);
+      MPI_Comm_rank(MPI_COMM_WORLD, &id);
+      MPI_Comm_size(MPI_COMM_WORLD, &size);
+      // all of your parallel code would
+      // go here
+      MPI_Finalize();
+      // any single-threaded cleanup code
+      // goes here
+      exit(0);
+   }
+Hopefully, you now feel more comfortable with MPI programs. We looked at the most basic elements, but if you feel so inspired you should grab a good textbook and see what other functions are available to you. If not, you should at least be able to read existing MPI code and have a good idea of what it is trying to do. As always, if you have some area you'd like to see covered, feel free to let me know.

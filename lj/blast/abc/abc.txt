@@ -1,0 +1,42 @@
+at,batch,cron - The ABC's of doing work when nobody's home
+
+
+
+People have always been interested in doing more work with less effort. This drive kind of reaches its peak when work is being done, even though you aren't actually doing anything. With Linux, you can effectively do this with the trio of programs at, batch and cron. So now your computer can be busy getting productive work done, even long after you've gone home. Most people have heard of cron, fewer people have heard of at, and even fewer have heard of batch. Here you'll find out what they can do for you, and the most common options to get the most out of them.
+
+at is actually a collection of utilities. The basic idea is that you can create queues of jobs to run on your machine at specified times. The time at runs your job is specified on the command line, and almost every time format known to man is accepted. The usual formats, like HH:MM or MM/DD/YY, are supported. The standard POSIX time format of [[CC]YY]MMDDhhmm[.SS] is also supported. You can even use words for special times, like now, noon, midnight, teatime, today or tomorrow, among others. You can also do relative dates and times. For example, you could tell at to run your job at 7PM in 3 days time by using "7PM + 3 days". 
+
+at will listen to the standard input for the commands to run, which you finish off with a ctrl-D. You can also place all of the commands to run in a text file and tell at where to find it by using the command line option "-f filename". at will use the current directory at the point of invocation as the working directory. 
+
+By default, at will dump all of your jobs into one queue named "a". But you don't need to stay in that one little bucket. You can group your jobs into a number of queues quite easily.  All you need to do is add the option "-q x" to the at command, where "x" is a letter. This means that you can group your jobs into 52 queues (a-z and A-Z). This lets you use some organization in managing all of this after hours work. Queues with higher letters will run with a higher niceness. The special queue "=" is reserved for jobs currently running.
+
+So once you've submitted a bunch of jobs, how do you manage them? The command atq will print out the list of your upcoming jobs. The output of the list is: job ID, date, hour, queue and username. If you've broken up your jobs into multiple queues, you can get the list of each queue individually by using the option "-q x" again. If you change your mind, you can delete a job from the queue by using the command "atrm x", where x is the job ID.
+
+Now, what happens if you don't want to overload your box? Using at, your scheduled job will run at the assigned time regardless of what else may be happening. Ideally, you would want your scheduled jobs to run only when they won't interfere with other work. This is where the command batch comes in. batch behaves the same way at does, but will only run the job once the system load drops below a certain value (usually 1.5). You can change this value when atd starts up. By using the command line option "-l xx", you can tell batch not to run unless the load is below the value "xx". Also, batch defaults to putting your jobs into the queue "b".
+
+These tools are great for single runs of jobs, but what happens if you have a recurring job which needs to run on some sort of schedule? This is where our last command, cron, comes in. As a user, you actually don't run cron. You instead run the command crontab, which lets you edit the list of jobs that cron will run for you. Your crontab entries are lines containing a time specification, and a command to execute. For example, you might have a backup program running at 1AM each evening:
+
+   0 1 * * *       backup_prog
+
+cron will accept a wide variety of time specifications. The fields available for your crontab entries include
+
+   field              allowed values
+  minute               0-59
+  hour                 0-23
+  day of month         1-31
+  month                1-12
+  day of week          0-7
+
+Using these fields and values, we can use them directly, use groups of values separated by commas, use ranges of values, or use an asterix to represent any value. You can also use special values
+
+   string         meaning
+  @reboot        run once, at startup
+  @yearly        run once a year (0 0 1 1 *)
+  @annually      same as @yearly
+  @monthly       run once a month (0 0 1 * *)
+  @weekly        run once a week (0 0 * * 0)
+  @daily         run once a day (0 0 * * *)
+  @midnight      same as @daily
+  @hourly        run once an hour (0 * * * *)
+
+Now that you have these three utilities under your belt, you can schedule those backups to run automatically, or get a long compile to start after you've gone home, or get your machine to keep using up any idle cycles. So go out and get lots of work done, even when nobody is home.

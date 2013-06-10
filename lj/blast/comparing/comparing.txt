@@ -1,0 +1,81 @@
+Comparing Files
+
+There are many times when you wish to know what has happened to a
+file. You may be interested in comparing one version of a file to an
+earlier one. Or you may need to check one file against a reference
+file. Linux provides several tools for doing this, depending on how
+deep a comparison you need to make.
+
+The most common task involves comparing two text files. The tool of
+choice for this task is diff. With diff, you can compare two files,
+line by line. By default, diff will notice any differences between the
+two text files, no matter how small. This could be as simple as a
+space character being changed into a tab character from one file to
+the next. The file will look the same to a user, but diff will find
+that difference. The real power of diff comes from the options
+available to ignore certain kinds of differences between files. In the
+above example, you could ignore that change from a space character to
+a tab character by using the option "-b" or
+"--ignore-space-change". This option tells diff to ignore any
+differences in the amount of whitespace from one file to the next. But
+what about blank lines? The option "-B" or "--ignore-blank-lines"
+tells diff to ignore any changes in the numbers of blank lines from
+one file to the next. In this way, diff will effectively be only
+looking at the actual characters and comparing them from one file to
+the next. You have essentially narrowed the focus of diff to the
+actual content.
+
+What if that is not good enough for your situation? You may be
+comparing files where one was entered with all capitals on, for some
+reason. Maybe the terminal being used was misconfigured. In any case,
+you may not want diff to report simple differences in case as "real"
+differences. In this case, you can use the option "-i" or "--ignore-case".
+
+What if you have files from a Windows box that you are working with?
+Everyone who works on both Linux and Windows has run into the issue
+with line endings on text files. Linux expects only a single newline
+character while Windows uses a carriage return and a newline
+character. diff can be told to ignore this with the option
+"--strip-trailing-cr".
+
+The output from diff can take a few different formats. The default
+output contains the line which is different, along with a number of
+lines just before and just after the line in question. These extra
+lines are called context, and can be set with the option "-c", "-C" or
+"--context=" and a number of lines to use for context. This default
+output can be used by the program patch to change one file into the
+other. In this way, you can create source code patches to upgrade code
+from one version to the next. diff will also output differences
+between files that can be used by ed as a script by using the option
+"-e" or "--ed". diff will also output an RCS format diff by using the
+option "-n" or "--rcs". The other option is to print out the
+differences in two columns, side by side. The option "-y" or
+"--side-by-side" will let you see each file side by side with the
+differences between them highlighted.
+
+The utility diff only compares two files. What if you need to compare
+three files and see what changes exist moving from one to the others?
+The utility diff3 comes to the rescue. This utility compares three
+files and prints out the diff statements. Again, you can use the "-e"
+option to print out a script suitable for the editor ed.
+
+But what if you simply want to see two files and how they differ?
+Another utility might be just what you are looking for, comm. With no
+other options, comm takes two files and prints out three columns. The
+first column contains lines unique to the first file, the second
+column contains lines unique to the second file and the third column
+contains lines common to both files. You can selectively suppress each
+of these columns with the options "-1", "-2" and "-3". They suppress
+columns 1, 2 or 3, respectively.
+
+While this works great for text files, what if you need to compare two
+binary files? You need some way to compare each and every byte in each
+file. The utility that can be used for this is called cmp. It does a
+byte by byte comparison of two files. The default output is a print
+out of which byte and which line contains the difference. If you are
+interested in seeing what the byte values are, you can use the option
+"-b". The "-l" option gives even more detail, printing out the byte
+count and the byte value from the two files.
+
+Using these utilities, you can start to get a better handle on how
+your files are changing. Here's hoping you keep control of you files.

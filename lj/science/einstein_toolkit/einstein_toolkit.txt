@@ -1,0 +1,56 @@
+Numeric Relativity
+
+This month will find us at the cutting edge of physics, numerical general relativity. Since we haven't perfected mind-to-mind transmission of information, we won't be able to actually cover in any real detail how this all works. If you are interested, you can check out Wikipedia (http://en.wikipedia.org/wiki/ADM_formalism) or Living Reviews (http://relativity.livingreviews.org/Articles/subject.html#NumRel). Once you've done that, and maybe taken a few graduate courses, too, you can go ahead and read this article.
+
+General relativity, along with quantim mechanics, describes the world as we know it at its most fundamental level. The problem is that there is a very small set of solutions to Einstein's equations. And they are all solutions for idealized situations. The following table gives the most common ones
+
+   Solution             Description
+   Schwarzschild        static, spherically symetric 
+   Reissner-Nordstrom   static, spherically symmetric, charged
+   Kerr                 rotating, spherically symmetric
+   Kerr, Newman         rotating, spherically symmetric, charged
+
+In order to study more realistic situations, like a pair of black holes orbiting each other, we need to solve Einstein's equations numerically. Traditionally, this has been done either from scratch by each individual researcher, or you may inherit some previous work from another researcher. But now there is a project that everyone can use, the Einstein Toolkit. The project started out as Cactus Code. Cactus Code is a framework consisting of a central core (called the flesh) and a number of plugins (called thorns). Cactus Code provides a generic framework for scientific computing in any number of fields. The Einstein Toolkit is a fork of Cactus Code with only the thorns you need for numerical relativity.
+
+General relativity is a theory of gravitation, proposed by Einstein, where time is to be considered simply another dimension, like the the three spatial ones. So the 3 space and 1 time dimensions together give you spacetime. In numerical relativity (at least in one of the more common techniques) reintroduces the break between space and time. The basic idea is that you describe space at one instance in time, and then describe with equations how that space changes moving from one time to another. This technique was introduced by Arnowitt, Deser and Misner, and is called the ADM formalism. The code in the Einstein Toolkit uses a variation on this technique.
+
+The toolkit code is available through subversion and git. To make checkouts and updates easier on end users, the development team have provided a script called "GetComponents". This script expects to use git, so you'll need git installed on your system. To get it, you can wget it from
+
+   wget http://svn.cactuscode.org/Utilities/branches/ET_2010_11/Scripts/GetComponents
+   chmod 777 GetComponents
+
+While there are several options to this script, most people will simply want to use it to grab the latest code for the Einstein Toolkit
+
+   ./GetComponents -a http://svn.einsteintoolkit.org/manifest/branches/ET_2010_11/einsteintoolkit.th
+
+This will download all of the parts you need to get a running system in the subdirectory "Cactus". To update the code, you simply need to run
+
+   ./GetComponent -a -u ./einsteintoolkit.th
+
+You can do it this way because the file "einsteintoolkit.th" actually gets downloaded to the current directory by the "GetComponents" script.
+
+This is pretty heavy duty numbercrunching, so you will likely need to make sure you have several other packages installed on your system. You will need a C compiler, a C++ compiler and a FORTRAN compiler. You'll probably want to install MPI as well. File input and output is available in ASCII, but you want to consider HDF5, for more strucutred data. Some thorns may also need some specialized libraries, such as LAPACK. This will depend on which thorns you are actually using.
+
+The way Einstein Toolkit is actually setup, you create and use a configuration for a particular executable. This way, you can have multiple configurations, which use different thorn combinations, all from the same core source code. To create a new configuration, it is as simple as "make configname", where configname is the name you give to this configuration. For the rest of this article, we'll play with a configuration called config1. So you would type in "make config1", and get a new subdirectory called config1 containing all of the required files. Don't forget that this needs to be done from within the Cactus directory that had been created by the GetComponents script. Once this initialization is done, you can execute several different commands against this configuration. An example would be "make config1-configinfo", which will print out the configuration options for this particular configuration [einstein1.png].
+
+The first step is to make sure that everything is properly configured. When you created your new configuration above, the config command was run for you. If you decide that you actually wanted to include some other options, you can rerun the config command with "make config1-config <options>", where "<options>" are the options you wanted to set. These options are of the form <name>=<value>. An example would be "MPI=MPICH", if you wanted to compile in support for MPICH parallelism. For now, you can just enter
+   make config1-config MPI=MPICH
+to do a basic configuration. If you ever want to start over, you can try "male config1-clean", or "make config1-realclean". If you are done with this particular configuration, you can actually get rid of it completely with "make config1-delete".
+
+Now that everything is configured exactly the way you want it, you should go ahead and build it. This is done simply with the command "make config1". Now, go off and have a cup of your favourite beverage while your machine is brought to its knees with the compile. This is a fairly complex piece of software, so don't be too disappointed if it doesn't compile cleanly on the first attempt. Just go over the error messages carefully, and make whatever changes are necessary. The most likely cause is that either you don't have a needed library installed, or the make system can't find it. Just keep iterating through the build step until you get a fully compiled executable. It should be located in the subdirectory "exe". In this case, you will end up with an executable called "cactus_config1".
+
+You can run some basic tests on this executable with the command "make config1-testsuite". It will ask you some questions on what you want to test, but you should be OK accepting the defaults most of the time. When you get to the end, you can ask the system to run all of the tests, or run them interactively, or pick a particular test to run. Remember that if you are using MPICH, you need to have mpd running on the relevant hosts so that the testsuite will run correctly. This by no means guarantees the correctness of the code. It's just the first step in the process. As in any scientific programming, you should make sure that the results you are getting out are at least plausible.
+
+Now that you have your executable, you need some data to feed into it. This is the other side of the problem, the "initial data" problem. The Einstein Toolkit uses a parameter file to hand in the required parameters for all of the thorns being used. The development team have provided some introductory parameter files (located at https://svn.einsteintoolkit.org/cactus/EinsteinExamples/branches/ET_2010_06/par/) which the beginner can download and use to learn what is possible. To run your executable, you can run it as
+   cactus_config1 parfile.par
+If you are running an MPI version, it would look like
+   mpirun -np X cactus_config1 parfile.par
+where X is the number of CPUs to use, and parfile.par is the parameter file to use.
+
+As it stands, the Einstein Toolkit provides a very powerful set of tools for doing numerical relativity. But this is only the beginning. The true power is in its extensibility. It is distributed under the GPL, so you are free to download it and alter it as you see fit. You just have to be willing to share those changes. But the entire design of the toolkit is based around the idea that you should be able to alter the system easily. It is as simple as writing and including a new thorn. Since you have all of the source code for the included thorns, you have some very good examples to look at and learn from. Since thorns are ideally independent from each other, you should be able to easily drop in your new thorn. The list of thorns to be compiled and linked into the flesh is controlled through the file "configs/config1/ThornList".
+
+If you decide to write your own thorn, we'll cover a little bit of the concepts here. A thorn should, ideally, be completely unlinked from any other thorn. Any communication should happen through the flesh. This means that data should be translated into one of the standard formats and handed off to the flesh. The thorns are responsible for everything from IO, to data management, to the actual number crunching. If you are working on some new algorithm or some new solution technique, this is where you want to be.
+
+The last step is getting pretty graphics. You will likely want to share your results with others, and that seems to be easiest through a picture. You will want to use another tools, like gnuplot, in order to generate plots, or even movies, of the results from your calculations. There are lots of tutorials around for what you can do with tools like gnuplot.
+
+I hope this has given you enough to get started with a very powerful tool for numerical relativity. And as always, if there is some subject you'd like to see, please let me know. Until then, keep exploring.

@@ -1,0 +1,5 @@
+This month we will dive into chemistry again. There are many packages, both commercial and open source, available to make chemistry calculations at the quantum level. The one we will be looking at is gromacs. Your distribution should have it available in whatever package management system they use. You may also notice more than one version available. For example, in Ubuntu, you have both a single processor version and a MPI version available to do the calculations on a parallel machine. If you have a multi-core machine available, or have a cluster of machines at your disposal, this can help speed up your calculations.
+
+Before we start, we should look at a little background as to what types of calculations are possible and what methods gromacs uses.
+
+Now that we have some background, how do you actually use gromacs? Testing

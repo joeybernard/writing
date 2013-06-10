@@ -1,0 +1,43 @@
+Listening on the command line
+
+On Linux, there are tons of programs you can use to listen to audio. Programs like totem, rhythmbox, mplayer, and vlc. One thing you may have noticed with each of these examples is that they all run in an X11 environment. What is a person to do if they want to listen to their favorite music on the command line? Well, let's take a look. Before we do, though, I want to stress that everything here will assume that you have a working audio subsystem on your machine. There is far too much variation in audio hardware to even begin to talk about how to setup audio on your machine.
+
+Most distributions now use pulseaudio as the audio server. This provides a standard wrapper around the actual audio hardware. This way, software simply needs to talk to the pulseaudio server and won't need to worry about the messy details of how to talk to each sound card out there. The pulseaudio system also includes utilities that you can use on the command line.The most basic thing you will want to do is to play an audio file. To do this, you would use a command like
+
+   paplay --volume=32768 example.mp3
+
+This will play the audio file example.mp3 at 50% volume (volume is set between 0, or silent, and 65536, or 100%). The utility paplay can play any audio format supported by the library libsndfile. So, you should be able to play most audio files you come across. If you don't have any audio files of your own, you can use the included utility parec. This program grabs raw audio data from your audio card's input, and dumps it to standard output. You can pipe this off to a file to save it for later. In order to play this raw data back, you can use the included utility pacat. It takes raw audio data and dumps it out to the audio card's output speaker.
+
+What if you have a whole list of audio files you would like to listen to? There are several choices available to handle entire playlists of music for you from the command line. Two examples are cplay and moc. Both programs give you a file list on first starting up. From here, you can play individual files, or you can start constructing playlists to organize what audio files you are listening to. Both programs use shortcut keys to create, edit and otherwise manage your playlists. You can see the screenshots provided to get a feel for how they might look on your system.
+
+Another audio task you might want to handle from the command line is to have your computer talk to you. Of course, once it can talk, it won't be long before it talks back. But anyway, there are several utilities available to give your computer a voice. These include recite, festival and espeak. The simplest is recite. It takes text in from standard input and outputs audio to the speakers. There aren't many options available. To speak a text file, you would simply execute
+
+   recite <example.txt
+
+You can also simply execute recite, then start typing. Just remember that recite won't see the end of your typing until you hit ctl-D, to mark the end of input. It will then speak the entire text you just typed in. The program festival starts to provide more options. To get a basic output of text to audio, you would execute
+
+   festival --tts example.txt
+
+You have the option of also using other languages. The default is English, but you can also use Spanish, Russian or welsh by using the command line option "--language <string>". Beyond this, festival also uses Scheme as a scripting language, which opens it up to a huge amount of modification. You'll need to spend some time reading the manual at http://www.cstr.ac.uk/projects/festival/manual/.
+
+The last utility is espeak. Here you have several other command line options available. You can set the amplitude with "-a <integer>" (0 to 20, default is 10), the pitch with "-p <integer>" (0 to 99, default is 50) and speed with "-s <integer>" (in words per minute, default is 160). There are several voices available. You can find out which ones are installed on your system by using the command line option "--voices". Once you select one, use the command line option "-v <voicename>" to use it. You then dump it out to a wave file by using the command line option "-w <wave file name>". A full command line would look like
+
+   espeak -v en-scottish -w example.wav -f example.txt
+
+Then you can play it using 
+
+   paplay example.wav
+
+Now your computer will speak in a Scottish accent, sort of. Speech synthesis is still not perfect.
+
+Now that you have all of these audio files laying around, you may want to do some processing on them. One of the more useful tools to do this is sox. One utility included in the package is called soxi. It gives you file information about your audio files. In it's most basic form, you can use sox to change the file format of an audio file by simply running
+
+   sox example.wav example.au
+
+sox is smart enough to use the file extensions to figure out that you are intending to convert the file example.wav (in wav format) to example.au (in the Sun au format). You can also do processing on the audio through command line options. The number of bits per sample to use can be set through "-b <bits>". The number of channels to use can be set through "-c <channels>". So, setting it to mono would be "-c 1", or stereo would be "-c 2". You can set the sample rate, in Hertz, through "-r <rate>". There are also many options that apply filters to the audio files. Please go read the manual page to see just how much you can do with sox. One example command line you might use is
+
+   sox example.wav -b 8 -c 1 -r 8000 example.au
+
+This example command takes an input file called example.wav and converts it to 8 bits per sample, mono (or 1 channel), with a sample rate of 8000 Hz and writes it out to a file with an AU format. The sox package also contains two other utilities, play and rec. With these, you have another way of playing audio files and recording audio to a file. You also have the full spectrum of processing and filters available from sox.
+
+You may ask why I picked this particular example? This is so that I can show you one last interesting trick. On Linux systems, you can simply cat this output file (with this specific file format) directly to the device file /dev/audio. This dumps the output directly to the sound card. So, if you want to be sneaky, you can convert some files to the AU file format with the sox command above, copy them over to your target machine, and simply cat them to /dev/audio when you want to make a nuisance of yourself. Hopefully you now have some ideas on how to enjoy your music, and how to play with audio files, without the overhead of the GUI applications available.

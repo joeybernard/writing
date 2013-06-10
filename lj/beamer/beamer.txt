@@ -1,0 +1,133 @@
+Beaming Your Presentation Up
+
+
+LaTeX, as a document preparation system, has been used for decades by the academic and technical communities. You would usually use it for writing books or articles, but in reality, it can be used to typeset pretty much any text into pretty much any layout. This includes laying out your slides for a presentation. This month we'll look at how we can use LaTeX to produce our slides and other handouts for a presentation. You won't need to know any LaTeX, but it will help if you already know some LaTeX while you're reading this article.
+
+To make creating slides much easier, there are packages for LaTeX which take care of the layout of text and images so that they fit onto a slide in a smart way. While there are several packages available to do this slide generation, this article will be covering beamer. Another popular package is prosper. You can either download the source package from the beamer home page, or install it using your distro's package manager. For example, in Ubuntu you would type
+   apt-get install latex-beamer
+This will also install all of the extra packages you will need to actually take your LaTeX file and generate the slides from it.
+
+LaTeX is a document markup language, somewhat like HTML. You need to use markup tags to tell the LaTeX how to layout your document. LaTeX is a bit different in that you don't tell LaTeX how to layout your document explicitly. You tell LaTeX what kind of information the different parts of your document are. So if you have a book chapter, you use the chapter markup. If you have a URL, you use the URL markup. LaTeX uses this markup to decide how best to layout that piece of text.
+
+LaTeX documents start with a statement for the document class being used in your document. To use the beamer package, you would start off your document with
+   \documentclass{beamer}
+The next thing you will probably want to do is give some information about your presentation. You can set the title, author and date with the statements
+   \title{This is my presentation}
+   \author{Joey Bernard}
+   \date{January 2010}
+These lines are called the header of your document. This is the place you put any staements that affect your entire document. You can consider these statements almost as functions, where the text you want displayed is passed in as an argument. Many of the markup tags operate in this fashion. Other tags delineate sections of text and describe what that text means.
+
+The first tag which delineates a region of text is the tag
+   \begin{document}
+All logical regions of text are started with '\begin{}' statements. If you wanted to start a chapter, you would use '\begin{chapter}'. In this case, the logical region we are starting is the entire document. All regions also need to be closed. This is done with the tag
+   \end{document}
+All regions need to be properly closed. Otherwise, these regions will end up being nested in your document. If we simply try to process what we have so far, we will end up with a blank document. That's because we haven't actually entered anything yet.
+
+The first thing we should enter is the title page. While you could manually create a slide for the title, you don't really have to. In the header section of your document, you already entered the title and author information. Whenever possible, you should try and reuse information rather than entering it in two different places. Using this principle, you can generate your title slide by using the statement
+   \maketitle
+This statement needs to be placed after the '\begin{document}' statement and before the '\end{document}' statement. If we put this all together, we get our first presentation [title.png]. Mind you, it only exists as a single title slide, but at least it's a start. But wait, you may be asking. All we have is some text in a file, not a presentation. In order to get your presentation, you need to process this text through the LaTeX system. The first step is to put all of these statements into a text file. The usual file name ending for LaTeX source files is '.tex'. In this case you could put these statements into a file called 'title.tex'. Once this file is created, you can process it with LaTeX by typing
+   latex title.tex
+When you do this, you will see a huge amount of output describing everything that LaTeX is doing with your source code. You will also end up with a large number of files that have been written out by LaTeX. The ones of most interest are title.log and title.dvi. The first file is a log file containing output of everything LaTeX did while processing you source file. If you run into problems, this is the first place to look. The second file is your actual output. This is your presentation. But, what is with the '.dvi' file name ending? If you've never seen this before, this is the file name ending for device independent files. The intention here is that this file describes the visual layout of your presentation with out any reference to what device it will be viewed on, whether that is a screen, or a printer, or some other device. In most cases, you will actually want this output to be a file format that can be shown on the screen. The easiest file format to use is PDF. To generate a PDF file from your DVI file, you can use the utility dvipdf
+   dvipdf title.dvi
+This utility should already be included with your LaTeX installation. There is also a utility called pdflatex which can go directly from your LaTeX source file to a PDF file. This utility also handles the importing of any images you include in your presentation, so this is the preferred way to create the finalized PDF file of your slides. You would simply type
+   pdflatex title.tex
+
+Now that we have our essentially empty presentation, we should start putting actual information in it. The first step is to create the first slide. Since slides are logical regions, you will need to use '\begin{}' and '\end{}' statements. In this case, a slide is labelled as a frame in beamer.
+   \begin{frame}
+   \end{frame}
+If you wish to have a title for your slide, you can set it by using the statement
+   \frametitle{This is my first slide}
+Subtitles can be entered using the statement '\framesubtitle{}'. You can now simply enter whatever text you like and it will be formatted to fit on your slide. Usually, information on a slide is organized as a series of bulletpoints. To do this, you need to set up a logical region called 'itemize'. Within this region, you can list individual items. So a basic slide could look like
+   \begin{frame}
+      \frametitle{My First Slide}
+      This is some heading text.
+      \begin{itemize}
+         \item This is the first point
+         \item This is the second point
+         \item This is the third point
+      \end{itemize}
+      This is some ending text.
+   \end{frame}
+The output should look something like [slide1.png]. These itemize regions can be nested, so if you had some point that had sub-points, it might look something like
+   \begin{itemize}
+      \item The first point.
+      \item The second point.
+      \begin{itemize}
+         \item Sub-point 1.
+         \item Sub-point 2.
+      \end{itemize}
+      \item The third point.
+   \end{itemize}
+
+Once you have some text actually in your presentation, you may want to change the way that text is displayed. The first thing you can do is emphasize some important text with '\emph{This is important}'. If this isn't enough emphasis for you, you can go even farther with '\alert{This is REALLY important}'. This second format also sets the color for your text to red. If you want to simply make some text bold, you can use '\textbf{This is bolded}'. Italics can be generated by using '\textit{Italics here}'. I'll leave you to go and check out the beamer guide to find even more information.
+
+What if you want to make sure your audience doesn't read ahead and wanted to get your bulletpoints to appear one after another? This is done with overlays. The easiest way to do an overlay is with a '\pause' statement. The pause statement causes your presentation to pause part way through your slide. As an example,
+   \begin{itemize}
+      \item We start on slide 1.
+      \pause
+      \item We show up on slide 2.
+      \pause
+      \item We are visible on slide 3.
+      \item And so are we.
+   \end{itemize}
+
+What if you have some cartoon strip that perfectly captures the point you want to make and you want to include it on a slide? This can be done by using the image import capabilities of beamer. When you use pdflatex to create your PDF file, the image formats that are supported are PDF, PNG and JPEG. To include an image file, you would use the statement
+   \includegraphics{image1.png}
+You also need to tell LaTeX to include the graphics package. You do this by adding the line
+   \usepackage{graphics}
+to the header section of your document. There are several options you can use to resize and move your image. They are enclosed within []. You can scale your image with the option 'scale=xx'. If you want to set the width and/or height of the image explicitly, you can use the options 'width=xx' or 'height=xx'. If you want to flip your image upsidedown and scale it down by 50%, you would type
+   \includegraphics[angle=180,scale=0.5]{image1.png}
+The slide ends up looking like [slide3.png].
+
+Another item that you will probably want to be able to include in your presentation is a table. This done by starting a table section with '\begin{tabular}', laying out the contents of the table cells and closing the table region with '\end{tabular}'. A basic table would look like
+   \begin{tabular}{ccc}
+      cell 1 & cell 2 & cell 3 \\
+      cell 4 & cell 5 & cell 6 \\
+   \end{tabular}
+On the first line, the part '{ccc}' defines three columns, each center justified (that's what the 'c' characters mean). The cell contents are separated with an '&' character. Each row is ended with the characters '\\'. In our example above, our table simply prints out the contents organized into a grid. This can sometimes be hard to read. To make it easier, you can insert an '\hline' statement to get a horizontal line separating each row. If you want to insert vertical bars, you can do this in the section where you define your columns. So, a table that has a box around it and has lines definig each cell, it would look like
+   \begin{tabular}{|c|c|c|}
+      \hline
+      cell 1 & cell 2 & cell 3 \\
+      \hline
+      cell 4 & cell 5 & cell 6 \\
+      \hline
+   \end{tabular}
+If you want to change the justification on each column, you can change the 'c' to 'l' for left justification or 'r' for right justification.
+
+Since a lot of people who will be reading this are likely software developers, you might want to know how to get nice pretty-printed code on your slides. To do this, you can use the package 'listings'. You would include the line '\usepackage{listings}' in the header section of you document. Once you do this, you can create sections to put your code samples in. An example would look like
+   \begin{lstlisting}{language=bash}
+# This is a bash comment
+echo "This is a bash echo statement"
+date
+   \end{lstlisting}
+The section is started and stopped with '\begin{lstlisting}' and \end{lstlisting}' statement. You can tell LaTeX what language your code sample is written in. In the example, we have a snippet of bash shell script. You can also use C, C++, Assembler, Fortran, HTML, PHP, Python, Awk, Java, make, even (shock) Basic. You can checkout the full list in the documentation at the listings page of the LaTeX wikibook. If you do this strictly as shown above, the formatting of this slide will likely fail. If it does, then you need to tell LaTeX that this slide is fragile and needs special care. You do this by adding the option '[fragile]' to the '\begin{frame}' statement. The problem you may run into is that you may end up with lines of code that run off the page. The listing section is treated like a traditional LaTeX verbatim section, so text is left alone. It is up to you to wrap your lines so that everything fits. If all you need is a little extra space, you could try the 'shrink' option. You can give it a starting percentage to tell LaTeX to shrink by at least that percentage. It will continue to shrink until the text fits. For example, a slide with a "Hello World" C program would look like
+   \begin{frame}[fragile,shrink=5]
+      \frametitle{Hello World Program}
+      \begin{lstlisting}{language=C}
+int main(int argc, char ** argv){
+   int i = 10;
+   printf("Hello World! The value of i is %d\n", i);
+}
+      \end{lstlisting}
+   \end{frame}
+The output, properly shrunk, looks like [slide4.png].
+
+The last thing we'll look at is changing the overall look of your presentation. Beamer has the ability to use themes. You can use the statement '\usetheme{}' to change the overall theme for your presentation. You change the colors used by using the statement '\usecolortheme{}'. Both of these statements are placed in the header section of your document. So, for example, you could take the slides we've already created and change the theme to "Bergen" and the color theme to "albatross". You would do this by adding the lines
+   \usetheme{Bergen}
+   \usecolortheme{albatross}
+to the header section. The title slide would now look like [slide5.png]. There is a very well done matrix page showing what all of the different combinations of theme and color theme look like. The URL is in the link section.
+
+There are lots of other options and capabilities available in beamer and LaTeX. There are also lots of extra packages available to provide features for specific content types, or specific formats, that you will definitely want to check out. Feel free to use the boiler plate sample provided at the Linux Journal site to get started. Now that you have a starting point, get yourself beamed up with the rest of us.
+
+
+
+
+
+Links
+
+Beamer Home Page - http://bitbucket.org/rivanvx/beamer/wiki/Home
+Beamer WikiBook - http://en.wikibooks.org/wiki/LaTeX/Presentations
+Prosper Home Page - http://sourceforge.net/projects/prosper/
+LaTeX WikiBook - http://en.wikibooks.org/wiki/LaTeX
+Listings Documentation - http://en.wikibooks.org/wiki/LaTeX/Packages/Listings
+Beamer Theme Matrix - http://www.hartwork.org/beamer-theme-matrix/

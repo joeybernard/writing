@@ -1,0 +1,5 @@
+What do I have installed?
+
+There are many reasons to want to know about the hardware you may or may not have installed in your system. Sometimes, you may be buying used systems. Or you may be buying an entire system, rather than putting one together yourself. In these cases you may not know all of the details for your system. If you don't know what you have, how can you know whether you have your system as tricked out as it could be? Well, let's look at how we can discover some information about your system.
+
+One of the first tools to look at is lshw (list hardware).

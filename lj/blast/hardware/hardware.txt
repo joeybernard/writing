@@ -1,0 +1,100 @@
+What Hardware Do I Have?
+
+There are many cases where you may not necessarily know what kind of hardware you have. You may have bought a no-name box from a smaller company. Or you may have bought a used machine. In any case you may not know what you have for hardware. This month we'll look at tools you can use to find out what you have installed.
+
+The first tool to look at is lshw. This utility LiSts HardWare (lshw). If you run it as a regular user it will actually warn you to run it as root. So go ahead and run "sudo lshw". You should now see screens of information for your system. The first section will be general information, and should look something like
+
+   jbernard-eeepc            
+       description: Notebook
+       product: 700
+       vendor: ASUSTeK Computer INC.
+       version: 0129
+       serial: EeePC-1234567890
+       width: 32 bits
+       capabilities: smbios-2.5 dmi-2.5 smp-1.4 smp
+       configuration: boot=normal chassis=notebook cpus=1 uuid=XXXXXX-XXXXX-XXXXX-XXXXX
+
+This is what I get when I run it on my little Asus EeePC. So right away we can find out the manufacturer of this little beast (ASUSTeK), the BIOS version (0129), and the fact that it is a 32-bit machine with one CPU. There is more information broken down into the following categories
+
+   core
+      firmware - motherboard and BIOS information
+      cpu - CPU information
+         cache - cache information
+      memory - memory information
+         bank - specific bank memory information
+      pci - PCI bus information
+         display - PCI diplay adapter
+         multimedia - PCI audio adapter
+         pci - other PCI devices
+         network - PCI network adapter
+      usb - USB devices
+      ide - IDE information
+         disk - individual disks
+            volume - volumes on this disk
+
+If we look at the section describing main memory, we get on my EeePC
+
+     *-memory
+          description: System Memory
+          physical id: 1f
+          slot: System board or motherboard
+          size: 512MiB
+        *-bank
+             description: DIMM DDR2 Synchronous 400 MHz (2.5 ns)
+             product: PartNum0
+             vendor: Manufacturer0
+             physical id: 0
+             serial: SerNum0
+             slot: DIMM0
+             size: 512MiB
+             width: 64 bits
+             clock: 400MHz (2.5ns)
+
+we can get an idea of how much information is available.
+
+This utility is kind of an all in one tool that spits out everything on your system in one go. But what if you want information only about specific subsystems in your machine. There is an entire suite of utilities you can use for this. These might be more useful when you want some specific piece of information, or you want to do some system querying in a script.
+
+The first thing you may want to look at is the CPU. The utility lscpu will give you output similar to
+
+   Architecture:          i686
+   CPU op-mode(s):        32-bit
+   CPU(s):                1
+   Thread(s) per core:    1
+   Core(s) per socket:    1
+   CPU socket(s):         1
+   Vendor ID:             GenuineIntel
+   CPU family:            6
+   Model:                 13
+   Stepping:              8
+   CPU MHz:               571.427
+
+From this, you can find out the manufacturer, whether it is 32-bit or 64-bit, the exact version and model, as well as the current CPU frequency.
+
+If you want to find out whether your video card is supported by X11, or whether you'll need to go and find a third-party driver, you can use lspci. This utility will give you a list of all of the devices plugged into you PCI bus. The output will look something like
+
+   00:02.0 VGA compatible controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 04)
+   00:02.1 Display controller: Intel Corporation Mobile 915GM/GMS/910GML Express Graphics Controller (rev 04)
+
+With this information we can see that the video controller in my EeePC is an Intel controller. So, if you wanted to, you could now hit Google with this information to learn about your video card and how best to configure it. If you want to see what USB devices are on your system, you can use lsusb. On my EeePC I have an SD card installed, and it shows up as
+
+   Bus 001 Device 002: ID 0951:1606 Kingston Technology 
+
+The last piece of hardware we'll look at is the disk subsystem. You can find out what you have on your system with the utility blkid. This utility will print out all of the filesystems available to you, with an output format of
+
+   /dev/sda1: UUID="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" TYPE="ext2" 
+   /dev/sda2: UUID="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" TYPE="swap" 
+   /dev/sda3: UUID="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" TYPE="ext2" 
+   /dev/sdb1: UUID="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" TYPE="ext2" 
+
+With this utility, you can find out what devices are available and what filesystems are being used on them. The associated UUID's are also available, in case you want to use them in the entries in /etc/fstab.
+
+Now that we know what kind of hardware we have on our system, the last thig to check is to see if our kernel is actually using this available hardware. On most modern distributions, the kernel is compiled to use modules. You can check to see which modules are loaded by using the command lsmod. We get a list that looks like
+
+   agpgart                31788  2 drm,intel_agp
+   lp                      7028  0 
+   video                  17375  1 i915
+   output                  1871  1 video
+
+We can see that the agpgart modules has a size of 31788 bytes, and is used by the drm and intel_agp modules.
+
+Now that you know what you have installed for hardware, you can hopefully get it all configured and optimized so that you get the most out of it. If you find other utilites that aren't covered here, I would love to hear about them.

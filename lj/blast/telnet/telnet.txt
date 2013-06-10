@@ -1,0 +1,94 @@
+Is telnet really the root of all evil?
+
+For quite some time now, security experts around the world have been saying that telnet is one of the worst protocols out there, and it should be eradicated from the Earth. According to these so called experts, no one should use anything but ssh. Well, I'm here to say that they are completely wrong. Telnet is one of the greatest gifts to mankind.
+
+Well, the above paragraph should ensure some rabid emails. For those of you who have continued to read, I am actually serious about telnet. Note, I am not talking about telnetd. The telnet protocol is made up of two parts, the server portion, telnetd, and the client portion, telnet. Now, I won't pretend to disagree with the general attitudes towards the server portion, telnetd, and its inherent insecurities. But I also think that we shouldn't throw out the baby with the bathwater. What do I mean?
+
+Well, the client portion, telnet, is actually a very useful tool in its own right. How can this be? Well, let's look at a case study. Say you are trying to get your mail client configured, and you are running into problems. What options do you have? The first thing to do is to check to see if the mail POP server is up. What would you do? Why ping it, of course. Oh, but the IT staff have drunk the ICMP kool-aid and decided to block all ICMP traffic. So now ping won't work. Are you stuck? Of course not, for here comes telnet to the rescue.
+
+How can we use telnet in this situation? Well, telnet isn't limited to just operating on the standard port. When you run telnet, you can specify both a server and a port number. So, we can use it to try and connect to our mail POP server and check to see if it up by using
+
+     telnet popserver.com 110
+
+In this example, we are trying to connect to the POP server in order to read our mail. Since telnet operates over TCP, the blocking of ICMP packets no longer troubles us. Running the above, we should see a response like
+
+     Trying X.X.X.X...
+     Connected to popserver.com.
+     Escape character is '^]'.
+     +OK InterMail POP3 server ready.
+
+assuming that the mail server is up and running. Well now we know that the mail server is up, so there must be another issue. This where telnet becomes really useful. POP is a text based protocol, like many other Internet protocols. Since it is simply text going back and forth, we can use the telnet client to actually talk to the mail server.
+
+For the POP protocol, you can simply login using your username and password by using the commands
+
+     USER username
+     PASS password
+     -ERR invalid user name or password
+
+By using these, we can check that we got our credentials right. As you can see above, we got the password wrong. Trying again with the correct password gets us into the mail POP server. We can check whether we have mail by using the command
+
+     LIST
+     +OK 0 messages
+
+You can even use telnet to send email. If you have access to a mail server, then you can connect to port 25 and send email using
+
+     telnet mailserver.com 25
+     Trying X.X.X.X...
+     Connected to mailserver.com
+     Escape character is '^]'.
+     220 mailserver.com ESMTP Postfix
+     MAIL FROM:<user1@host1.com>
+     250 2.1.0 Ok
+     RCPT TO:<user2@host2.com>
+     250 2.1.5 Ok
+     DATA
+     354 End data with <CR><LF>.<CR><LF>
+     From: user1@host1.com
+     To: user2@host2.com
+     Subject: Test
+
+     Hello.  This is a test of sending mail by telnet.
+
+     Joey
+     .
+     250 2.0.0 Ok: queued as 1DE8B2830E38
+     QUIT
+     221 2.0.0 Bye
+     Connection closed by foreign host.
+
+
+But POP AND SMTP are not the only text based protocols on the Internet. You can use telnet to check web sites, too. Most web servers operate on port 80. If we want to check connection issues with a website, we can use
+
+     telnet google.com 80
+      
+and we will get a result like
+
+     Trying 74.125.45.100...
+     Connected to google.com.
+     Escape character is '^]'.
+
+The HTTP protocol is also text based, so if we want a particular page, we can use the following command
+
+     GET index.html
+     HTTP/0.9 200 OK
+     Cache-Control: private, max-age=0
+     Date: Mon, 06 Jul 2009 18:29:40 GMT
+     Expires: -1
+     Content-Type: text/html; charset=ISO-8859-1
+     Server: gws
+
+     <!doctype html><html><head>.........
+
+and we get the page back from the web server. There you go, telnet, the smallest and simplest mail client and web browser, all wrapped into one. Of course, you need to have several Internet protocols memorized, but you really shouldn't be so lazy as to shy away from a little work.
+
+Using this ability, we can do some basic system probing. Using another popular tool, nmap, we can get a list of open ports on a host machine. Starting with that, we can try connecting to each of the ports and seeing what kind of output we receive. I had to do this recently with a remote site where I was having difficulty connecting to the host through SSH. Using telnet, I was able to see the initial response from the SSH server as
+
+     telnet host.com 22
+     Trying X.X.X.X...
+     Connected to host.com.
+     Escape character is '^]'.
+     SSH-1.99-OpenSSH_3.9p1
+
+This told me that there was an issue with the particular version being run on the server, and I was able to come to the system administrator with an intelligent argument for having him upgrade the SSH server program.
+
+I hope that I've shown that there is still a good reason to keep telnet around, at least the client portion. While the server portion has been shown to be a security risk in the past, the client portion can still serve as a useful tool in network diagnostics. Remember, sometimes old tools are still the best, at least for some jobs. Have fun exploring your networks.

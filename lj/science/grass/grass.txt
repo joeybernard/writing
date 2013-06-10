@@ -1,0 +1,41 @@
+GIS With Grass
+
+The major player in the Windows world for GIS programs is the suite os ESRI products. In Linux, we have the package named GRASS. [grass-web1.png] GRASS was originally developed by the U.S. Army Construction Engineering Research Laboratories, starting in 1982. It is used by many large groups, including NASA, NOAA and the National Park Service. In September 2006, management of GRASS was taken over by the GRASS Project Steering Commitee and it is now an official project of the Open Source Geospatial Foundation. For many people, GRASS may be too much if you just want to do basic GIS tasks. In that case, you may be better served by a program like QGIS. But if you have to do some serious GIS analysis, then GRASS is definitely worth the learning curve. Most distributions should have a set of packages to simplify installation. If you do want the latest source, or need a version of GRASS for Windows or Mac OSX, you can always go to the main website. [grass-web2.png]
+
+When you first start grass up, it will ask you to set a data directory. [grass1.png] The suggestion is "~/grass-dir". Once you select this data directory, you need to set some project information. You can click on the "Location Wizard" to help set the location information for your project. Once you set the name and data directory, you need to select the method for creating a new location. Just to get started, you can simply accept the defaults. To learn how to work with GRASS, you will want to have some data to play with. There are sample datasets available to download from the main GRASS site. [grass-web3.png] Pick one or more of them, download the files, and uncompress them into the data directory you set above. These sample datasets will then show up in the "Welcome to GRASS" window when you first start GRASS up. At this point, select one of these datasets. You will also have to select a mapset, most usually PERMANENT.
+
+Once GRASS starts up, two windows will appear. The first window is a map display, where all of the layers you select will be rendered. The second window is where you select the map layers that you want to apply to the map display window. [grass2.png] To create your first map, click on the "Add raster map layer" button (the one with a checkerboard and a plus sign). Equivalently, you can type "Ctrl-Shift-R". This will pop up a dialog window where you can select which layer you want to add from the mapset you loaded on startup. In this example, I have loaded the PERMANENT mapset from the spearfish location, and set the 10m elevation as the first layer of my map. [grass3.png] [grass4.png] One of the first things you will want to do is to change the colors used within the map. To do this, right-click on the layer in question, and select "Set color table" from the dropdown menu. You can then change the color table that GRASS will select from in order to render the layer on your map. To change your layer to grayscale, select the "Type of color table:" and select "grey". [grass5.png] When you click on the run button, you will be switched to the "Command Output" tab where the results from this command are displayed. [grass6.png] If you want to get an idea of the spread of the possible values, you can get a histogram by right-clicking the layer and selecting "Histogram". [grass13.png] If you need more exact numbers, you can actually calculate univariate statistics on the data in the layer. This is done by right-clicking on the layer and selecting "Univariate raster statistics". [grass14.png] 
+
+Adding a second layer allows you to start building up the information being displayed on your map. You need to be careful of which order the layers are in the layer list. They get rendered from the bottom up. This means that layers further up the stack may obscure what is being displayed lower down. You may need to change the opacity of the upper layers to allow information from the lower layers to show through. Right-click on the layer in question and select "Change opacity level". You can then set it to an appropriate level so that everything you want to see actually gets rendered. [grass7.png] The other type layer that you can add to your map is a vector layer. [grass8.png] In this case, the data is stored as a set of geometrical objects, where each object has some attribute data assigned. With vector layers, the only portions that get rendered are the actual objects. For example, if you add a road layer, you don't need to worry about opacity since the roads are small enough to not obstruct anything on the layers below. You can right-click on that layer and edit the attribute data. You can then select which values for each attribute to display. This can be a more complex selection, for example selecting those values between an upper and lower bound. Or only those values that match some other criterion. You can change display properties for the objects by right-clicking and selecting "Properties". For the road layer, you can set properties like line width, line color and what symbols to use for point elements. [grass9.png]
+
+You can add extra elements that you normally see on maps by selecting the "Add map elements" button on the main map display. This will open up a drop down box where you can select extra elements to add. These include scalebars, North arrows, legends and text areas. [grass12.png] You can click and drag these elements and place them where they need to be on your map. Once you have everything laid out the way you want, you will want to save off a final copy so that you don't lose all of your work. To do so, you will want to click on the "Save display to graphic file" button on the main map display. The first step is to pick the output size for the map. [grass10.png] Then you can select the filename and the file format. [grass11.png]
+
+Hopefully this short article introduces you to enough of GRASS to induce you to read on. If it's good enough for the U.S. Army, it's good enough for me. It should be powerful enough to handle any GIS task that you have. [grass15.png]
+
+
+
+URLs
+Main Grass website - http://grass.osgeo.org
+Sample dataset files - http://grass.osgeo.org/download/sample-data/
+
+
+
+Images
+grass-web1.png - The main web site for the GRASS project.
+grass-web2.png - The download page provides binaries for Linux, Windows and Mac OSX.
+grass-web3.png - There are several sample data sets that you can use while you are learning to use GRASS.
+grass1.png - When you start up GRASS initially, you need to select a location and a mapset.
+grass2.png - On start up, you will have a map display window and a layers window.
+grass3.png - Here you select which layers to load.
+grass4.png - Here you can see the elevation of the land in the spearfish location.
+grass5.png - Changing the color map is relatively simple.
+grass6.png - You can see the results of running the color change immediately.
+grass7.png - You may need to change the opacity of layers once you start stacking them.
+grass8.png - You can also load vector layers.
+grass9.png - You can highlight elements in a vector layer.
+grass10.png - When saving a map, you need to select the output size.
+grass11.png - You can select the filename and file format to save off your map.
+grass12.png - You can add extra elements to your map, like a scale bar.
+grass13.png - You can get an idea of the spread of values in a raster map by generating a histogram.
+grass14.png - More detailed analysis is available by looking at univariate statistics.
+grass15.png - Don't forget to quit when you are done.

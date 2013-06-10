@@ -1,0 +1,167 @@
+Maximum Calculus with Maxima
+
+This month, we'll look at theoretical science again. We looked at maxima before in order to do algebra and rearrange some equations. But this isn't the only trick up maxima's sleeve. This month we'll look at how maxima can help us out with differential equations. In this article, I'll be leaving out some of the intermediate results to save some space.
+
+A lot of science involves figuring out how system change over time, and what causes those changes. When you start looking at changes, and especially rates of change, that is essentially calculus. Calculus, and rates of change, are also linked to slopes of lines on graphs. When you plot your data and find an equation which describes it, you can find the slope of the line by taking the derivative of the equation. We will look at a falling object and see what theory has to say about it.
+
+We should start by looking at how you get a derivative. Let's say you have the equation
+   (%i1) f(x):= 2 + x^2;
+                                             2
+   (%o1)                        f(x) := 2 + x
+You would find the first derivative by calling the function diff, giving it the equation to differentiate along with the variable to differentiate by. So you would write
+   (%i2) answer:diff(f(x),x);
+   (%o2)                          2x
+Maxima can do differentiation of expressions, too. If we have a couple of equations, we can derive the ratio of them with
+   (%i3) g(x):= x^(1/2);
+   (%i4) ratio_diff:diff(g(x)/f(x),x);
+                                           3/2
+                        1               2 x
+   (%o4)        ----------------- - -----------
+                            2          2    2
+                2 sqrt(x) (x + 1)    (x + 1)
+This might be a bit messy to work with, so you might want to refactor it to a more concise form
+   (%i5) factor(ratio_diff);
+                                   2
+                                3 x - 1
+   (%o5)               - ------------------
+                                     2    2
+                         2 sqrt(x) (x + 1)
+
+Maxima can also handle trigonometric functions, but there are lots of identities that you can use to help simplify equations with trig functions in them. By default, maxima does not try and apply these unless you specifically say so, using special functions. As an example, let say you have the following equation
+   (%i6) diff(sin(x)/(1 + cos(x)),x);
+                                   2
+                                sin (x)       cos(x)
+   (%o6)                   ------------- + ----------
+                                       2   cos(x) + 1
+                           (cos(x) + 1)
+   (%i7) factor(%);
+                               2         2
+                            sin (x) + cos (x) + cos(x)
+   (%o7)                    --------------------------
+                                             2
+                                 (cos(x) + 1)
+This still isn't very simple. If we then apply the function "trigsimp", we can force maxima to apply trigonometric simplification rules to the equation and see what we get
+   (%i8) trigsimp(%);
+                                1
+   (%o8)                   ----------
+                           cos(x) + 1
+There are some important caveats to know about how maxima treats trig functions.The first is that sin(x)^(-1) is the reciprocal of sine, not arcsine. To get the arcsine, you would use asin(x). The other is another trig simplification function, trigreduce. This function is used to reduce the powers of trig functions by using the multiple angle formulas. For example
+   (%i9) trigsimp(cos(x)^2 + 2*sin(x)^2);
+                             2
+   (%o9)                  sin (x) + 1
+   (%i10) trigreduce(cos(x)^2 + 2*sin(x)^2);
+                      cos(2 x) + 1      1   cos(2 x)
+   (%o10)             ------------ + 2 (- - --------)
+                            2           2       2
+This may not look simpler than what you would get from trigsimp, but it is an easier form of the equation to use with other functions, like integration.
+
+Maxima can apply the chain rule when doing a derivative. Say you have the equation
+   (%i11) f(x):= x^3);
+                                   3
+   (%o11)                 f(x) := x
+   (%i12) depends(x,u)$
+   (%i13) diff(f(x),u);
+                            2 dx
+   (%o13)                3 x  --
+                              du
+The line at %i12 uses a new function, depends. This is a way of telling maxima that x is a function of u, without explicitly defining a function describing this relationship. If you decide later that you want define and actual equation for this relation, you can use
+   (%i14) remove([x,u],dependency);
+   (%o14)                     done
+   (%i15) x:sin(u);
+   (%o15)                   sin(u)
+   (%i16) diff(f(x),u);
+                                  2
+   (%o16)             3 cos(u) sin (u)
+
+Along the same lines, maxima can handle implicit differentiation. Say you have the equation x^2 + y^2 = 25, and you want to find dy/dx. You will need to use the depends function we just learned about to handle this
+   (%i17) eqn := x^2 + y^2 = 25;
+                       2   2
+   (%o17)             y + x = 25
+   (%i18) depends(y,x);
+   (%o18)              [y(x)]
+   (%i19) deriv_of_eqn:diff(eqn,x);
+                           dy
+   (%o19)              2 y -- + 2 x = 0
+                           dx
+   (%i20) solve(deriv_of_eqn,'diff(y,x));
+                          dy     x
+   (%o20)                [-- = - -]
+                          dx     y
+
+The other side of calculus is integration. The basic function to do this in maxima is called "integrate". This function can do both definite and indefinite integrals. Indefinite integrals are the symbolic form of integration that you likely learned in school. For example
+   (%i21) integrate(x^2,x);
+                              3
+                             x
+   (%o21)                    -
+                             3
+A definite integral is actually evaluated over an interval. This form of an integral can be visualized as the area under the curve defined by the equation you are integrating. To do definite integrals, you simply add two arguments giving the start and end points of the interval.
+   (%i22) integrate(x^2,x,0,1);
+                             1
+   (%o22)                    -
+                             3
+
+Putting all of these techniques together, you can now solve a differential equation for a given variable, i.e. solve dy/dx = f(x) for y. You can do this by doing all of the required algebra and calculus, but you don't really have to. Maxima has the very powerful function, ode2, which can do this in one step. You need to start with your equation
+   (%i23) eq: 'diff(y,x) = sqrt(1/x^2 - 1/x^3);
+                         dy        1    1
+   (%o23)                -- = sqrt(-- - --)
+                         dx         2    3
+                                   x    x
+   (%i24) ode2(eq,y,x);
+                                                        2
+                             2                  2 sqrt(x - x)
+   (%o24)    y = log(2 sqrt(x - x) + 2 x - 1) - ------------- + %c
+                                                      x
+This one function call does the integration and the solve steps and gives you a final answer to the differential equation.
+
+Let say you were doing an experiment dropping a coin and timing how long it takes to fall. How do you know whether the times you were measuring actually make sense? Well, we'll start with the most basic law
+   force = mass * acceleration
+The mass of the coin is a constant, so we'll ignore that for now. The force is the force due to gravity, pulling the coin down toward the ground, and the acceleration describes the coin's motion due to this force. The force due to gravity is a constant, at least down here on the Earth, and depends linearly on the mass, so we can define the force as
+   (%i1) force: mass * g;
+   (%o1)                g mass
+The acceleration is also a constant, since both the mass and the force are constants. Acceleration is simply the rate of change of the velocity, and the velocity is the rate of change of the position, so we can set that up as
+   (%i2) depends(y,t);
+   (%o2)                [y(t)]
+   (%i3) acceleration: 'diff('diff(y,t),t);
+                          2
+                         d y
+   (%o3)                 ---
+                           2
+                         dt
+Putting it all together, we get
+   (%i4) eq_of_motion: force = mass * acceleration;
+                                           2
+                                          d y
+   (%o4)                    g mass = mass ---
+                                            2
+                                          dt
+   (%i5) solve(eq_of_motion, y);
+                               2
+                              d y
+   (%o5)                     [--- = g]
+                                2
+                              dt
+We can see right away that how fast an object falls doesn't depend on the mass at all. Galileo was right! The next step is to do some integrating and see what we end up with
+   (%i6) integrate(%,t);
+                    dy
+   (%o6)           [-- = g t + %c1]
+                    dt
+At this step, we would be able to find out the velocity (dy/dt) at time t. The additional term %c1 is a constant of integration. In this case, we can see that it represents the initial velocity of our penny. One more round of integration gives
+   (%i7) integrate(%,t);
+                      /            2
+                      [ dy      g t
+   (%o7)            [I  -- dt = ---- + %c1 t + %c2]
+                      ] dt       2
+                      /
+Now, we can find the position, y, of our coin at any time, t. Again, a new constant of integration is introduced, %c2. In this case, we can see that this represents the starting height of our coin. But this isn't what we were measuring. We were measuring how long it took our coin to drop a given distance. We need to do a bit of rearranging. Since we are dropping our coin, we know that the start velocity is 0 (i.e., %c1=0). We can rewrite things a little bit to make it a bit clearer
+   (%i8) eqn: y = (g * t^2)/2 + y0;
+                                    2
+                                 g t
+   (%o8)                y = y0 + ----
+                                  2
+   (%i9) solve(eqn,t);
+                                y   y0                    y   y0
+   (%o9)    [t = - sqrt(2) sqrt(- - --), t = sqrt(2) sqrt(- - --)]
+                                g   g                     g   g
+There you go. You now have an equation for the time, given a height that your coin is dropping. With this theoretical relation under you belt, you can check to see whether gravity is working correctly in your local lab. If not, you should contact the Nobel committee straight away.
+
+This is only a very basic scratching of the surface when it comes to all of the capabilities maxima has in dealing with calculus and differential equations. But hopefully, this short article will give you a jumping off point to start from. Happy integrating.

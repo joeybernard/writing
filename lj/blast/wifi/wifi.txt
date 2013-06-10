@@ -1,0 +1,48 @@
+WiFi on the Command Line
+
+More people than ever are using wireless networks as their primary networking medium. There are great programs available under X11 that give users a graphical interface to their wireless cards. Both Gnome and KDE include network management utilities, and their is a desktop environment agnostic utility called wicd which also offers great functionality. But what do you do if you aren't running X11 and you want to manage your wireless card? I won't be covering how to get your card installed and activated. For that, you should look at projects like madwifi or ndiswrapper, in order to properly configure your system and card. In the rest of this piece, I'll assume that you have your card properly installed and configured, and that it is called wlan0. Also, most of the utilities mentioned below have to talk directly to your wireless card, or at least the card driver, and so will need to be run with root privileges. Just remember to use sudo.
+
+The first step is to see what wireless networks are available in your area. There is a utility called iwlist which provides this information. This utility can give you all sorts of information about your wireless environment. The first thing to do is to scan your environment for available networks. You would run
+   sudo iwlist wlan0 scan
+and get output resembling
+   Cell 01 - Address: 00:11:22:33:44:55
+             ESSID:"network-essid"
+             Mode:Master
+             Channel:11
+             Frequency:2.462 GHz (Channel 11)
+             Quality=100/100  Signal level:-47dBm  Noise level=-100dBm
+             Encryption key:off
+             .
+             .
+             .
+The details (address and essid) have been changed to protect the guilty. Also, the ... is extra output that may or may not be available, depending on your hardware. You will get a separate cell entry for each access point within range of your wireless card. For each access point, you can find out the hardware address, the essid and the channel it is operating on. Also, you can find out what mode the access point is operating in (whether master or ad-hoc). In most cases, you will be most interested in the essid, and what encryption is being used.
+
+Once you have information about what is available in your immediate environment, you need to configure your wireless card to use one of these access points. You can use the utility iwconfig to set these parameters for your wireless card. The first thing you will want to set is the essid, which identifies the network access point you are interested in. You would run
+   sudo iwconfig wlan0 essid network-essid
+Depending on your card and its driver, you may have the option to set the essid to the special value "any". In this case, your card will pick the first available access point. This is called "promiscuous mode".
+
+You may also need to set the mode to be used by your wireless card. This will depend on your network topology. You may have a central access point that all of the other devices connect to. Or you may have an ad-hoc wireless network, where all of the devices communicate as peers. You may wish to have your computer act as an access point. If so, you can set the mode to master using iwconfig. Or, you may want to simply sniff what is happening in the air around you. You can do this by setting the mode to monitor and passively monitor all packets on the frequency your card is set to. You can set the frequency, or channel, by running
+   sudo iwconfig wlan0 freq 2.422G
+or
+   sudo iwconfig wlan0 channel 3
+
+You can also set other parameters, but you should only consider doing so if you have a really good reason. One option of interest is the sensitivity threshold. This defines how sensitive the card is to noise and signal strength. You can set the behavior of the retry mechanism for the wireless card. You may need to play with this in very noisy environments. You can set the maximum number of retries with
+   sudo iwconfig wlan0 retry 16
+or set the maximum lifetime to keep retrying to 300 milliseconds with
+   sudo iwconfig wlan0 retry lifetime 300m
+In a very noisy environment you may also need to play with packet fragmentation. If entire packets can't make it from point to point without corruption, your wireless card may have to break packets down into smaller chunks to try and avoid this. You can tell the card what to use as a maximum fragment size with
+   sudo iwconfig wlan0 frag 512
+This value can be anything less than the size of a packet. The last thing you may need to run is
+   sudo iwconfig wlan0 commit
+Some cards may not apply these settings changes immediately. In these cases, you'll need to run this command to flush all pending changes to the card and get them applied.
+
+Two other commands that may prove useful are iwspy and iwpriv. If your card supports it, you can collect wireless statistics by using
+   sudo iwspy wlan0
+The second command gives you access to optional parameters for your particular card. iwconfig is used for the generic options available. If you run it without any parameters
+   sudo iwpriv wlan0
+it will list all available options for the card. If there are no extra options, then you will get an output looking like
+   wlan0      no private ioctls
+To set one of these private options, you would run
+   sudo iwpriv wlan0 private-command [private parameters]
+
+Now that you have your card configured and connected to the wireless network, you'll need to configure your networking options to actually use it. If you are using DHCP on the network, you can simply run dhclient to query the DHCP server and get your IP address and other network settings. If you wish to set these options manually, you can do so through the command ifconfig. I would suggest that you give the man page for ifconfig a read. Hopefully this article will help those on the command line to use their wireless cards and networks.

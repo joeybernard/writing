@@ -1,0 +1,68 @@
+Big Box Science
+
+A few months ago, I wrote a piece about how you can use MPI to run a parallel program over a number of machines that are networked together. But, more and more often, your plain old desktop has often has more than one CPU. How best can you take advantage of the amount of power that is at your fingertips? When you run a parallel program on one single machine, it is called shared-memory parallel programming. There are several options available when doing shared-memory programming; the most common are pthreads and openMP. This month, I'll go over openMP and how you can use it to get the most out of your box.
+
+openMP is a specification, which means that you end up actually using an implementation. It is implemented as an extension to a compiler. This means that in order to use it in your code, you simply need to add a compiler flag. There is no linking in of external libraries. openMP directives are added to your program as special comments. This means that if you try and compile your program with a compiler that doesn't understand openMP, it should compile fine. The openMP directives will appear just like any other comment, and you will end up with a single threaded program. Implementations for openMP are available under C/C++ and FORTRAN.
+
+The most basic concept in openMP is that only sections of your code are run in parallel and that, for the most part, these sections all run the same code. Outside of these sections, your program will run single threaded. The most basic parallel section is defined by
+   #pragma omp parallel
+in C/C++, or
+   !OMP PARALLEL
+in FORTRAN. This is called a parallel openMP pragma. Almost all of the other pragmas that you are likely to use are built off of this.
+
+The most common pragma that you will see is the parallel loop. In C/C++, this refers to a for loop. In FORTRAN, this is a do loop. For the rest of this piece, we'll stick to looking at just C/C++ as examples. There are equivalent FORTRAN statements that you can find in the specification documentation. A C/C++ loop can be parallelized with
+   #pragma omp parallel for
+   for (i=0; i<max; i++) {
+      do_something();
+      area += i;
+      do_something_else();
+   }
+The pragma tells the openMP subsystem that we want to create a parallel section defined by the for loop. What happens is that the defined number of threads get created and the work of the loop gets divided among these threads. So, for example, if you had a quad core CPU, and had to go through 100 iterations in this for loop, then each CPU core gets 25 i8terations of the loop to do. This means that this for loop should take approximately 1/4 of the time that it normally takes.
+
+Does this work with all for loops? No, not necessarily. In order for the openMP subsystem to be able to divide up the for loop, it needs to know how many iterations are involved. This means you can't use any commands that would change the number of iterations around the for loop. This would include thinks like "break" or "return" in C/C++. Both of these drop you out of the for loop before it finishes all of the iterations. You can use a "continue" statement, however. All this does is jump over the remaining code in this iteration and places you at the beginning of the next iteration. Since this preserves iteration count, it is safe to use.
+
+By default, all of the variables in you program have a global scope. This means that when you enter a parallel section, like the parallel for loop above, you end up having access to all of the variables that exist in you program. While this is very convenient, it is also very, very dangerous. If we look back up at my short example, the work is being done by the line
+   area += i;
+You can see that the variable area is being read from and written to. What happens now if you have several threads, all trying to do this at the same time? It is not very pretty. Think "car pile-up on the freeway". Imagine that the variable area starts with a value of zero. Then your program starts the parallel for loop with 5 threads and they all read in the initial value of zero. Then they each add their value of i and save it back to memory. This means that only one of these 5 will actually get saved and the rest will essentially be lost. So what can you do? In openMP, there is the concept of a critical section. A critical section is a section of your code which is protected so that only one thread can execute it at a time. So to fix this issue, you could place the area incrementing within a critical section. It would look like
+   #pragma omp parallel for
+   for (i=0; i<max; i++) {
+      do_something();
+   #pragma omp critical
+      area += i;
+      do_something_else();
+   }
+Remember that in C, a code block is defined by either a single line, or a series of lines wrapped in curly braces. So in the above example, the critical section applies to the one line "area += i;". If you wanted it to apply to several lines of code, it would look like
+   #pragma omp parallel for
+   for (i=0; i<max; i++) {
+      do_something();
+   #pragma omp critical
+      {
+      area += i;
+      do_something_else();
+      }
+   }
+
+This leads us to a more subtle way that multiple threads can abuse global variables. What if you have a nested for loop and that you want to parallelize the outside loop?
+   #pragma omp parallel for
+   for (i=0; i<max1; i++) {
+      for (j=0; j<max2; j++) {
+         do_something();
+      }
+   }
+In this case, every thread is going to have access to the global variable j. They will all be reading from and writing to it at completely random times, and you will end up with either more than max2 iterations happening, or less than max2. What you actually want to see happen is that each thread does everything within each iteration of the outside loop. What is the solution? Luckily, the openMP specification has the concept of a private variable. A private variable is one where each thread gets its own private copy to work with. To privatize a variable, you simply need to add to the parallel for pragma.
+   #pragma omp parallel for private(j)
+If you have more than one variable that needs to be privatized, you can add them to the same "private()" option, comma separated. By default, these new private copies will act just like regular variables in C code on Linux. This means that their initial values will be whatever junk are in those memory locations. If you wanted to make sure that each copy starts with the value of the original value that existed on entering the parallel section, you can add the option "firstprivate()". Again, you enter the variables that you want treated this way in a comma separated list. As an example that doesn't really do anything useful, this would look like
+   a = 10;
+   #pragma omp parallel for private(a,j) firstprivate(a)
+   for (i=0; i<max1; i++) {
+      for (j=0; j<max2; j++) {
+         a += i;
+         do_something(a*j);
+      }
+   }
+
+So, you have a program. Now what? The first step is to compile it. Since it is an extension to the compiler itself, you will need to add an option to your compilation command. For gcc, it would simply be "-fopenmp". You do need to be careful about the compiler version you are using and what they support. The openMP specification is up to version 3.0 right now, with support varying across the gcc versions. If you want to look at the support in detail, check the main gcc page at http://gcc.gnu.org. The latest versions are starting to include support for version 3.0 of openMP. Once you have it compiled, you need to run it. If you simply run it at the command line, without doing anything else, your program will check your machine and see how many CPU's you have (a dual core processor looks like 2 CPU's, in case you were wondering). It will then go ahead and use that number as the number of threads to use in any parallel sections. If you want to explicitly set the number of threads that should be used, you can set it using an environment variable. In bash, you would use
+   export OMP_NUM_THREADS=4
+to set 4 threads. You can set more threads than you have CPU's. Since they are actual threads of execution, Linux has no problem scheduling them on the available CPU's. The thing to remember is that if you have more threads than available CPU's, you will see a slow down in the execution speed of your code since it will be swapping with itself on the CPU's. Why would you do this? Well, when you are doing testing of a new piece of code, you may have bugs that don't present themselves until you reach a certain number of threads. So in cases of testing, it may make sense to run with a large number of threads and a small input data set. The ideal situation is to be the only process running on the machine and running one thread for each CPU. This way, you maximize usage and minimize swapping.
+
+All of this has been only the barest introduction. We haven't covered generic parallel sections, functional parallelism, loop scheduling, or any of the other more advanced topics. The specifications are at http://www.openmp.org, along with links to tons of tutorials and other examples. Hopefully, this introduction has given you some ideas to try and given you a small taste of what may be possible. I will leave you with one last hint. If you want to start to play with parallel programs without having to think about it, add the option "-ftree-parallelize-loops". This will try to analyze your code and see if it can parallelize any sections. This won't be able to catch all of the sections that can be parallelized, since it can't understand the context of your code and what it is trying to do. But, for the time it takes to add the option and recompile and test the timing, it would definitely be worth your while.

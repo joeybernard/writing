@@ -1,0 +1,52 @@
+Controlling Your Processes
+
+
+I believe that it was the bard who said
+
+   All the CPU's a stage,
+   And all the processes and threads merely players;
+
+or something like that. In any case, it is true. All of the processes that you want to run on your machine are like players, and you are the director. You control when they run and how they run. But, how can you do this? Well, let us look at the possibilities.
+
+The first step is to run the executable. Normally, when you run a program, all of the input and output is connected to the console. So you see the output from the program and can type in input at the keyboard. If you add an '&' to the end of the program, this connection to the console is severed. Your program will now run in the background and you can continue working on the command line. When you run an executable the shell actually creates a child process and runs your executable in that structure. But sometimes, you don't want to do that. Let's say you have decided that no shell out there is good enough and so you have decided to write your own. When you're doing testing, you want to run it as your shell, but you probably don't want to have it as your login shell until all of the bugs have been hammered out. You can run your new shell from the command line with the 'exec' function
+   exec myshell
+This tells the shell to actually replace itself with your new shell program. To your new shell, it will look like it is your login shell. Very cool. You can use this to also load menu programs in restricted systems. That way, if your users kill off the menu program they will get logged out, just like killing off your login shell. This might be useful in some cases.
+
+So, now that your program is running, what can we do with it? If you need to pause your program temporarily (you may need to look up some other information, or run some other program), you can do this by typing ctrl-z (Control and z at the same time). This pauses your program and places it in the background. You can do this over and over again, collecting a list of paused and backgrounded jobs. To find out what jobs are sitting in the background, you can use the shell function 'jobs'. This will print out a list of all background jobs, with output looking like
+
+   [1]+  Stopped             man bash
+
+If you wanted to also get the process IDs for these jobs, you can use the option '-l'
+
+   [1]+  26711  Stopped      man bash
+
+By default, jobs will give you both paused and running background processes. If you only want to see the paused jobs, use the option '-s'. If you only want to see the running background jobs, use the option '-r'. Once you finished your sidebar of work, how do you get back to your paused and backgrounded program? The shell has a function called 'fg' which lets you put a program back into the foreground. If you simply execute 'fg', the last process backgrounded is pulled back into the foreground. If you want to pick a particular job to foreground, you would use the '%' option. So if you wanted to foreground job number 1, you would execute 'fg %1'. What if you wanted your backgrounded jobs to continue working? When you use ctrl-z to put a job in the background, it is also paused. To get it to continue running in the background you can use the shell function 'bg'. This is equivalent to having run your program with a '&' at the end of it. It will stay disconnected from the console but continue running while in the background.
+
+Once a program is backgrounded and continues running, is there any way to communicate with it? Yes there is: the signal system. You can send signals to your program with the command 'kill procid', where procid is the process ID of the program you are sending the signal to. Your program can be written to intercept these signals and do things, depending on what signals have been sent. You can send a signal by either giving the signal number or a symbolic number. Some of the signals available are
+
+    1  SIGHUP    terminal line hangup
+    3  SIGQUIT   quit program
+    9  SIGKILL   kill program
+   15  SIGTERM   software termination signal
+   30  SIGUSR1   user defined signal 1
+   31  SIGUSR2   user defined signal 2
+
+If you simply execute kill, the default signal sent is a SIGTERM. This signal tells the program to shutdown, as if you had quit the program. Sometimes, your program may not want to quit. You sometimes have programs that simply will not go away. In these cases you can use 'kill -9 procid', or 'kill -s SIGKILL procid', to send a kill signal. This will usually kill the offending process with extreme prejudice.
+
+Now that you can control when and where you program runs, what's next? You may want to control the use of resources by your program. The shell has a function called 'ulimit' which can be used to do this. This function changes the limits on certain resources available to the shell, as well as any programs started from the shell. The command 'ulimit -a' will print out all of the resources and their current limits. The resource limits that you can change will depend on your particular system. As an example, which crops up when trying to run larger Java programs, let's say you need to increase the stack size for your program to 10000KB. You would do this with the command 'ulimit -s 10000'. You can also set limits for other resources like the amount of CPU time in seconds (-t), maximum amount of virtual memory in KB (-v), or the maximum size of a core file in 512-byte blocks (-c).
+
+The last resource that you may want to control is what proportion of the system your program uses. By default, all of your programs will be treated equivalently when it comes to deciding how often you programs get scheduled to run on the CPU. You can change this with the command 'nice'. A regular user can use nice to alter the priority of their program down from 0 to 19. So, if you are going to run some process in the background, but you don't want it to interfere with what you are running in the foreground, you can run it by executing
+   nice -n 10 my_program
+and this will run your program with a priority of 10, rather than the default of 0. You can also change the priority of an already running process with the program 'renice'. If you have a background process that seems to be taking a lot of your CPU, you can change it with
+   renice -n 19 -p 27666
+This will lower the priority of process 27666 all the way down to 19. Regular users can only use nice or renice to lower the priority of processes. The root user can increase the priority, all the way up to -20. This is handy when you have processes that really need as much CPU time as possible. If you look at the output from top, you can see that something like pulseaudio might have a negative niceness value. You don't want your audio skipping when you watching your movies.
+
+The other part of the system that needs to be scheduled is access to IO, especially the hard drives. You can do this with the command 'ionice'. By default, programs are scheduled using the best effort scheduling algorithm, with a priority equal to (niceness + 20) / 5. This priority for the best effort is a value between 0 and 7. If you are running some program in the background and don't want it to interfere with your foreground programs, you can set the scheduling algorithm to 'idle' with
+   ionice -c 3 my_program
+If you want to change the IO niceness for a program that is already running, you simply have to use the option '-p procid'. The highest possible priority is called realtime, and can be between 0 and 7. So if you have a process that needs to have first dibs on IO, you can run it with the command
+   ionice -c 1 -n 0 my_command
+Just like the negative values for the nice command, using this realtime scheduling algorithm is only available to the root user. The best a regular user will be able to do is
+   ionice -c 2 -n 0 my_command
+which is the best effort scheduling algorithm with a priority of 0.
+
+Now that you know how to control how your programs use the resources on your machine, you can change how interactive your system feels.

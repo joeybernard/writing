@@ -1,0 +1,135 @@
+{\rtf1\ansi\ansicpg1252\deff0
+{\fonttbl
+{\f0\fnil\fcharset0\fprq0\fttruetype Times New Roman;}
+{\f1\fnil\fcharset0\fprq0\fttruetype Arial;}
+{\f2\fnil\fcharset0\fprq0\fttruetype Dingbats;}
+{\f3\fnil\fcharset0\fprq0\fttruetype Liberation Sans;}
+{\f4\fnil\fcharset0\fprq0\fttruetype Symbol;}
+{\f5\fnil\fcharset0\fprq0\fttruetype Courier New;}}
+{\colortbl
+\red0\green0\blue0;
+\red255\green255\blue255;
+\red255\green255\blue0;}
+{\stylesheet
+{\s1\sb240\sa119\f1\fs28\lang2057\sbasedon32\snext21Heading;}
+{\s2\fi-430\li720\sbasedon32\snext32Contents 1;}
+{\s3\fi-430\li1440\sbasedon32\snext32Contents 2;}
+{\s4\fi-430\li2160\sbasedon32\snext32Contents 3;}
+{\s9\fi-430\li720\sbasedon32Lower Roman List;}
+{\s6\tx431\sbasedon28\snext32Numbered Heading 1;}
+{\s7\tx431\sbasedon29\snext32Numbered Heading 2;}
+{\s8\fi-430\li720Square List;}
+{\*\cs12\sbasedon32Endnote Text;}
+{\s43\tx1584\sbasedon6\snext32Chapter Heading;}
+{\s5\fi-430\li2880\sbasedon32\snext32Contents 4;}
+{\s10\fi-430\li720Diamond List;}
+{\s11\fi-430\li720Numbered List;}
+{\*\cs13\fs20\superEndnote Reference;}
+{\s14\fi-430\li720Triangle List;}
+{\s15\tx431\sbasedon30\snext32Numbered Heading 3;}
+{\s16\fi-430\li720Dashed List;}
+{\s17\fi-430\li720\sbasedon11Upper Roman List;}
+{\s18\sb440\sa60\f3\fs24\b\sbasedon32\snext32Heading 4;}
+{\s19\fi-430\li720Heart List;}
+{\s31\fi-430\li720Tick List;}
+{\s33\fi-430\li720\sbasedon11Lower Case List;}
+{\s34\li1440\ri1440\sa119\sbasedon32Block Text;}
+{\*\cs23\fs20Reference;}
+{\s24\fi-430\li720\sbasedon11Upper Case List;}
+{\s25\fi-430\li720Bullet List;}
+{\s26\fi-430\li720Hand List;}
+{\*\cs27\fs20\sbasedon32Footnote Text;}
+{\s28\sb440\sa60\f3\fs34\b\sbasedon32\snext32Heading 1;}
+{\s29\sb440\sa60\f3\fs28\b\sbasedon32\snext32Heading 2;}
+{\s20\qc\sb240\sa119\f3\fs32\b\sbasedon32\snext32Contents Header;}
+{\s30\sb440\sa60\f3\fs24\b\sbasedon32\snext32Heading 3;}
+{\s40\fi-430\li720Box List;}
+{\s21\sa119\f0\fs24\lang2057\sbasedon32Text body;}
+{\s22\sb119\sa119\f0\fs24\i\lang2057\sbasedon32Caption;}
+{\s36\sa119\f0\fs24\lang2057\sbasedon21List;}
+{\s42\f5\sbasedon32Plain Text;}
+{\s35\f0\fs24\lang2057\sbasedon32Index;}
+{\s39\fi-430\li720Implies List;}
+{\s32\f0\fs24\lang2057Normal;}
+{\s41\fi-430\li720Star List;}
+{\*\cs37\fs20\superFootnote Reference;}
+{\s38\tx1584\sbasedon6\snext32Section Heading;}}
+\kerning0\cf0\ftnbj\fet2\ftnstart1\ftnnar\aftnnar\ftnstart1\aftnstart1\aenddoc\revprop3{\info\uc1}\deftab720\viewkind1\paperw11905\paperh16837\margl1440\margr1440\widowctrl
+\sectd\sbknone\colsx360\marglsxn1800\margrsxn1800\pgncont\ltrsect
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch LUD software review template 1}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @boxout}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Pros}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Out of the box, almost everything seems to just work. The boot menu gives you lots of options. You can even boot it up as a media PC.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @boxout}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Cons}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Not bulletproof. It couldn\uc1\u8217\'92t handle 3D acceleration on my Acer netbook, even though other distros could.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch For more information: }{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0} http://www.sabayon.org}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @title}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Sabayon 7 \uc1\u8211\'96 Gnome, KDE and now XFCE}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @intro}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch With Sabayon 7, you not only have the usual desktop environments available but can also boot up into a media center environment.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @body}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch With Sabayon 7, you have the newest of everything. The latest versions of all of the big desktops are available. This includes GNOME 3.2, KDE 4.7 and Xfce 4.8. In previous versions, Xfce was only available in the experimental branches. Now you have it available as its own ISO. You also have XBMC 10.0 available, allowing you use Sabayon as a media center right out of the box. More people than ever use USB sticks to play with Live CD\uc1\u8217\'92s and do so using tools like unetbootin. This latest version of Sabayon allows you to simply dd the ISO file directly to a USB device now. Just remember that you need to write it to the whole device, not a partition (e.g., dd if=sabayon.iso of=/dev/sdb).}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch The first thing you'll see when you boot up is a bunch of different options for your live CD. The default option will give the associated desktop (GNOME, KDE or Xfce) along with a nice little piece of intro music. Some people don't like that kind of thing, so there is an option there to boot up without it. You also have the option of booting up into XBMC, giving you a media center right off the live CD. As far as I know, no other general use distribution includes this kind of option. The only issue I had with the Live CD was using 3D effects on the desktop. On my Acer netbook, there are some 3D functions available, but they tend to be buggy. Most distros can detect this and either trim down the number of 3D functions they use, or drop down to a 2D display. Sabayon 7 tried to do more than my card was capable of and I ended up with graphics artifacts and distortions. It was not a major problem, and I was able to deal with them once I installed it on to the hard drive.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch After you\uc1\u8217\'92ve tried out the Live CD and are ready to go ahead and install it on your hard drive you can use Anaconda, the Sabayon installer. It is a very fast, streamlined installer that gets you up and running in no time. Once you are, you should never have to do a full upgrade again. Sabayon is a rolling-release system, meaning that as packages change upstream you have access to them right away and can update them. The package system is called entropy (made up of a text client and a graphical client), and is based on the gentoo branches. The Sabayon repository goes out and collects the packages and compiles binary versions of them for you, allowing you to install/update your system using these. If you wish to have a more heavily tuned system, you have access to the underlying portage system. This will allow you to install from source and compile the packages specifically for your system. }{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch The initial live CD and installation includes the latest 3.0 Linux kernel. There have been huge improvements in the stock kernel, hence the move out of 2.x to 3.x made by Linus. But the Sabayon team have said \uc1\u8220\'93This doesn't go far enough\uc1\u8221\'94. Hence the fusion advanced patchset. These are available in the package repository after you have the system installed. This includes experimental patches that may provide even higher performance for you; things like the BFQ io-scheduler, Reiser4, experimental btrfs patches and experimental wireless patches. Apparently, even Theodore T\uc1\u8217\'92so has said that btrfs looks like the future of filesystems. With Sabayon 7 you have access, and since it is backward and forward convertible with ext2/3, you can try it out safely. I personally haven't had a chance to run tests with all of them, but it is definitely worth a look.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch boxout}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Essential Verdict}{\s32\cb2\highlight2\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Score four out of five}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Sabayon is a very polished, modern distribution, giving you all of the amenities that you expect from Linux. And being based on a rolling release system, you should only ever have to install once. The only issue was using the Live CD with an inadequate video card, ending up with artifacts and distortions.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Please supply 6 images tagged as follows}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Pic: sabayon1.png}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @caption:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch On bootup, you have the choice of regular desktop, a netbook version, installation and even booting up as a media center.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Pic: sabayon2.png}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @caption:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch The GNOME version is based on GNOME 3, giving you a very pretty desktop to work on.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Pic: sabayon3.png}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @caption:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch The media center option boots up in XBMC, running over top of fluxbox.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Pic: sabayon4.png}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @caption:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch The installer, Anaconda, tries to be as flexible and helpful as possible when setting up on your hard drive.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Pic: sabayon5.png}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @caption:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch The package manager, entropy, gives you access to pre-compiled binaries.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch Pic: sabayon6.png}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @caption:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch The Xfce desktop option has graduated from the experimental branch and is now available as its own download.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @pullquote:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch With Sabayon 7, you have the newest of everything. The latest versions of all of the big desktops are available.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch @pullquote:}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\abinodiroverride\ltrch You also have the option of booting up into XBMC, giving you a media center right off the live CD. As far as I know, no other general use distribution includes this kind of option.}{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\s32\sl240\slmult1\itap0{\s32\f0\fs24\lang2057{\*\listtag0}\par}
+\pard\plain\ltrpar\ql\sl240\slmult1\itap0{\f0\fs24\lang4105{\*\listtag0}\par}}

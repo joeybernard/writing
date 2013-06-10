@@ -1,0 +1,83 @@
+Running Scientific Code using iPython and scipy
+
+More and more science is happening on silicon, if not completely, then at least partially. With its ability to run interactively, as well as heavy support for packages with tuned C components, Python is quickly filling this environment of scientific computing. The main package that gets imported to handle scientific programming is scipy. This package provides lots of functions to allow you to write code to solve your scientific problems. To take full advantage of all of these capabilities, you really need a decent development environment. iPython can provide just such an environment. It is a good balance between ease of use, especially for exploratory work, and a complete development environment. This article will cover using iPython and scipy to setup an environment to do scientific computations.
+
+The first step is to get iPython and scipy installed. Luckily, most ditributions should have packages available for both of these. For example, on Ubuntu, you would simply execute
+   sudo apt-get install ipython python-scipy
+Most distributions, unless they are rolling release distros, are at least a version behind the latest and greatest. If you need to have the latest capabilities or bug-fixes, then you will need to download the sources from the home websites. For both packages, you should be able to simply download the sources, unpack them, and run
+   python setup.py install
+in each source directory. Be sure to check the documentation for both packages. They both have a rather large set of dependencies that need to be installed before you try and build.
+
+Now that you have them both installed, we can start to look at what you can do. Let's start by looking at iPython. It provides both a very enhanced interactive shell for interactive work, including access to GUI components, and an architecture for interactive parallel computing. When you start working with iPython, you have access to the sorts of features available to users of bash. Hitting the tab character will do autocompletion of the command you are currently typing. All of your previous commands, both input and output, are available as numbered items. They are stored in two separate arrays called In and Out. You can access them by using In[1] or Out[3], just like any other array. iPython is also really useful in interacting with the objects in memory. You can look at details of these object by using the operator "?". For example, you can pull up information on your object by typing
+   my_object?
+You can also get specific parts of information by using the commands
+   %pdoc
+   %pdef
+   %psource
+   %pfile
+A feature of iPython that is useful in code development is the ability to log all of the work that you are doing to an external file. Within your session, you can start logging with the magic command "%logstart". Or, you can turn on logging from the start by adding the command line option "--logfile=log.py" to ipython. You can then load this log file at a later time to get ipython to replay the commands and essentially restore your session to its previous state. It is not perfect, but still useful. We'll look at the plotting functions and parallel options after covering a bit of scipy.
+
+Scipy is actually an extension to another Python package, numpy. Numpy provides extensions that define numerical array and matrix types, along with basic operations that apply to them. Scipy builds on these, allowing you to do advanced math, signal processing, optimization, statistics and more. Let's get some work done by starting up iPython. [img1] You'll see the licensing info, along with some initial commands that tell you how to get help. To begin with, we'll look at some of the extras that numpy gives you for scientific computing. One of the best features, from a code writing view, is the overloading of mathematical operators. For example, the old way of adding two vectors looks something like
+   for i in range(len(a)):
+      c.append(a[i] + b[i])
+This can actually be relatively slow for large vectors since Python needs to do some verifying of the data types and the operations at each iteration of the for loop. With numpy, you can re-write this as
+   import numpy as np
+   ...
+   c = a + b
+This is quite a bit faster, since the actual work is handled by an external library as a single unit of work. As you can see above, in Python you need to import external packages with the "import" command. The most basic verion of the import statement is 
+   import numpy
+This adds everything from numpy into your Python session's namespace and you can access the imported functions with their short names. You can import a package and attach it to a new name, as we did in the example above. You can then access the imported items by prepending the name that it is imported as to the function short names. Importing the entire package is fine for something moderate in size like numpy, but scipy has grown over the years to be a rather large and complicated package. Importing everything available can be quite time consuming initially. To try and help, scipy actually subdivides the available functions as sub-packages. When you import scipy, you only get the functions not in one of the sub-packages. If you really want to load everything in scipy, you would need to use
+   import scipy;
+   scipy.pkgload()
+If you know what kind of work you will be doing, it will make more sense to only import the parts that you need, with a command like
+   from scipy.fftpack import fft as scipy_fft
+When you use ipython, you can skip all of this by using the profile system. In iPython, you can define a session profile that takes care of initialization steps that you would have to do everytime. There are several profiles included when you install iPython, so in this case you can simply start ipython with
+   ipython -p scipy
+This will handle the imports for you so that you have everything that you might need available.
+
+As an example, one thing that gets done numerically is transforming and analyzing sound. When looking at sound, you may be interested in analyzing the spread of frequencies. This can be done by using fast fourier transform (FFT) functions. In scipy, you can import the sub-package fftpack to access the fft functions. For example, we can create a vector of 100 ones followed by 900 zeros with
+   a = zeros(1000)
+   a[:100] = 1
+You can get the fourier transform of this vector with
+   b = fft(a)
+The result is a list of complex numbers. When you are doing exploratory work, it is really helpful to be able to see the results graphically. Luckily, iPython includes the matplotlib module. If you want to have it available, you can either start your iPython session with "ipython -pylab" or you can manually import the pylab module. That done, you can then plot results with something like
+   plot(abs(b))
+   show()
+Matplotlib is modelled after the graphics system in R where the different steps of plotting are actual manual separate steps. So plotting graphs is one step, while showing the plots on the screen is a separate step. This means you need the "show()" command to get the graphical output. There are lots of options available in matplotlib to handle graphical display of data and results.
+
+The last thing we'll look at is the parallel support that you get with iPython. In any large scientific code, you will need to run on some sort of parallel machine in order to get your work done in a reasonable amount of time. With iPython, you have support for
+   Single Instruction Multiple Data (SIMD) parallelism
+   Multiple Instruction Multiple Data (MIMD) parallelism
+   Message passing using MPI
+   Task farming
+   Data parallelization
+You can use combinations of these, as well as developing your own custom parallel techniques. The most powerful capability available in iPython is the ability to develop, execute, debug and monitor your parallel code interactively. This means that you can start to develop your code, and then add in parallelism when you reach the appropriate stage. The iPython architecture consists of 4 parts:
+   iPython engine - an instance that takes Python commands over the network and runs them
+   iPython hub - the central process which manages engine connections, schedulers, clients, etc.
+   iPython scheduler - all actions go through a scheduler to a specific engine, allowing work to be queued up
+   controller client - made up of a hub and a set of schedulers, providing an interface for working with a set of engines
+To start using the parallel components of iPython, you need to start up a controller and some number of engines. The easiest way to start is to use ipcluster on a single machine. For example, if you wanted to start a controller and 4 engines on a single host, you can type
+   ipcluster start -n 4
+You will likely get an error at this point due to not being able to import the module zmq. This module handles the security issues in the communications between the different parts of iPython. Again, there should be a package for this. In Ubuntu, this package is named "python-zmq". Once you get your 4 engines started, they are available when you start iPython. You will need to do this in another terminal window, since ipcluster will still be running in the original terminal. After importing the parallel module, you can create a Client object to interact with the engines created by ipcluster:
+   from IPython.parallel import Client
+   rc = Client()
+As a first test that the parallel functionality is working correctly, you can check the ID's of the available engines by executing
+   rc.ids
+In this case, you should notice that there are 4 engines available. One of the simplest forms of parallelism is to divide Python's map command across the available engines. Remember that the map command takes some function and apply it to each element of a list. The parallel version of map takes the list and divides it across the available engines. To do so, you can create a DirectView object using list notation and use its map method:
+   dview = rc[:]
+   parallel_results = dview.map_sync(lambda x: x**10, range(32))
+
+In more complicated systems, you can actually create profiles defining how the parallel system is to be configured. This way you don't need to remember all of the details. To create a profile, you can run
+   ipython profile create --parallel --profile=myprofile
+This will create a directory named "profile_myprofile" in $IPYTHONDIR. This is usually in $HOME/.config/ipython. You can then go in and edit the generated files and define the options. For example, you can setup a system where the iPython engines are created on machines over a network with MPI, and a controller is created on your local machine. Once the profile is finished, you can start the cluster with
+   ipcluster start --profile=myprofile
+Then when you start ipython, you can run code on all of these networked machines. With this kind of functionality, you can get some really serious work done on a full-sized HPC cluster.
+
+Python, with iPython and scipy, has been growing in popularity as a language to do high-performance scientific work. The traditional opinion is that this is only useful for smaller problems, and that you need to move to C or FORTRAN to get "real" work done. With the parallel functionality in iPython combined with scipy, this no longer applies. You can do work on larger clusters and deal with even larger problem sets. There was only room to introduce a few items in this article, so please go on to the related web sites to learn even more.
+
+Images
+
+
+URLS
+http://scipy.org
+http://ipython.org

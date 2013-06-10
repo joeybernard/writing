@@ -1,0 +1,122 @@
+Using OProfile - Figuring out what is happening to your code
+
+Contrary to how most programmers rate their own code, no piece of software is perfect, especially straight out of the gates. This is where the fine art of debugging comes into play during the development cycle. Once you have your code working correctly, you can then start looking at making your code blazingly fast. This is where the equally fine art of profiling comes in. There are many tools available to profile your code and generate statistics on where your code needs work, such as gprof. These kinds of tools run in user-space, and so have inherent limitations on what they can record. If you want to profile your code at a very deep level, including profiling libraries and hardware effects, like cache misses, then you should look at OProfile.
+
+OProfile is a profiling tool that runs at the kernel level. Because of this, you can profile anything at all on the system, including the kernel itself. If you do want to profile the kernel, you will need to hold onto the vmlinux file when you compile your kernel. You can't use the compressed version, vmlinuz, which is what you actually boot up off of. You don't normally have this file when you install most distributions, so you may have to install an extra package, or compile your own kernel. This article won't deal with the kernel. We're going to look at using OProfile to get profiling information on our own code in order to squeeze the most out of it. To do this, we will need to use the command line option "--no-vmlinux".
+
+In terms of system requirements, you need to be running at least a 2.2 kernel. If you use 2.2 or 2.4 kernels, you are limited to profiling on 32-bit x86 and IA64 CPUs. Running a 2.6 kernel, you can profile on x86, IA-64, Alpha, MIPS, ARM, x86-64, sparc64, ppc64, and several others. You also need modutils 2.4.6 or later, in order to be able to load the kernel module for OProfile. Since you need to load a kernel module, you will also need to run this as root. We should mention here the concept of sudo. Normally, you can run programs with root permissions by using sudo, but this is not suggested in this case due to an untrusted search path vulnerability. This means that users could end up modifying the PATH environment variable and running malicious executables, so you have been warned.
+
+OProfile launches a daemon (oprofiled) to actually collect the information on what is happening with your code. To start the collection process, you would execute
+
+   opcontrol --no-vmlinux --start
+
+By default, OProfile stores the sample files in the directory /var/lib/oprofile. If you want to store these samples in another directory, you can use the command line option "--session-dir=", but if you do, then all subsequent OProfile commands will also need to include this option so that the sample files can be found. To store the samples in the sub-directory oprofile in your home directory, you would use
+
+   opcontrol --no-vmlinux --session-dir=$HOME/oprofile --start
+
+When you finish with your profiling session, you can stop the sampling with "--stop", or completely shutdown OProfile with "--shutdown". By default, the current profiling session is stored in the sub-directory $SESSION_DIR/samples/current. Once you are done, you will probably want to clean out the sample data by executing
+
+   opcontrol --reset
+
+This will erase the data stored in the "current" sub-directory within $SESSION_DIR/samples. If you want to save this session data for later analysis, you can do so by using
+
+   opcontrol --save=TEST1
+
+which will save the current session data into the sub-directory $SESSION_DIR/samples/TEST1.
+
+So, now that you know how to start, stop and save the profiling data, what can you profile? Using the option "--event=" you can specify which events OProfile should be tracking during the session. Events are specified using a colon separated string of the form name:count:unitmask:kernel:user
+
+   name - symbolic event name
+   count - counter reset value
+   unitmask - unit mask, as given in the events list
+   kernel - whether to profile kernel code
+   user - whether to profile userspace code
+
+The last three values are optional. If you leave them off, then OProfile sets them to unitmask equal to 0, kernel set to yes and user set to yes. In most cases, this is actually what you want. So you will be left setting the event name and the count value. Depending on the CPU architecture that you are running on, there are different default events that OProfile will track. On an Athlon the default event is CPU_CLK_UNHALTED:100000, whereas on a Pentium 4 it is GLOBAL_POWER_EVENTS:100000. If you want to find out what events are able to be profiled on your system, use "--list-events" to get a list. The output will look like
+
+   oprofile: available events for CPU type "Pentium M (P6 core)"
+
+   See Intel Architecture Developer's Manual Volume 3, Appendix A and
+   Intel Architecture Optimization Reference Manual (730795-001)
+
+   CPU_CLK_UNHALTED: (counter: all)
+      clocks processor is not halted, and not in a thermal trip (min count: 6000)
+   DATA_MEM_REFS: (counter: all)
+      all memory references, cachable and non (min count: 500)
+   ----
+
+You may notice in the above example that there is a min count in each description. OProfile is a statistical profiler. This means that it takes a number of samples each second, where the min count is the minimum number that you can set for that particular event. If you want to collect more samples, then you need to set the counter value lower for that event. This means, however, that your system will be spending more time responding to the OProfile daemon, so this means that you will need to do some balancing between sample counts and responsiveness. If you wanted to get the maximum number of samples for both CPU and memory references, you would use
+
+   opcontrol --event=CPU_CLK_UNHALTED:6000 --event=DATA_MEM_REFS:500
+
+Now that you have all of this data collected, how do you see it? OProfile includes the program opreport to print out the results in a human readable form. To get a summary, you can run 
+
+   opreport --long-filenames
+
+On my netbook, I get the results
+
+   CPU: Pentium M (P6 core), speed 800 MHz (estimated)
+   Counted CPU_CLK_UNHALTED events (clocks processor is not halted, and not in a thermal trip) with a unit mask of 0x00 (No unit mask) count 6000
+   Counted DATA_MEM_REFS events (all memory references, cachable and non) with a unit mask of 0x00 (No unit mask) count 500
+   CPU_CLK_UNHALT...|DATA_MEM_REFS:500|
+     samples|      %|  samples|      %|
+   ------------------------------------
+       10332 96.7235     28885 97.8290 /no-vmlinux
+          94  0.8800       116  0.3929 /lib/tls/i686/cmov/libc-2.9.so
+          57  0.5336       137  0.4640 /usr/bin/Xorg
+          53  0.4962       128  0.4335 /usr/lib/xorg/modules/drivers/intel_drv.so
+   ---
+
+So, you can see where the system is spending most of its time and who is making the most memory references. The option "--long-filenames" prints out the full path to each referenced binary file. OProfile can also print out callgraph information with the command line option "--callgraph". If you are more interested in even more detailed information, the command line option "--details" will print out instruction level details. For binaries that have no symbol information (i.e., they were not compiled with the debugging flag turned on), opreport will print out VMA values as raw file offsets for the binary.
+
+There is also a tool provided which can output source code or assembly listings annotated with OProfile results. To see annotated assembly listings for a program, say ls, you would simply run
+
+   opannotate --assembly /bin/ls
+
+If you compiled your program with symbol information (i.e. with the "-g" option) you can get annotated source code by running
+
+   opannotate --source ./my_prog
+
+The results here may be inaccurate. You need to remember that OProfile is a statistical profiler, so if your program is small, or runs in a very short amount of time, then the likelihood of getting useful results will be low. For larger programs, or for long running programs, you start to get more and more accurate results.
+
+You may be more familiar with the output produced by gprof. If so, you can get OProfile to output results in this format by using the included tool opgprof. You simply have to hand in the path to the binary image and the file "gmon.out" will be written out in the current directory. You can then hand this file in to gprof to do your analysis.
+
+The last tool in the OProfile suite is oparchive. This program bundles up all of the executable, debug and sample files into a directory so that you can tar them up and move them to another machine in order to do the actual analysis. By running
+
+   oparchive -o ./archive
+
+a full copy of all files necessary to do analysis will be copied into the sub-directory "./archive". You can then move this directory wherever you would like to in order to do further analysis.
+
+Having learned all of this, lets look at a possible scenario. You've been working on some sophisticated number crunching code, and you want to see if the cache is being utilized in the best possible way. The first thing to do is to look at what cache events can be tracked on your system:
+
+   opcontrol --list-events | grep CACHE
+
+On my system, I get 
+
+   INSTRUCTION_CACHE_FETCHES: (counter: all)
+   INSTRUCTION_CACHE_MISSES: (counter: all)
+   DATA_CACHE_ACCESSES: (counter: all)
+   DATA_CACHE_MISSES: (counter: all)
+   DATA_CACHE_REFILLS_FROM_L2_OR_SYSTEM: (counter: all)
+   DATA_CACHE_REFILLS_FROM_SYSTEM: (counter: all)
+   DATA_CACHE_LINES_EVICTED: (counter: all)
+   DCACHE_MISS_LOCKED_INSTRUCTIONS: (counter: all)
+      DCACHE Misses by Locked Instructions (min count: 500)
+   L2_CACHE_MISS: (counter: all)
+   L2_CACHE_FILL_WRITEBACK: (counter: all)
+   INSTRUCTION_CACHE_REFILLS_FROM_L2: (counter: all)
+   INSTRUCTION_CACHE_REFILLS_FROM_SYSTEM: (counter: all)
+   CACHE_BLOCK_COMMANDS: (counter: all)
+
+I'm not too interested in the instruction cache. I'm more interested in seeing whether the data cache use is optimized, so we'll look at that.
+
+   opcontrol --event:DATA_CACHE_ACCESSES:500 --event=DATA_CACHE_MISSES:500 --event=DATA_CACHE_LINES_EVICTED:500
+   opcontrol --no-vmlinux
+   opcontrol --start
+
+We can now run our code and let OProfile log all of this cache behavior. Once our program finishes its work, we can look at the results.
+
+   opcontrol --shutdown
+   opreport -l ./my_prog event:DATA_CACHE_MISSES
+
+This would give us a report of specifically the data cache misses within our program, and where they were happening. Now you should be ready to go ahead and do some analyzing of your own code. But before you do, you should be made aware of a few potential pitfalls. The first thing to be careful of is to not set count levels too low. You may end up leaving your system unresponsive. When you look at annotated source, you may be hit with problems caused by compiler optimizations. The compiler may move code around, causing OProfile to show odd behavior. You also need to be aware of the hidden cost of instructions. One example is two memory reads, one from L1 and one from memory. Another example would be a mis-predicted branch. Also, OProfile doesn't work very well in a virtual machine (such as VMWare). Hopefully this short article will give you one more tool in your arsenal in the quest for the fastest, most efficient, code out there.

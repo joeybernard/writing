@@ -1,0 +1,12 @@
+Title Here
+
+Over the last several issues, we have looked at several packages to do all kinds of science. But sometimes, there just isn't a tool to solve your particular problem. That's the great thing about science. There is always something new to discover and study. But this means that it's up to you to develop the software tools you'll need to do your analysis. Over the next couple of issues, we'll look at the GNU Scientific Library, or GSL. This library is the Swiss Army library of routines that you will find useful in your work.
+
+The first thing to do is to get a copy of GSL and get it installed on your system. Since it is part of the GNU project, it is hosted at http://www.gnu.org/s/gsl/. You can always download and build from the source code, but all major distributions should have packages available. For example, on Debian based systems, you would need to install the package libgsl0-dev to develop your code with and gsl-bin to run that code. GSL is meant for C and C++, so you will also need a compiler. Most of you probably already know and use GCC, so we will stick with that.
+
+The next step is actually the last step. We'll look at compiling now so that we can focus on all of the tools available in GSL. All of the header files for GSL are stored in a subdirectory named "gsl". So, for example, if you wanted to include the math header file you would use 
+   #include <gsl/gsl_math.h>
+All of the functions are stored in a single library file called "libgsl.a" or "libgsl.so". You also need a library to handle basic linear algebra. GSL provides one (in the file "libgslcblas.so"), but you can use your own. You will also need to link in the math library. So the final compile and link command should look like
+   gcc -o hello_world hello_world.c -lgsl -lgslcblas -lm
+There are optional inline versions for some of the performance-critical functions in GSL. To use these, you will need to include "-DHAVE_INLINE" to your compile command. To try and help with portability issues, GSL offers some functions that only exist on certain platforms, but not others. As an example, the BSD math library has a function called "hypot". GSL offers it's own version, called "gsl_hypot", that you can use on non-BSD platforms. For some functions, there are both a general algorithm as well as optimized versions for specific platforms. This way, if you are running on a SPARC for example, you can select a version optimized for SPARC if it exists.
+

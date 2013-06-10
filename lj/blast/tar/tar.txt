@@ -1,0 +1,35 @@
+Stupid tar Tricks
+
+One of the most common programs on Linux systems for packaging files up is the venerable tar. tar is short for tape archive, and originally it would archive your files to a tape device. Now, you're more likely to use a file to make your archive. To use a tarfile, you would use the command line option "-f <filename>". To create a new tarfile, you would use the command line option "-c". If you wanted to extract files from a tarfile, you would use the option "-x". You can also compress the resulting tarfile using two methods. To use bzip2 you use the option "-j", or to use gzip you use the option "-z". Instead of using a tarfile, you can output your tarfile to stdout or input your tarfile from stdin by using a "-". Using these options, you can tar up a directory and all of its subdirectories by using
+
+  tar cf archive.tar dir
+
+and then extract it in another directory by using
+
+  tar xf archive.tar
+
+When creating a tarfile, you can assign a volume name with the option "-V <name>". You can move an entire directory structure with tar by executing
+
+  tar cf - dir1 | (cd dir2; tar xf -)
+
+You can go even farther and move an entire directory structure over the network by executing
+
+  tar cf - dir1 | ssh remote_host "( cd /path/to/dir2; tar xf - )"
+
+GNU tar includes an option that allows you to skip the cd part, "-C /path/to/dest". You can also interact with tar files over the network by including a host part to the tarfile name. It would look like
+
+  tar cvf username@remotehost:/path/to/dest/archive.tar dir1
+
+This is done by using rsh as the communication mechanism. If you want to use something else, like ssh, you can use the command line option "--rsh-command CMD". Sometimes, you may also need to give the path to the rmt executable on the remote host. On some hosts, it won't be in the default location /usr/sbin/rmt. So, all together, this would look like
+
+  tar -c -v --rsh-command ssh --rmt-command /sbin/rmt -f username@host:/path/to/dest/archive.tar dir1
+
+While tar originally used to write its archive to a tape drive, it can be used to write to any device. For example, if you wanted to get a dump of you current filesystem to a secondary harddrive, you would use
+
+  tar -cvzf /dev/hdd /
+
+Of course, you would need to run the above command as root. If you are writing your tarfile to a device that is too small, then you can tell tar to do a multi-volume archive by using the option "-M". For those of you who are old enough to remember floppy disks, you can backup you home directory to a series of floppy disks by executing
+
+  tar -cvMf /dev/fd0 $HOME
+
+If you are doing backups, you may want to preserve the file permissions. You can do this the option "-p". If you have symlinked files on your filesystem, you can choose to dereference the symlinks with the option "-h". This tells tar to actually dump the file that the symlink points to, not just the symlink. Along the same lines, if you have several file systems mounted you can tell tar to stick to one file system only with the option "-l". Hopefully this will give you lots of ideas of how you may be able to archive your files.

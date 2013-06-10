@@ -1,0 +1,58 @@
+GSL2 - Getting Work Done
+
+In the last issue, I introduced the GNU Scintific Library and how to include it into your code. But I didn't really cover what you can actually do with this library. This month, we'll take a look at some of the functionality available. Hopefully you'll find enough here to spark your interest and prodding you into taking a deeper look.
+
+There are a series of functions for handling polynomials. A polynomial is a function of different powers of a variable, with each element multiplied by a constant, i.e.
+   P(x) = c[0] + c[1]*x + c[2]*x^2 + ...
+In the GSL, a polynomial is represented by an array containing all of the constants, with zeros for all of the missing powers. So, if your polynomial is P(x) = 5 + x^3, your polynomial would be represented by c = [5,0,0,1]. There are several functions available for evaluating your polynomial at some particular value of x. There are separate functions for evaluating your function for real values of x (gsl_poly_eval), for complex values of x (gsl_poly_complex_eval) and for complex values of x with complex coefficients (gsl_complex_poly_complex_eval). This is because complex numbers are separate data type (gsl_complex) and need to be handled differently from simple doubles. Aside from evaluating polynomials, you may wish to solve the polynomial and get the roots of your equation. The most basic is finding roots of a quadratic equation. These roots may be real or complex, so that means that there are two different functions, gsl_poly_solve_quadratic and gsl_poly_complex_solve_quadratic. You hand in the values for the three coefficients, and pointers to two variables to hold the two possible roots:
+   gsl_poly_solve_quadratic(double a, double b, double c, double *x0, double *x1)
+If there are no real roots, x0 and x1 are unchanged. Otherwise, the roots are placed successively into x0, and then x1. There are equivalent functions to find the roots of a quadratic equation, called gsl_poly_solve_cubic and gsl_poly_solve_complex_cubic. Once you get beyond a quartic equation, there is no analytical way to find the roots of a polynomial equation. GSL provides an iterative method to find the approximate locations of the roots of a higher order polynomial. But you need to setup some scratch memory that can be used for this purpose. For a polynomial with n coefficients, you would use gsl_poly_complex_workspace_alloc(n) to create this scratch space. Then you can call gsl_poly_complex_solve to run this process. After you are done, you would need to call gsl_poly_complex_workspace_free to free up this scratch space.
+
+In science, there are lots of special functions that get used in solving problems. GSL has support for dozens of functions. To use them, you start by including "gsl_sf.h" in your source code. These functions can be called in two different ways. You can call them directly and simply get the computed value as a result. So, if you wanted to calculate the value of a Bessel function, you could use
+   double ans = gsl_sf_bessel_J0(x);
+But, you have no idea if there were any problems during this computation. To get at this information, you would call a variant of this function
+   gsl_sf_result result;
+   int status = gsl_sf_bessel_J0_e(x, &result);
+The value of status lets you know if there were any error conditions, like overflow, underflow or loss of precision. If there were no errors, then the function call returns GSL_SUCCESS. The result variable is actually a struct, with members val (the computed value of the function) and err (an estimate of the absolute error in val). All of the special functions default to evaluating with double precision, but in some cases this is simply to costly in time. In order to save time in cases where a lower level of accuracy is acceptable, the GSL special functions can accept a mode argument. These represent
+   GSL_PREC_DOUBLE - double precision, accuracy of 2*10^-16
+   GSL_PREC_SINGLE - single precision, accuracy of 10^-7
+   GSL_PREC_APPROX - approximate values, accuracy of 5*10-4
+Some of the special functions supported by GSL include Airy functions, Bessel functions, Debye functions, elliptic integrals, exponential functions, Fermi-Dirac functions Legendre functions, spherical harmonics and many more. It is definitely worth taking a look at the manual before you even think about writing your own version of some function. It is very likely to be already done for you.
+
+Vectors and matrices are used as a data types in several scientific problems. GSL has support for doing calculations with both vectors and matrices, treating them as new data types. They are both based on a data type called a block. A GSL block is a struct containing the size of the block, along with a pointer to the memory location where the block is actually stored. A vector is a struct defined as
+   typedef struct {
+      size_t size;   /* number of elements in the vector */
+      size_t stride; /* step size from one element to the next */
+      double *data; /* location of the first element */
+      gsl_block *block; /* location of block if data is stored in a block */
+      int owner; /* do I own this block */
+   } gsl_vector;
+If owner equals 1, then the associated block is freed when the vector is freed. Otherwise, the associated block is left alone when the vector is freed. Because of the complexity of the structure, there are special functions to handle vectors. The function gsl_vector_alloc(n) creates a vector of size n, with the data stored in the block member and the owner flag set to 1. The function gsl_vector_free() frees the previously created vector structure. To manipulate individual elements of your new vector, you need to use the functions gsl_vector_get(const gsl_vector *v, size_t i) and gsl_vector_set(gsl_vector *v, size_t i, double x). If you instead want a pointer to an element, you can use gsl_vector_ptr(gsl_vector *v, size_t i). Matrices are very similar, being defined as
+   typedef struct {
+      size_t size1; /* number of rows */
+      size_t size2; /* number of columns */
+      size_t tda; /* number of bytes for one row */
+      double *data; /* location of matrix data */
+      gsl_block *block; /* underlying storage block */
+      int owner; /* do I own this block */
+   } gsl_matrix;
+Matrices are stored in row-major order, which is the way it is done in C. Allocation and deallocation are handled by the functions gsl_matrix_alloc() and gsl_matrix_free(). Accessing elements are handled through the function gsl_matrix_get() and gsl_matrix_set().
+
+Now that we have vectors and matrices, what can you do with them? Well, GSL has support for the BLAS library (Basic Linear Algebra Subprograms). There is a wrapped version, accessible through "gsl_blas.h", where you can use GSL vectors and matrices in the functions. You also have access to the raw BLAS functions through the include file "gsl_cblas.h". The GSL version treats all matrices as dense matrices, so if you want to use band-format or packed-format matrices you will need to use the raw functions. There are three levels of BLAS operations:
+   Level 1 - vector operations
+   Level 2 - matrix-vector operations
+   Level 3 - matrix-matrix operations
+BLAS has functions for things like dot products, vector sums, and cross products. This provides the base for the linear algebra functions in GSL. They are declared in the header "gsl_linalg.h" and are handled through level-1 and level-2 BLAS calls. There are functions for decomposition (LU, QR, singular value, Cholesky, tridiagonal and Hessenberg), Householder transformations and balancing. The header file "gsl_eigen.h" provides functions for calculating eigenvalues and eigenvectors of matrices. There are versions for real symmetric, real nonsymmetric, complex hermitian and real generalized nonsymmetric eigensystems, among others.
+
+The last thing to look at is the functionality supporting calculus calculations. There are a whole group of functions to handle numerical integration. There are routines for both adaptive and non-adaptive integration for general functions. There are also specialized versions for special cases like infinite ranges, singular integrals and oscillatory integrals. The types of errors that may happen when you are trying to do a numerical integration are:
+   GSL_EMAXITER - the maximum number of subdivisions was exceeded
+   GSL_EROUND - cannot reach tolerance because of roundoff error
+   GSL_ESING - a non-integrable singularity or bad integrand behavior
+   GSL_EDIVERGE - integral is divergent or doesn't converge quickly enough
+Numerical differentiation can also be done, using finite differencing. These functions are adaptive, trying to find the most accurate result. The three versions are
+   gsl_deriv_central() - central difference algorithm
+   gsl_deriv_forward() - adaptive forward difference algorithm
+   gsl_deriv_backward() - adaptive backward difference algorithm
+In all of these, you hand in a pointer to a function, the value of x where you want to calculate the derivative and a step-size, h, for the algorithm. You also hand in pointers to variables to store the values of the result and the absolute error.
+
+I have barely scratched the surface of what is available in the GSL. Hopefully, you now have a better idea of some of the functions available. While there are lots of scientific packages available, sometimes there really is no option except to write your own. With the GSL, you should be able to do this with a bit less work and get to the actual computational science more quickly.

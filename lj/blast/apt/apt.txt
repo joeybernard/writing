@@ -1,0 +1,46 @@
+Maintaining Your System from the Command line
+
+Many Linux distributions use some form of packaging system to to organize the applications installed on a system. Using a formal packaging system lets you install, remove and in general, maintain the software on your system in a controlled and coherent way. The three main packaging systems are the Debian deb package, the Red Hat rpm package, and the Slackware pkg package. The vast majority of the distributions today will use one of these three packaging systems. They all have graphical utilities to interact with the packaging system. But what if you want to deal with the system on the command line? Say you are running a server, or are accessing a distant machine through ssh and don't want to deal with the overhead of X11? This month we'll take a look at how to do this for Debian based systems.
+
+The first thing you will probably want to do is install some software on your system. The preferred way to do this is through the utility apt-get. apt-get is aware of the chain of dependencies between packages. Let's say you want to do some star gazing and want to install stellarium on your system. You would run
+   apt-get install stellarium
+This would download the relevant package file, and all of its dependencies, from a repository. What if you don't know exactly what the package is named? You can query the package management system with the utility dpkg-query. If you know that the package name has "kde" in it, you can list all of the matching packages with the command
+   dpkg-query -l "*kde*"
+Remember to quote any search strings that have a "*" in it so that you  don't inadvertently have the shell try and expand them.
+
+This works great for software available in the given repository. But what if you want something not available there? If you have a ".deb" file available for download, you can download it and install it manually. After downloading the file, you would install it by running
+   dpkg -i file_to_install.deb
+The utility dpkg works with the deb packaging system at a lower level than apt-get. With it, you can install, remove and maintain individual packages. If you have a whole group of packages you would like to install, you might want to add the relevant repository to your list so that apt-get will know about it. The list of repositories is stored in the configuration file /etc/apt/sources.list. Each line has the form
+   deb http://us.archive.ubuntu.com/ubuntu/ karmic main restricted
+The first field tells apt-get what is available at this repository: deb is for binary packages, deb-src is for source packages. The second field is the URL to the repository, in this example we're looking at the Ubuntu repository. The third field is the repository name, in this case the repository for the karmic version of Ubuntu. The last fields are the sections we want to look at to install packages from. This example will look at the sections main and restricted when trying to install applications or resolve dependencies.
+
+Now that you have some applications installed, you will probably want to maintain them and keep them updated. Every piece of software will have bugs, or security issues, that come to light over time. Software developers are always releasing new versions to fix these issues, and updating the relevant packages in the repositories. To update the list of software and their versions on your system, you would run
+   apt-get update
+Once you've updated the list, you can tell apt-get to install these updates by running
+   apt-get upgrade
+If you want a list of what is about to be upgraded, add the command line option "-u" 
+   apt-get upgrade -u
+Sometimes, when a new version comes out for a package (like when your distribution releases a new version), the dependencies for said package might change, too. In cases like this, a straight upgrade might be confused. In these cases you can use the command
+   apt-get dist-upgrade
+This command tries to intelligently deal with these changes in dependencies, adding and removing packages as necessary.
+
+What do you do if you've installed a package to try it out and don't want it anymore? You can remove a package with the command
+   apt-get remove stellarium
+This removes all of the files that were installed as part of the package stellarium, but leaves any configuration files intact and also doesn't deal with any extra packages installed because stellarium depended on them. If you wish to completely remove a package, including all configuration files, you would run
+   apt-get purge stellarium
+
+All of this software installation and removal could result in cruft accumulating on your system. You may end up with unnecessary packages wasting space on your system. To start to recover some space you can run the command
+   apt-get autoclean
+This command will remove the package ".deb" files from the local cache for packages that can no longer be downloaded. These would be mostly useless packages. If you want to completely clean out the local cache and recover more space, you can run
+   apt-get clean
+While "remove" and "purge" will remove a package, what can you do about any dependencies installed for this package. If you run the command
+   apt-get autoremove
+you can uninstall all packages that were installed as dependencies for other packages and aren't needed anymore.
+
+Another way of finding packages that aren't needed anymore is through the utility deborphan. The first thing you'll need to do is install it, using
+   apt-get install deborphan
+since most distributions don't install it by default. Once it is installed, running it with no command line options will give you a list of all packages in the libs and oldlibs sections that have no dependents. Since no other package depends on these packages, you can safely use apt-get to remove or purge them. If you want to look in all sections, you can use the option "-a". If you're trying to save space, you can ask deborphan to print out the installed sizes for these orphan packages by using the command line option "-z". You can then sort them out by running
+   deborphan -z -a | sort -n
+This will give you a list of packages you can safely uninstall, sorted by installed size from smallest to largest. You can then free up space on your system by getting rid of the biggest space wasters.
+
+Hopefully this gives you a good starting point to dealing with the Debian package management system. Each of the tools discussed above have lots of other options that you should research in the relevant man pages. Also, if you use a Red Hat based system, there are equivalent commands to these to help you manage the rpm files used there.

@@ -1,0 +1,63 @@
+Linux on a Fingernail
+
+
+In this issue of Linux Journal, you have been reading articles about how to get Linux in your pocket. Well, in this article I'll go one better. I'll tell you how to get Linux on your fingernail. Now, before you get too excited, I won't be discussing some new nano-computer being used by James Bond. Unfortunately. No, what I'll be discussing here is how to put Linux on a micro-SD card (or any other USB drive, for that matter). [pic1.png] Using this, you can run Linux on any machine that can boot off of a USB device. I'll cover a few of the most common utilities around, which can get you setup relatively quickly and painlessly. Then I'll finish off with a method of creating a fully customized Linux system from scratch. This way, those of you with control issues can set it up exactly how you wish to have it setup.
+
+One of the earliest utilities that first got widespread attention and use is unetbootin. [gui1.png] This application is available under both Linux and Windows. It has builtin support to download and install several Linux distributions:
+   Ubuntu                               Fedora
+   Debian                               PCLinuxOS
+   Linux Mint                           Sabayon Linux
+   openSUSE                             Gentoo
+   Arch Linux                           MEPIS
+   Damn Small Linux                     Zenwalk
+   SliTaz                               Slax
+   Puppy Linux                          Dreamlinux
+   gNewSense                            Elive
+   FreeBSD                              CentOS
+   NetBSD                               Mandriva
+   LinuxConsole                         Frugalware Linux
+   xPUD
+Unetbootin also has the ability to load several different system utilities, such as
+   Parted Magic - a partition manager that can resize, repair, backup and restore partitions
+   SystemRescueCD - a system repair, backup and recovery tool
+   Super Grub Disk - a boot utility to restore and repair GRUB installations
+   Backtrack - a utility for network analysis and penetration testing
+   Ophcrack - a utility to recover Windows passwords
+   Smart Boot Manager - can boot off of CD-ROM and floppy drives on machines with a faulty BIOS
+   FreeDOS - an open source DOS to allow you to run BIOS flash utilities, or just plain old DOS
+
+Unetbootin can automatically download the correct ISO image for all of these distributions automatically, or you can download (or create) your own ISO image and hand the filename to unetbootin. In either case, the next step is to extract all of the files from the image so that they can be copied to the USB drive. The USB drive you wish to use needs to be already formatted with a filesystem on it. Once the files have all been extracted, unetbootin uses some heuristics to figure out where the kernel and initrd files are hiding and places them into /ubnkern and /ubninit. It then goes through the boot configuration files from the ISO to try and figure out what boot options need to be set on the USB drive. Once it figures this out, it puts those options into the configuration file /syslinux.cfg. Then, unetbootin uses syslinux to make the USB drive bootable, and you should be good to go.
+
+
+Another utility that has started garnering a lot of attention is usb-creator. [gui2.png] This program is the official tool to create Live USB versions of Ubuntu's Live CD's. This utility started with version 8.04 of Ubuntu. A KDE frontend showed up in version 8.10, and a Windows version is currently being worked on. This utility can do the same sort of work as unetbootin. It has the builtin ability to create an Ubuntu Live USB. But that's not all. Like unetbootin, usb-creator can take an arbitrary ISO image and copy that onto your USB drive. It can even take a CD-ROM from your CD drive and copy its contents over to your USB drive. It's a simple matter of selecting the source and the destination, and running.
+
+One big advantage of usb-creator is its ability to create a persistent Live USB for you very easily. Any extra space on your USB drive, above and beyond what is required for the OS files, can be used as writeable space for persistent files. This means that any changes you make to your system will be written to the USB drive. You even have the option of clearing the persistent space on shutdown. This way you can use your USB Drive as a complete operating system, just as if it were on your hard drive. And there you go, Linux on a thumbnail.
+
+All of these techniques require you to have either a Live CD, or an ISO image of a Live CD. But what if you want to go a bit more low-level, a bit more from scratch? One of the tools available to you is syslinux. Syslinux is actually a suite of different programs that provide for booting from many different media. They include
+   syslinux          booting from FAT filesystems
+   pxelinux          network booting
+   isolinux          bootable "El Torito" CD-ROMs
+   extlinux          booting from ext2/ext3/ext4 or btrfs filesystems
+   memdisk           a tool to boot legacy OSes from non-traditional media
+
+The idea is that syslinux installs into the boot sector of your device and puts a copy of the file LDLINUX.SYS into the root directory, and it then loads the kernel and other OS files from the actual filesystem. Since the filesystem is just a simple FAT filesystem, all of the files, including the kernel, can be manipulated using standard DOS tools. By default, syslinux assumes the kernel is in the file named LINUX on the boot disk. This default can be changed in the config file. If you hold down the shift or alt keys during boot up, then syslinux will display a LILO-style "boot:" prompt where you can enter a kernel file name and options.
+
+Syslinux searches for its configuration file in the following order
+   /boot/syslinux/syslinux.cfg
+   /syslinux/syslinux.cfg
+   /syslinux.cfg
+In this file, you can set parameters to change all of the default settings. Any filenames in the configuration file are relative to the directory that syslinux.cfg is in, unless it is a full path. A basic example looks like
+   DEFAULT linux
+   LABEL linux
+     SAY Now booting the kernel from SYSLINUX...
+     KERNEL vmlinuz.img
+     APPEND ro root=/dev/sda1 initrd=initrd.img
+The kernel types that syslinux supports doesn't need to be a regular Linux kernel image. They can be a PXE bootstrap program, a boot sector, or a COMBOOT image.
+
+These techniques and utilities should give you a good start at putting your USB drives to their best use. You can now carry around your whole OS in your pocket. This is essentially what I've done for my old EeePC. With Linux on USB, I can keep the same system there, and on my MacBook through Parallels. You can also use the same system on basically any machine that you can get to boot off of USB. Have fun and be creative.
+
+
+URLs
+http://unetbootin.sourceforge.net
+https://launchpad.net/usb-creator
+http://syslinux.zytor.com/wiki/index.php/The_Syslinux_Project

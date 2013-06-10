@@ -1,0 +1,31 @@
+The Web on the Console
+
+Most people think graphical interfaces when they think of surfing the web. And under X11, there are lots of great programs, like firefox or chrome. But, the console isn't the wasteland that it might seem. There are lots of utilities available to surf the web, and also to download content from or upload content to the web.
+
+The first thing you may want to do is surf around the web and find some content. The first utility to look at is also one of the oldest, the venerable lynx. Lynx was actually my first web browser, running on a machine that couldn't handle X11. Using it in its most basic form, you simply run it on the command line and give it a file name or a URL. So, if you wanted to hit Google, you would run
+   lynx http://www.google.com
+The first thing you will notice is that lynx will ask you whether you want to accept a cookie that Google is trying to set. Once you either accept or reject the cookie, lynx will load the web page and render it. As you will no doubt notice, there are no images. But all of the links and the text box for entering your search query are all there. You can simply navigate around from link to link with your arrow keys. Because the layout is very simple and text-based, items will be in very different locations on the screen from what you will see using a graphical browser.
+
+There are several options to lynx that might be handy to know. The first useful tip is that you can hand in more than one URL when you launch lynx. Lynx will add all of these URLs to the history of your session and render the last URL and display it. When you tested loading Google above, lynx asked you about whether or not to accept a cookie. Most sites these days use cookies. You may not want to hear about every cookie. You can use the option "-accept_all_cookies" to avoid all of these warning messages. You can use lynx to process web pages into a readable form by using the option "-dump". This will take the rendered output from lynx and write it out to standard out. This way you can simply process web pages to a readable format and dump them into a file for later viewing. You can choose what kind of key mapping you wish to use by using the options "-vikeys" or "-emacskeys". By using one of the options, you can use shortcut keys that match your editor of choice.
+
+Lynx does have a few issues. It has a hard time with HTML table rendering and doesn't handle frames. Along comes the browser links. Links not only works in text mode on the command line, but can also be compiled to use a graphics display. The graphics systems supported include X11, svga, and framebuffer. You can select one of these graphics interfaces with the option "-g". Links can also write out the rendered web pages to standard output by using the option "-dump". If you need to use a proxy, you can tell links which to use with the option "-http-proxy host:port". Links is also able to deal with buggy web servers. There are several web servers out there which claim to be compliant to a particular HTTP version and aren't. To try and compensate for this, you can use the "-http-bugs.*" options. For example, "-http-bugs.http10 1" forces links to use HTTP 1.0, even when a server claims to support HTTP 1.1.
+
+If you are looking for a strictly text replacement for the venerable lynx, there is elinks. Elinks supports colors, table rendering, frames, background downloading and tabbed browsing. One possibly useful option is "-anonymous 1". This option disables local file browsing and downloads, among other things. Another interesting option is "-lookup". When you use this, elinks will print out all of the resolved IP addresses for a given domain name.
+
+Now that we can look at web content from the command line, how can we interact with the web? What I really mean is, how do we upload and download from the web? There are many instances where you may want an offline copy of some content from the web that you can read through at your leisure, off by the lake where you don't have any Internet access. One of the tools you can use to do this is curl. Curl can transfer data to or from a server on the Internet using HTTP, FTP, SFTP, even LDAP. It can do things like HTTP POST, SSL connections, and cookies. You can specify form name/value pairs so that the web server things you are submitting a form by using the option "-F name=value". One really interesting option is the ability to use multiple URLs through ranges. For example, you can specify multiple hosts with
+
+   curl http://site.{one,two,three}.com
+
+which will hit all three sites. You can range through alphanumeric ranges with square brackets.  The command
+
+   curl http://www.site.com/text[1-10].html
+
+will download the files text1.html to text10.html.
+
+But what if you want a copy of an entire site for offline browsing? The tool wget can help you out here. In this case, you will likely want to use the command
+
+   wget -k -r -p http://www.site.com
+
+The option "-r" recurses through the links of the site starting at http://www.site.com/index.html. The option "-k" rewrites the downloaded files so that links from page to page are all relative so that you can navigate correctly through the downloaded pages. The option "-p" downloads all extra content on the page, such as images. This way you can get a mirror of a site on your desktop. Wget also handles proxies, cookies, HTTP authentication, along with many other conditions. If you're uploading content to the web, you can use wput. Wput pushing content up using ftp, with an interface like wget.
+
+So now you should be able to interact with the Internet without ever having to use a graphical interface. Yet another reason to keep you on the command line.

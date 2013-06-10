@@ -1,0 +1,49 @@
+Gnuplot - The grandfather of graphing utilities
+
+In these columns, we covered several different scientific packages for doing calculations in several different areas of research. We have also looked at several different packages that handle graphical representation of these calculations. But one package that we have never looked at before is gnuplot. Gnuplot has been around since the mid-1980's, making it one of the oldest graphical plotting programs around. Because it has been around that long, it has been ported to most of the operating systems that you might conceivably run into. This month, we'll take a look at the basics of gnuplot, and see what kind of use we can put it to. Gnuplot is a command line driven program. As such, it has been co-opted to provide graphic capabilities in several other applications, such as octave. So you may have used gnuplot without even realizing that you were doing so. There are several ways that gnuplot can be used. It can not only accept input data to plot, but it can also plot functions. Gnuplot can send its output either to the screen (in both a static file format display or an interactive display), or it can send output to any of a large number of file formats. There are also lots of functions available to customize your plots, changing the labels and axes, among other things.
+
+Let's start by getting gnuplot installed. There are binaries available for many different operating systems. Most Linux distributions should also come with a package for gnuplot, so installation should be a breeze. If you want the latest and greatest features available, you can always download the source code and build gnuplot from scratch. Once gnuplot is installed, you can start it up by executing the command "gnuplot". When executed this way, you are launched into an interactive session. Let's start by trying to plot a basic function. You should be able to plot any mathematical function that would be accepted in C, FORTRAN or BASIC. These mathematical expressions can be built up from built in functions like "abs(x)", "cos(x)", or "Bessel". You can use integer, real and complex data types as arguments to these functions. When using gnuplot to generate a plot, you can either have all of the commands in a single file and hand them in to gnuplot as a script, or you can start gnuplot up in interactive mode and issue these commands one at a time in the command environment. To run a gnuplot script, you simply need to add it at the end of the command when you run gnuplot. This would look like
+   gnuplot script_to_run
+When you run gnuplot in interactive mode, you can quit your session with the command "quit". The two most basic commands are "plot" and "splot". "plot" generates 2 dimensional plots, while "splot" generates 3 dimensional plots. To plot a simple function, you can use
+   plot sin(x)/x
+This will generate a plot window, displaying the graphical results [gnuplot1.png]. If you wish to add a title to the plot, you can add this option to the plot command
+   plot sin(x)/x title "Example 1"
+   [gnuplot2.png]
+You can even plot multiple expressions on the same plot window with
+   plot sin(x)/x title "Example 1", sin(x) title "Example 2"
+   [gnuplot3.png]
+To plot a 3 dimensional graph, simply hand in an expression with two independent variables to splot, such as
+   splot x**2+y**2
+   [gnuplot4.png]
+If you run into a problem, the first place to look is the built in help function. To get help with the plot command, you can execute the command
+   help plot
+This will pull up the help documentation that gnuplot has about the plot command.
+
+This is fine if you are just trying to see what some expression looks like when it is plotted out, but in real science, you often collect data in experiments which needs to be plotted so that you can do some graphical analysis and get some ideas as to what may be happening. Gnuplot can handle this type of plotting, too. To do so, you simply have to hand in the file name of the file containing the data to be plotted. This file should have the data elements arranged in columns, where the columns are separated by white-space of some kind. Any lines that start with "#" are treated as comments by gnuplot and are ignored. If your data file contains several data columns, you can select which columns are pulled in to be plotted as options to the plot or splot functions. As an example, lets say that you have a data file which has the temperature and pressure for each day. You can plot the temperature with 
+   plot "weather.dat" using 1:2 title "Temperature"
+If you wanted to get the pressure graph, you would use
+   plot "weather.dat" using 1:3 title "Pressure"
+If you want to plot all three columns, you can use
+   splot "weather.dat"
+
+There are two ways of customizing your plots when using gnuplot. The first is to use options to the plot and splot commands. In this case, you define things like the title of the plot, the axes, or the style. The styles available can be like lines, points, linespoints, impulses, dots, steps, fsteps, histeps, errorbars, xerrorbars, yerrorbars, or xyerrorbars. To use one of the styles, you can include the option with the "with" keyword. So, if you wanted to plot both the lines and points of your graph, you could add "with linespoints" to you plot command. You can also use shortcuts for these options. For "with", you can use "w". For the "title" option, you can use "t". For the "using" option we saw earlier, you can use "u". The second option for customizing your plots is to use the "set" command. With this command, you are free to set the values for several graphing options. Using the second option, you can set all types of options, like the title, xlabel, yrange, xtics, or key, among other options. For example, you can set the y-range with
+    set yrange [20:500]
+After setting the various plotting options, you will need to tell gnuplot to redraw the plot that you are working on. You can do this with the command
+   replot
+Many of these "set" options also use shortcuts. For example, the shortcut version of the above command is
+   set yr [20:500]
+
+Gnuplot is not only a capable utility to plot data and functions, it can also do some analysis on the data being plotted. For example, you can get gnuplot to do curve fitting on the data. To do so, you would need to first define a function, as well as some initial guesses before calling the fit command. An example would look like
+   f1=a1*tanh(x/b1)
+   a1=300; b1=0.005;
+   fit f1(x) 'data_file.dat' using 1:2 via a1,b1
+This will tell gnuplot to try and fit the data from the columns 1 and 2 from the file 'data_file.dat' to the function defined by f1(x).
+
+When you have an environment created for a particular research area, you can save all of the settings that you may have set up with the command "save". This command will essentially save off all of the gnuplot commands that you issued to the a text file. This text file can be loaded into a new gnuplot session with the "load" command. This will take all of the commands saved to the "save" file and re-run them in the new session. You can always see what options have been set by using the command "show". This command will show you what values have been set within the current session. To see all of the options, you would use the command "show all". When you are playing with options, you can sometimes get yourself into an odd condition. Just remember that you can always reset any values created with the "set" by using the "reset" command. This command will reset these session options to their default values.
+
+Sometimes, you may need to interact with the system that gnuplot is running on. In these cases, you would need to start a shell session from gnuplot. There are two ways to do so. The first is to use the command "system". In this case, you can hand in a string containing the system commands which need to be run outside of gnuplot. The other option is to use the command "!". This command is actually just a shortcut for the command "system", and can be used interchangeably.
+
+This article has only covered the most basic functions available in gnuplot. It is definitely worth your time to look deeper into the documentation to see what else it can do for you in analyzing your data. Even if you don't use gnuplot directly, learning more about it will help you when you use other applications, like octave. Take this article as a jumping off point and explore just what is possible in data analysis.
+
+URL's
+http://www.gnuplot.info

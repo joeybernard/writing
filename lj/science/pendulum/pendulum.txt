@@ -1,0 +1,82 @@
+Welcome to a new series on using Linux and Open Source software to do science. The tools available for free (as in beer) has lowered the cost of participating in computational science. The freedom (as in speech) you have when you use these tools allow you to build upon the work of others to advance the level of knowledge for everyone.
+
+Over the articles in this series, we'll look at some small science experiments that anyone can do at home. Then we'll look at some tool or tother available on Linux that we can use to analyze the results. In some purely theoretical spheres (like quantum chemistry or general relativity) we'll just look at the tool alone and how to use it without benefit of an accompanying experiment.
+
+The first experiment we'll do is a classic, the simple pendulum. When you look at a simple pendulum, there are two obvious parameters that we can change: the mass of the pendulum bob and the length of the string. A simple way to do this at home is to use a bolt with nuts. You can tie a string to the head of a bolt and tie the other end to a pivot point, like a shower curtain rod. Then you can simply add more weight by adding nuts to the bolt. This will be our basic experimental setup.
+
+The data we need to collect is the time it takes for each oscillation (one full back and forth motion). Since we want to figure out which parameters affect the pendulum, we'll need to do this for several different masses and several different lengths. To help get consistent times, we'll actually time how long it takes for 10 oscillations and to average out any reaction time issues in the time taking, we'll do 3 of these measurements and take the average. You should end up with something like table 1.
+
+TABLE 1
+Length (cm)       Weight (g)     Time (s)
+18.8              102.0          0.9
+18.8              118.5          0.9
+18.8              135.0          0.9
+18.8              151.5          0.9
+37.6              102.0          1.3
+37.6              118.5          1.3
+37.6              135.0          1.3
+37.6              151.5          1.3
+57.6              102.0          1.5
+57.6              118.5          1.5
+57.6              135.0          1.5
+57.6              151.5          1.5
+88.8              102.0          1.9
+88.8              118.5          1.9
+88.8              135.0          1.9
+88.8              151.5          1.9
+
+Now that we have our data, what can we learn from it? To do some basic analysis on it, we'll look at scilab. This is a matlab-like application that can be used for data analysis and graphing. Installing on Ubuntu, or other debian based distrobutions, is as simple as
+   sudo apt-get install scilab
+On startup, you should see something like [Screenshot-Console.png].
+
+Usually, the first thing you probably want to do is to graph your data to see if any correlations jump out at you. In order to do that, we'll need to get our data into scilab. The most natural format is probably 3 vectors (length, mass and time), with 1 row for each measurement we made. In scilab, this would look like
+
+height = [18.8, 18.8, 18.8, 18.8,
+          37.6, 37.6, 37.6, 37.6,
+          57.6, 57.6, 57.6, 57.6,
+          88.8, 88.8, 88.8, 88.8];
+weight = [102.0, 118.5, 135.0, 151.5,
+          102.0, 118.5, 135.0, 151.5,
+          102.0, 118.5, 135.0, 151.5,
+          102.0, 118.5, 135.0, 151.5];
+times = [0.9, 0.9, 0.9, 0.9,
+         1.3, 1.3, 1.3, 1.3,
+         1.5, 1.5, 1.5, 1.5,
+         1.9, 1.9, 1.9, 1.9];
+
+You will probably want to use this data over and over again, doing different types of analysis. To do this most simply, you can store these lines in a separate file and load it into your scilab environment when you want to use it. You just need to call exec() to load and run these varaiable assigments. In this sample, we'll be loading the data with
+   exec("~/pendulum1.sce");
+You can see individual elements of this data using the disp() function. To see the first value in the times vector, you would use [Screenshot-Console2.png]. To do a simple 2D plot, say of height vs times, you would simply execute
+   plot(height, times);
+This doesn't look very descriptive, so we'll add some text to explain what this graph is showing. You can set labels and titles for your graph  with the xtitle command
+   xtitle("Pendulum Height vs Time", "Height(cm)", Time(s)");
+This would produce a graph which looks like [Screenshot-Console3.png]. But we have three pieces of data, or three dimensions. If you want to produce a 3D graph, you can use
+   surf(height, weight, times);
+This produces a surface plot of the data. Since our experiment seems so clear, we won't actually need a full 3D plot.
+
+All of this data visualization points to weight not really having any influence on the time. So we'll focus on the relationship between the length of the pendulum and the time. The graph looks like an almost straight line, so we'll assume that it is and see where we get with it. The formula for a straight line is y=a+bx. The usual thing to do is to try and fit a "closest" straight line to the data we have. The term for this is "linear regression". Luckily, scilab has a function for this called regress(). In our case, we would simply execute 
+   coeffs = regress(height, times);
+   disp(coeffs(1));
+   disp(coeffs(2));
+This ends up looking like [Screenshot-Console4.png]. From this, we see that the slope of the straight line we just fit to our data is 0.0137626 s/cm. Does this make sense? We'll need to look at some theory to check this number out.
+
+According to theory, we should have have plotted the square of the time values against the length of the pendulum. To get the square of the time values, you can use
+   timess = times .* times;
+This multiplies the first entry of the time vector to itself, the second entry to itself, etc., down the entire vector. So the new vector timess contains the square of each entry in the vector times. If we now do a linear regression with timess instead of times, we get a result of
+   a = 0.1081958
+   b = 0.0390888
+According to theory, the value of a should be given by ((2 * PI)^2 / g), where g is the acceleration due to gravity. According to scilab, the value is
+   ans = (2 * 3.14159)^2 / (9.81 * 100);
+   disp(ans);
+We did need to adjust the value of g by a factor of 100 to change it to the correct units of cm. We see that this gives us 0.0402430. To the second decimal place this gives us 0.04 from experiment and 0.04 from theory. What does this look like, graphically? We can generate the two graphs with
+   plot(height, timess);
+   plot(height, 0.1081958 + 0.0390888*height);
+   xtitle("Simple Pendulum", "Length (cm)", "Times Squared (s^2)");
+This looks like [Screenshot-Console5.png]. This seems like a reasonably close match, considering that the spread of measured pendulum lengths only covers 70cm. If you made measurements with pendulum lengths over a larger range of values, you will likely see an even closer match to theory. But as a small example experiment to show a small list of scilab functions, we've already seen that simple pendulums seem to follow theory reasonably closely.
+
+Next month we'll look at maxima. With this software package, we'll take a look at the math behind the theory of the simple pendulum and see if we can derive the usual results that you learn in introductory physics. Also, if there are any areas of computational science that you would like to see covered in this series, please fell free to contact me with your ideas.
+
+
+Links
+http://www.scilab.org
+http://en.wikipedia.org/wiki/Pendulum

@@ -1,0 +1,21 @@
+The Last few months we've looked at specific utilities and how they can be used, sometimes in quite interesting ways. This month we'll instead look at a task and see what utilites are available to accomplish this task. People who do scientific computational work tend to use several pieces of software in series. This software could span the entire computer age in terms of hold they might be. The usual worksflow involves taking some initial data and feeding it as input to a program in order to do the first computational step. This output is then fed as input to another program in order to complete the seconf computational step. This process is continued until the final results are reached. The problem with this is that the programs used at each computational step were probably written by completely different groups, possibly decades apart. This means that we may need to do somekind of tranformation in order to get the output from one computational step into the proper format to be input for the next computational step.
+
+One simple problem that is quite common is the use of different field separators in a data file. In some cases, fields may be separated by commas. In other cases, they may be separated by tab characters. If we have to change from one to the other, we can use the utility 'tr'
+
+   tr "," "\t" <data_file_1 >data_file_2
+
+This replaces every comma in file data_file_1 with a tab and writes the results into file data_file_2. This works well for replacing single characters, or even classes of characters. Say you had a really old piece of FORTRAN code that expected all letters to be capitalized. You could accomplish this by using
+
+   tr "[lower]" "[upper]" <data_file_1 >data_file_2
+
+But what if you have some more complicated translation to make? A more general purpose utility to use for this is sed, the Stream EDitor. With this utility we can make substitutions with the "s" command. As an example, we can achieve the same result as above by running
+
+   sed -e "s/,/    /g" data_file_1 >data_file_2
+
+where the blank space after the second forward slash is a tab character. Just remember that to type a tab character in the bash shell, you need to type C-v TAB. Using this command, we can translate any kind of separator into any other kind of separator. And don't think it can't happen to you. I have personally seen separators like "|*|" or "%*%" out in the wild. You never know what some previous person is going to think is a good idea.
+
+So now we have our data fields separated with the correct separator, but what if we only need some of this data? The output file we are massaging may have more data then we need for the next computational step. What are we to do? This is where another very useful utility steps in to save the day, awk. With awk, you can pull out only the data you need. As an example, let's say that your output file has three columns of data in it. But the next computational step only requires column 1 and 3. With awk, this becomes a very simple task. By executing the following
+
+   awk {print $1,$3} >data_file_2
+
+We get columns 1 and 3, with a comma as the field separator. 

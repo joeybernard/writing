@@ -1,0 +1,60 @@
+Remote Viewing - Not Just a Psychic Power
+
+Most people today are used to having a nice, intuitive graphical environment when they sit down to use a computer. Gone are the days of using a DOS machine, or being lucky enough to have s dialup account at 300 baud on a Unix mainframe. Everyone today expects to be able to point and click their way to work nirvana. Even when that work is being done on some other machine over a network. This month we'll look at some of the options available, what the relative costs and benefits are, and hopefully by the end you should have enough information to make a choice as to what would be the best option for you.
+
+Before we begin, though, we should probably take a look at what is actually involved in using a GUI on Linux. The overwhelming majority of Linux users will be using the X11 Window System. This is usually shortened to just X11. X11 has been around since 1987. Since then, it has gone through several revisions, and is currently at R7. Any X11 installation you are likely to encounter will be some version of X11R7. There have been attempts to replace it, including Wayland, Berlin/Fresco and the Y Window System. But they are fairly rare out in the wild. You need to go out of your way to run into these. 
+
+X11 is built on a client-server model. In this model, the X11 server is the part that actually draws on a physical screen. As such, it is the part that you end up running on your desktop in front of you. The client portion in this model is the user-space program that has output that needs to be seen by the end user.
+[diagram.png - The X11 Window System (from Wikipedia)]
+The client does this by sending requests to the X11 server. These are high level, and of the form "Draw a window", "Add text to the window border", "Move the window to the right by x pixels". Because of this, there can potentially be a lot of communication if there is a lot going on.
+
+When most people experience X11, both parts of this model are running on the desktop in front oif them. But this isn't the only option. There is no reason for the client and server to be on the same machine. Or even on the same continent. Since everything is done by sending messages, these messages can be sent over a network connection easily.
+
+The first thought that should come to you is "Hey, I can open a window on my friend's machine and display rude pictures there." Unfortunately, the writers of the X11 specification have beaten you there and closed that particular hole. By default, X11 servers are configured not to accept connections from clients on the network. You have to explicitly allow this. There are two separate mechanisms you can use to allow external connections. The older one is called xhosts. With xhosts, you tell the X11 server to accept connections from the servers that you OK. The command looks like
+   xhost +111.222.333.444
+The newer authentication mechanism is called xauth. In this method, the X11 server creates a cookie that is required in order to connect to the X11 server. If you want to connect to the X11 server from a remote machine, then you will need to copy this cookie over to the remote machine. An example of doing this, from the xauth man page is
+   xauth extract - $DISPLAY | ssh otherhost xauth merge -
+This command pulls out the cookie for the current X11 server and SSH's it over to the remote machine and merges it into the user's xauth file.
+
+Once you have done this, how do client applications go ahead and connect to your X11 server? All programs that run under X11 accept certain command line options. One of these is "-display". With this option, you can tell your client program which X11 server to connect to and send its output to. The general form of this option is
+   -display hostname:display#.screen#
+The reason for all of the parts of this option is because a given machine could be running more than one X11 server, and each server could be running more than one display screen. The first server and screen is labeled as 0.0, so in most cases you will use
+   -display hostname:0.0
+As an aside, you can do this on your desktop. If you open a terminal, you can run an X11 client program with 
+   -display :0.0
+and it will show up on your default desktop.
+
+A consequence of this is that you need to have a connection to the remote machine that will be running the client program. Most times, this connection will be over an SSH connection between your local machine and the remote machine. Luckily, SSH provides the ability to tunnel X11 traffic over your SSH connection for you. This tunnelling happens "out-of-band", so to speak.You start a session by SSH'ing into your remote machine and using either the "-X" or "-Y" options. The "-X" option is the preferred method. It sets up a secure X11 socket on the remote machine using xauth as the authentication system. Unfortunately, some X11 servers have a hard time with this, so you can use "-Y". This essentially turns off any authentication. It is equivalent to using "xhost +".
+
+Once your SSH connection is established, a new X11 socket is created on the remote machine and the environment variable DISPLAY is set to point to it. From here on in, any X11 applications that you start on this remote machine will send their output to your X11 server on your desktop. When you do this, you may notice something. In most cases, it is unbelievably slow. Even slower than slow, if the machine you are connecting to is any appreciable distance away. Due, in part, to this issue, the developers of SSH have included an extra option "-C". This turns on compression of the data travelling over the SSH connection. A side effect of this is that the packets being sent containing the X11 protocol instructions get bunched together and sent as a single unit. This makes much more efficient use of the bandwidth available, since you are cutting down the amount of control data that also gets sent over the line.
+
+As I mentioned above, both X11 and X11 over SSH are notoriously slow. In some cases, it is nearly unusable. Luckily you have another option available, VNC. VNC also follows the client/server model, but reverses the location of the client and server from what you might be used to with X11. With VNC, you run a server out on the remote machine, and then use a client on your desktop in front of you. You can run a VNC server in the background, where it sits and acts like any other service. It also doesn't use any of the standard X11 sockets and so will not interfere with any standard X11 desktop that may also be running on the remote machine. Since it runs as a service, it can continue to run, whether you are connected to it or not. You can think of it as a GUI version of the old standby, screen. There are also client applications for all of the major operating systems, and they are much lighter weight than a full X11 server. So, you can start up vncserver on the remote machine, connect to it from your windows box, start some long running process, disconnect and go home, then check on its progress from your Linux box. This is a great improvement over straight X11. Also, you will notice that in most cases it is a bit more responsive than X11 was. This is due to the amount of information being sent back and forth between the client and server parts of VNC.
+
+The server command is simply "vncserver". When you run this command, a directory named ".vnc" is created in your home directory if it doesn't already exist. If a password has not already been set for this instance of the VNC server, it will ask you to enter one. It gets saved in the file "passwd" in encrypted form. If you wish to change it, you can use the command "vncpasswd". In this directory, you should also find log files for each instance of vncserver that you start, as well as a pid file containing the PID of any currently running instances of vncserver. The last file of interest is the file "xstartup". This is the file that gets used when you start vncserver to setup all of the required options, and also lay out what will be run on the vncserver desktop. The defaults on my Ubuntu system look like
+   #!/bin/sh
+
+   xrdb $HOME/.Xresources
+   xsetroot -solid grey
+   #x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+   #x-window-manager &
+   # Fix to make GNOME work
+   export XKL_XMODMAP_DISABLE=1
+   /etc/X11/Xsession
+So in this case, it sets the background to grey and then tries to run whatever session is defined in the global script Xsession. This is where we can do some editing and make it our own. I prefer fluxbox as a window manager on smaller screens. So we can simplify this to
+   #!/bin/sh
+   xrdb $HOME/.Xresources
+   startfluxbox
+Starting this gives you a nice looking desktop running fluxbox. If the client that is going to be connection to this has to deal with a smaller screen size (like on my netbook), you can set the desktop size on the command line with the "-geometry" option. You can also set the color depth of the virtual desktop with the "-depth" option. So, to set up a server that looks nice when I connect to it from my netbook, I would use
+   vncserver -geometry 800x600
+
+Now, what about the other end? There are two general classes of vncviewer applications, GUI and command line. The GUI versions, like the most common ones for Mac OSX and Windows, will point-and-click access to all of the relevant options. They will also have them in different locations, depending on who wrote your particular favorite viewer. Since VNC is a prorocol (kind of like FTP or HTTP), there is a great deal of variation in what you get from the various implementors. I'll look at the command line versions here and see what you can do with those. The GUI versions should have comprable options available. To connect to a vncserver, you would run
+   vncviewer hostname:port
+where "hostname" is either the true hostname of the remote machine, or its IP address. "port" is the port number that the vncserver is listening on, starting at 1. This number is added to the default starting port number 5900, so the actual network port number in this case is 5901. This will try and connect to the given server, and will ask for a password if one had been set during the startup of vncserver. You then get a nice fluxbox desktop. [vnc1.png - fluxbox running under vncserver] There are lots of options to change various parts of what is being transmitted, such as the encoding algorithm, the compression level and the quality level. Playing with these options can improve the responsiveness of your session, potentially at the cost of some image quality. Depending on what work you are trying to do, this may or may not be a trade-off you are willing to make.
+
+While you can force some kind of authentication on VNC, that may not be enough in these security conscious days. You may have to work with a remote machine that sits behind a firewall that only allows SSH traffic. What can you do? VNC allows for tunneling of the protocol over an SSH connection by using the "-via gateway" option. This gateway machine is the machine that you are SSH'ing into to do the tunneling. If this is the same machine as your vncserver, then the command would look like
+   vncviewer -via user@somehost.com localhost:1
+This tells vncviewer to SSH to somehost.com as user "user", then connect to vncserver on the localhost to somehost.com, in other words somehost.com itself. There is no reason that these need to be the same machine. This means that you could connect to a vncserver on a machine behind a security gateway machine. In this case, it would look like
+   vncviewer -via user@gateway.com someotherhost.com:1
+Be aware that VNC will still ask you to authenticate after the SSH session has been established.
+
+Hopefully this article has given you some options for those times when you just can't live without a nice graphical interface. Even when you are forced to squeeze through an SSH connection, you can still have all of that great GUI goodness. If you have any other ways of getting a graphical interface on a remote machine, I would love to hear about them.

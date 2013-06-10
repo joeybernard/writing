@@ -1,0 +1,7 @@
+\frametitle {Sample Code}
+   \begin{lstlisting}{language=C}
+int main(int argc, char **argv) {
+   int i=10;
+   printf("Hello World! The value of i is %d\n", i);
+}
+   \end{lstlisting}

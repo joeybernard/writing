@@ -1,0 +1,48 @@
+Programming for Scientists
+
+Over the last several issues, I have looked at several different software packages that are of use to scientists trying to do computational science. I have tried to cover as broad a spectrum of subjects as I could, and I even covered some basic programming constructs like MPI or scipy. But I have always been limited by the amount of space a venue like this provides. All I can do is to provide a taste of what is out there and hope that you as the reader take this away and learn more on your own. Also, in many cases you may find yourself doing research in areas that have never been done by anyone else before. This means that, by definition, there will not be any software package out there that you can use and you will need to write your own software from scratch. One major problem that happens to computational science researchers is that they simply do not have the time to attend normal classes over the span of a term or two in order to learn the skills they need to do their work. They need to be able to jump start their research and essentially go from zero to 100 mph in no time flat. Part of my day job is to help them do this. I provide crash courses in most of the subjects that they may need. But what can they do when they leave and then try and apply this information several days or weeks later? Enter the site Software Carpentry (http://software-carpentry.org). Since this issue's focus is on programming, I thought I would introduce you, dear reader, to a resource that should be on every researcher's bookmark list. I will say that I have no association with the author and maintainer of the site. I'm just glad to have a high quality source of information that I can point my users to.
+
+The first level of resources available is a set of self-paced online workshops. These workshops are distributed under a creative commons license, specifically the Creative Commons Attribution License. This means that you are free to use the material and remix it, as long as you properly attribute the author. These workshops cover a vast number of subjects. These workshops are available as both PDF and PowerPoint files. For some of the workshops, there are even video screencasts available. So it is almost like having an instructor right there with you. Each topic is broken down into smaller sections to make digesting easier. There are also exercises available so that you can review the material covered. To begin with, many new researchers, graduate students and post-docs have had little or no experience in computational science at all. Many have never even seen any type of Unix environment. This is quite a stumbling block, as most high performance computing centres that I know of run Linux. So you will probably want to start with the workshop "The Shell". This workshop is broken down into the sections
+   Introduction
+   Files and Directories
+   Creating and Deleting
+   Pipes and Filters
+   Permissions
+   Finding Things
+   Job Control
+   Variables
+   Secure Shell (SSH)
+This list of items covered should get a new Linux user comfortable enough to use the command line effectively. Since most HPC clusters are accessed through an SSH connection, being comfortable on the command line is essential. The next workshop you should look at is the "Version Control" workshop. To my mind, this is one of the most important subjects to learn for computational science research. This is a field where code is constantly being toyed with, by many different people over long periods of time. It is of utmost importance to be able to back out experimental changes in the code when they break something, or when you've gone down the wrong path in your research. But almost no one uses a version control system. So, just to make my life easier as a research consultant, please go ahead and check this particular workshop out. I guarantee that it will be one of the most useful workshops you could attend.
+
+Since this issue is about programming, what workshops are available to cover this? The only language explicitly covered is Python. The Python workshop is relatively complete, covering
+   Basics - running Python, variables, comparison operators
+   Control Flow - while loops and conditionals
+   Lists - creating, deleting and maintaining lists, for loops
+   Input and Output - dealing with files
+   Strings - handling strings, formatting, concatenation
+   Aliasing - what it is and how it can cause problems
+   Functions - what they are and how to use them effectively
+   First-class Functions - binding functions to variables, passing functions to functions
+   Libraries - importing modules, dealing with namespaces
+   Tuples - creating and indexing, unpacking lists
+   Slicing - slicing versus indexing, etc.
+   Text - how lines and characters are stored, dealing with unicode
+Python is relatively similar to other languages, like C, so you should be able to apply what you learn here to those other languages with just minor syntax translations. Also, Python is growing in popularity in scientific programming circles due to its clean formatting rules and the relative ease incorporating external high performance libraries written in C or FORTRAN. In this sense, you can almost consider Python to be a glue language. But it has quite a lot of capability available directly through external libraries like numpy and scipy. You could do worse as a computational scientist than learning Python. With its growing popularity, there is also a greater chance that the specific problem area that you are researching already has tools or libraries available for you to use.
+
+Once you have at least one language under your belt, it is time to learn more of the details involved in programming itself. These workshops cover
+   Program Design - goes through a simple example of designing, debugging and improving a program
+   Testing - how you should test your software, handle exceptions and do unit tests
+   Make - how to use rules, patterns and macros to build your software
+These topics cover a lot of the extra items that you need to know in order to program effectively, but aren't strictly programming proper. That is covered by the following workshops
+   Sets and Dictionaries - using associative data structures to represent data that doesn't really fit into a list
+   Regular Expressions - how to use regular expressions for pattern matching
+   Databases - an introduction to SQL
+   Data Management - an introduction to managing your data
+   Matrix Programming - using numpy to handle numerical processing
+   Multimedia Programming - programming using sound, pictures and other media files
+   Spreadsheets - using spreadsheets for analysis and visualization
+With these workshops, you get to cover many of the programming elements and structures that will prove of use to you in scientific programming. After this, you should have covered enough, hopefully, to be able to sit down and program a solution to the problem you are studying. Again, all of these workshops include exercises. This way, you can actually try applying what you have learned, which is where the real learning happens. I'm a firm believer that you don't learn anything until you actually try and use it.
+
+There are also in person workshops and boot camps available. Since all of the material is available for free reuse, you can simply use the workshop materials to put on your own workshop or boot camp. But the team behind Software Carpentry are also available to do in person boot camps. You can contact them through the website and see what can be arranged. These boot camps are 2 or 3 day crash courses to cover the bulk of the material. These boot camps are always being offered at different places around the globe. You can always follow the blog so that you will see when one is being offered in your neck of the woods. If you do decide to run your own, the team at Software Carpentry are always happy to help out and offer to spread the word through their network. There is a forum available at the web site for each of the workshop topics where you can discuss the material with other attendees or other presenters.
+
+I would leave you with the suggestion that you actually subscribe the the blog RSS feed. New workshops are always being added, and new boot camps are always being planned. Watching the RSS feed will keep you informed about these additions. As always, feel free to contact me if you have anything specific you'd like to see covered here. Hopefully I've been able to plant the seed and given you ideas on how you can pick up the skills you need.

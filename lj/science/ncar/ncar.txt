@@ -1,0 +1,69 @@
+Scientific Visualization with NCL
+
+Many of my previous columns have looked at all of the software packages which do scientific calculations and generate scientific results. But, columns of numbers are nearly impossible to make sense of. At least by regular human beings. So what can you do? The answer is visualization. We do massive amounts of processing visually, and the easiest way for us to review information is through some graphical format. Because of the power of graphical representations, several packages have been written by several groups. This month, we'll look at NCL (the NCAR Command Language). NCAR is the National Center for Atmospheric Research, where the Computational and Information Systems Laboratory develop NCL. NCL is an interpreted language designed specifically for data analysis and visualization. It supports several different file formats used in scientific computations, as well as providing several data analysis functions built in.
+
+NCL is available as both source code and precompiled binaries. These are hosted at the Earth System Grid website. The first step is to get an account on the Earth System Grid site. Once your registration is complete, you can go ahead and download either the source code, or the binaries for the system you are interested in. The binaries are packaged as tarballs, and have been compiled for both Debian-based and RedHat-based systems. You can select between 32-bit and 64-bit binaries. Once you have the correct tarball downloaded, you can unpack it in the directory of your choice. The usual place on Unix systems is /usr/local, but you are free to place it anywhere on your system. After unpacking, you will need to set several environment variables before actually using NCL. The first is the environment variable NCARG_ROOT. You will need to set this to the parent directory containing the NCL executables and libraries. For example, if you unpack NCL in /usr/local, then you would set NCARG_ROOT=/usr/local. You also need to add the location of the NCL executables to your path. In this example, you would add $NCARG_ROOT/bin, or /usr/local/bin, to the PATH environment variable. You will also need to create a configuration file in your home directory, named ".hluresfile". This file will hold configuration options like the default font and the default color table. Once everything is setup, you can quickly test whether NCL is working correctly by running
+   ng4ex gsun01n
+This command will copy an NCL script file named gsun01n.ncl into your current working directory and run it through NCL to produce some graphical output. If you decide to build NCL from source, you will need to install a number of extra libraries to handle all of the possible input file formats, as well as all of the possible output graphics formats. A full set of instructions is available at
+   http://www.ncl.ucar.edu/Download/build_from_src.shtml
+It is strongly advised to try and use the prebuilt binaries first, before going through all of the work involved in trying to build NCL from scratch.
+
+Now that NCL is installed and ready to be used, what can we actually do with it? If you enter the command "ncl", you will get a prompt where you can enter commands. Entering the command 
+   record "my_script.ncl"
+will tell NCL to start recording the commands you issue in your current NCL session. When you are done, you can type
+   stop record
+to tell NCL to stop recording your session. At this point, you will have an NCL script that you can reuse later, if you wish. Once you have your NCL script, you can run it through NCL with the command
+   ncl <my_script.ncl
+This is only one way to develop an NCL script. Rememeber that NCL is a full programming language, and that you can write your scripts from scratch, once you know enough of the commands that are available. The first structure to know is the format of an NCL script. Scripts all start with the command "begin" and finish with the command "end". Everything else happens between these two statements.
+
+In NCL, there are 4 general groups of objects available. The first group are the workstation objects. These objects represent the graphical devices that act as display devices that the graphical functions use to draw on. These could be an X11 window, an NCAR Computer Graphics Metafile or a PostScript file. Second are data objects. Data objects store the actual information used in your analysis and graphical presentation. Third are view objects, which represent the elements of your graphical representation. These might be things like text objects, tick marks, or contour plots, among others. The fourth is the group of "other" objects, which includes everything else, like overlays or annotations. You can create new objects by using the commands
+   objectname = create "object_character_name" class_name parent_object
+   end create
+where you create a new object based off of an exisiting parent object.
+
+So, what does a basic graphical display look like? You can generate something simple with the following example
+   begin
+   x11 = create "x11" xWorkstationClass defaultapp
+   end create
+   text = create "text" textItemClass x11
+   end create
+   draw(text)
+   frame(x11)
+   end
+You save these commands into a file named "sample1.ncl". To run it, you can execute "ncl <sample1.ncl". The first 3 lines create an X11 object to draw on. The next 2 lines create a text object. The draw command is needed to generate the text object, while the frame command instantiates the graphical display on your screen.
+
+What if you wish to import data in order to do some processing? NCL can handle many of the file formats used in scientific computational work. As a simple case, let's say you have some code which simply dumps the result as an ascii representation of the values of interest. You can load this data with the command
+   file_data = asciiread("/full/path/to/file", file_size, "float")
+This will read in "file_size" numbers from the file given, and import them as of float type. Once you've done this, you can grab subsets using indices, and assign them to variables. For example, you could create a new array with
+   array1 = new(64, float)
+and then assign the first 64 elements from the file with the command
+   array1(0:63) = file_data(0:63)
+Graphing is a bit more complex. The first step is to create a data object which will store the values to be graphed. For example, you could use something like
+   field1 = create "field1" coordArraysClass defaultapp
+      "caYArray": (Y-data)
+      "caXArray": (X-data)
+   end create
+where you would replace "X-data" and "Y-data" with the actual data arrays you wish to use. Once this is done, you can actually do the graphing with
+   xy_plot = create "xy_plot" xyPlotClass wks
+      "xyCoordData": field1
+   end create
+   draw(xy_plot)
+   frame(wks)
+This creates an xy_plot object, based on the data you imported into NCL. You then need to run the draw command, and then call the frame command to instantiate the plot. If you simply want to view the graph, you can call frame on an X11 display object. Or, you can save the graph to a file by calling frame with a file object, like a PostScript file.
+
+There are many possible gotchas when writing and running NCL scripts. Many of these will lead to inefficient code, mostly due to the fact that NCL is an interpreted language. The first item to look at is whether you are using loops unnecessarily. Whenever possible, you should try to use builtin functions to do any processing, rather than try and do the processing yourself. As an example, say you wanted to multiply two 100x100 arrays. If you did it yourself, you would probably write some looping code like
+   do i = 0,99
+      do j = 0,99
+         c(i,j) = a(i,j)*b(i,j)
+      end do
+   end do
+In NCL, you could equivalently write
+   c = a*b
+This is not only shorter, it is also much more efficient. Instead of having to go through each iteration of the loop, and ending up incurring the cost of evaluating the statements on each iteration of the loop, the multiplication is evaluated as a single statement by NCL and is handed to the underlying libraries that handle matrix multiplication as a single statement. You should also try and make sure that you pull out as many operations from the loop as possible, and apply them a single time after the loop operation is finished. Sometimes, the processing you are trying to do is simply too intensive. In these cases, you can tell NCL to load and use external C or Fortran compiled objects to handle this processing.
+
+This has been only the barest of introductions to NCL. NCL is a full programming language, with loop structures and conditional statements. You have variables, objects, and loads of built-in functions. You can go and check out all of the possibilities by following the URL's given below. You might be surprised at the analysis that becomes possible.
+
+URL's
+http://www.ncl.ucar.edu
+http://www.earthsystemgrid.org
+

@@ -1,0 +1,17 @@
+Poor Man's Reporting
+
+If you need to get status reports out of a system and can't install a full-featured package, you can still get results delivered to your mailbox. You can set up a cron entry using
+
+crontab -e
+
+and then adding the line
+
+0 8,13 * * *     command | mail -s "QSUM Output" xxx@unb.ca
+
+where command is the command line executable that gives you the status information you want. Remember that in crontab, the date/time values are
+
+minute         0-59
+hour           0-23
+day of month   1-31
+month          1-12
+day of week    0-7

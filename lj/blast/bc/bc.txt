@@ -1,0 +1,69 @@
+bc - When integers aren't enough
+
+Most people have the need to do some kind of math when they are using a computer. In shell scripts, you can make integer calculations by using functionality in the shell itself. But what if this isn't enough? Luckily the POSIX standard includes a very useful command line utility called bc. With this you can do arbitrary precision arithmetic. Actually, it is a complete, C-like, language that can do some pretty sophisticated programming, supporting variables and functions.
+
+In bc, numbers are all represented internally as a decimal number. They have a length which is the total number of digits, and a scale which is the number of decimal spaces. You can find these values by using the builtin functions length() and scale(). For example, the number 10.23 would have a length of 4 and a scale of 2. The variable "scale" holds the number of decimal places to keep when internal functions are executed. The default value is 0. bc supports all number bases from 2 to 16, with base-10 being the default. The input and output base of numbers can be set by using the variables ibase and obase. All of the basic mathematical operations are supported in bc. You can multiply, divide, add, subtract, do mod and exponentiation. There are all of the standard comparison operations, too. Less than, less than or equal to, greater than, greater than or equal to, equal to and not equal to all give results of 0 for false and 1 for true. This is very useful in the conditional statements available in bc.
+
+bc can be used this in shell scripts or on the command line as a very effective calculator. It will read from a list of files given on the command line, or read from standard input. On the command line, expressions can simply echoed through a pipe to bc.
+
+   echo "1+1" | bc
+
+will give the answer of 2. As a more complex example, the sine of 5 can be assigned to a shell variable with the following
+
+   RESULT=`echo s(5) | bc -l`
+
+The "-l" command line option tells bc to load the math library, giving access to the trigonometric functions.
+
+As a bit of a contrived example, say that there are two values and we need to find out which one has a larger sine. With the math library and the builtin comparison operations, this can be determined by typing
+
+   echo "s(5) < s(10)" | bc -l
+
+The result 1 gets printed out on standard output, verifying that the sine of 5 is less then the sine of 10. bc can be made to print out a text string telling the user whether the result is true or false with the following
+
+   echo 'if (s(5) < s(10)) print "true\n" else print "false\n"' | bc -l
+
+This prints out the word true. If this string is to be stored in a variable, the newline characters would be removed from the executable line. This value can then be used later on in a shell script by saving it to a shell variable.
+
+What if we have a data file of input values and we want to apply some function to them? Say we need to calculate the logarithm base 10 of each value and dump it into another file? The following example take a list of the first 10 numbers, calculates the logarithm base 10 of each number and writes the value into the file output.lst
+
+   LIST="0 1 2 3 4 5 6 7 8 9"
+   for INPUT in $LIST
+   do
+   echo "l($INPUT)/l(10)" | bc -l >>output.lst
+   done
+
+These examples have already done some useful work, but what if the requirements are more robust? Does this necessitate a move to a heavy weight math program, like Mathematica or Maple? Not necessarily. With bc, there is the possibility of creating and using functions to make more complicated calculations. Even recursive functions can be written, like in this example to calculate a factorial
+
+   define f (x) {
+      if (x <= 1) return (1);
+      return (f(x-1) * x);
+   }
+   print "Factorial:"; factorial = read();
+   print f(factorial); print "\n";
+   quit
+
+This can be dumped into a file called "fact.bc" and run through bc to get the factorial of some number by executing
+
+   bc fact.bc
+
+This script will ask the user for a number and then will find the factorial. This can be used without interaction by simply feeding the number in to standard input with a pipe
+
+   echo 10 | bc fact.bc
+
+This will print out the factorial of 10 (3628800) to standard output. But how fast can such a program be? For a variety of values run on a generic laptop, the following times were measured:
+
+   10       0.004s
+   100      0.004s
+   1000     0.028s
+   10000    3.099s
+
+These times were averaged over three runs to account for varying system load. This seems more than fast enough to be useful for a lot of heavy work.
+
+For a more science-y example, the following bc script can be used to find how long it takes for an object to fall for a series of heights.
+
+   define t(h) {   
+      g = 9.81;
+      return (sqrt(2 * h / g));
+   }
+
+Now there is no excuse for abadoning a shell script simply because it can't handle some mathematical problem. With bc, a lot of really useful work can be done straight from the command line. Go forth and enumerate.
