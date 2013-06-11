@@ -1,0 +1,5 @@
+Advanced OpenMP
+
+Since this issue's theme is programming, I thought we should look at some of the more advanced features available in openMP. Several issues ago, we looked at the basics of using openMP. You can go back and review if you need to. In scientific programming, this tends to be the limit of how people use openMP. But there is so much more available. And these other features are useful for so much more than just scientific computing. This month, we will delve into all of the other by-waters that never seem to get covered when looking at openMP programming. Who knows, you may even replace POSIX threads with openMP.
+
+
