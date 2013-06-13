@@ -7,7 +7,7 @@ First, we should quickly review a little bit of the basics of openMP. All of the
    for (i=0; i<max; i++) {
       a[i] = sin(i);
    }
-You would then compile this withh gcc by using the flag "-fopenmp". While this works great for problems that naturally form themselves into algorithms around for loops, this is far from the majority of solution schemes. In most cases, you need to be more flexible in your program design to handle more complicated parallel algorithms. To do this in openMP, enter the constructs of sections and tasks. With these, you should be able to do almost anything you would do with POSIX threads.
+You would then compile this with gcc by using the flag "-fopenmp". While this works great for problems that naturally form themselves into algorithms around for loops, this is far from the majority of solution schemes. In most cases, you need to be more flexible in your program design to handle more complicated parallel algorithms. To do this in openMP, enter the constructs of sections and tasks. With these, you should be able to do almost anything you would do with POSIX threads.
 
 First, we'll look at sections. In the openMP specification, sections are defined as sequential blocks of code which can be run in parallel. You define them with a nested structure of pragma statements. The outer-most layer is the pragma
    #pragma omp parallel sections
