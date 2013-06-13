@@ -21,4 +21,41 @@ at the command line before running your program. Inside this sections region, yo
    {
       ...commands...
    }
+This will look familiar to anyone who has used MPI before. What you end up with is a series of independent blocks of code that can be run in parallel. Say you defined 4 threads to be used for your program. This means that you can have up to 4 section regions running in parallel. If you have more than 4 defined in your code, openMP will manage running them as quickly as possible, farming remaining section regions out to the running threads as soon as they become free. As a more complete example, lets say we have an array of numbers and we wanted to find the sine, cosine and tangents of the values stored there. You could create 3 section regions to do all three steps in parallel:
+   #pragma omp parallel sections
+   {
+   #pragma omp section
+   for (i=0; i<max, i++) {
+      sines[i] = sin(A[i]);
+   }
+   #pragma omp section
+   for (j=0; j<max; j++) {
+      cosines[j] = cos(A[j]);
+   }
+   #pragma omp section
+   for (k=0; k<max; k++) {
+      tangents[k] = tan(A[k]);
+   }
+   }
+In this case, each of the section regions has a single code block defined by the for loop. Therefore, we don't need to wrap them in curly braces. You should also have noticed that each for loop uses a separate loop index variable. You need to remember that openMP is a shared memory parallel programming model, so all threads can see, and write to, all global variables. So if you use variables that are created outside the parallel region, you need to avoid multiple threads writing to the same variable. If this does happen, it's called a race condition. It might also be called the bane of the parallel programmer.
 
+The second construct we'll look at in this issue is the task. Tasks in openMP are even more unstructured than the section. Section regions need to be grouped together into a single sections region, and this entire region gets parallelized. With tasks, they get dumped onto a queue, ready to run as soon as possible. Defining a task is simple.
+   #pragma omp task
+   {
+   ...commands...
+   }
+In your code, you would create a general parallel region with the pragma
+   #pragma omp parallel
+This pragma forks off the number of threads that you set in the environment variable OMP_NUM_THREADS. These threads form a pool that are available to be used by other parallel constructs. Now, when you create a new task, one of three things might happen. The first is that there is a free thread from the pool. In this case, openMP will have that free thread run the code in the task construct. The second and third cases are that there are no free threads available. In these cases, the task may end up being scheduled to run by the originating thread or it may end up being queued up to run as soon as a thread becomes free. So let's say that you have a function (called func) that you want to call with 5 different parameters, such that they are independent and you want to have them run in parallel. You can do this with
+   #pragma omp parallel
+   {
+   for (i=1; i<6; i++) {
+   #pragma omp task
+      func(i);
+   }
+   }
+This will create a thread pool, and then loop through the for loop and create 5 tasks to farm out to the thread pool. One cool thing about tasks is that you have a bit more control over how they get scheduled. If you reach a point in your task where you can go to sleep for a while, you can actually tell openMP to do this. You can use the pragma
+   #pragma omp taskyield
+When the currently running thread reaches this point in your code, it will stop and check the task queue to see if there are any waiting to run. If so, it will go ahead and start one of those and put your current task to sleep. When the new task finishes, the suspended task gets picked up and resumes where it left off.
+
+Hopefully, seeing some of the less common constructs has inspired you to go and checkout what other techniques you might be missing from your repertoire. Most parallel frameworks allow you to do most techniques. But each one, for historical reasons, has tended to be used for only one subset of techniques, even though there are constructs available that hardly ever get used. For shared memory programming, the constructs we covered here allow you to do many of the things that you can do with POSIX threads without the programming overhead. You just have to trade some of the flexibility you get with POSIX threads.
