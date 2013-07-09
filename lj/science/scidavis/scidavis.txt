@@ -1,0 +1,15 @@
+Graphics and Stats in One Easy Package
+
+
+As always in experimental science, you need to analyze the data you collect to see what it is telling you about the world. In the beginning stages, you need to be able to do some graphical analysis to get an overall view of any trends being caught by your experiment. Once you get to the point of having a model that you want to test, you then have to run some statistical tests to see how well your model fits the data. It is always more convenient to learn one tool rather than two. To this end, there is the package SciDAVis (Scientific Data Analysis and Visualization). SciDAVis started life as a fork of QtiPlot. It has since moved quite a bit from the original codebase with the addition of several new features and changes to the underlying data structures. The functionality it provides is similar to commercial programs like Origin and SigmaPlot. It is also similar to another Open Source program called LabPlot. In fact, starting in 2008, these two projects started working together on a common back-end while continuing with their own front-ends and their own feature sets. In this article, we'll take a quick look at some of the things you can do with SciDAVis to do your own data analysis tasks.
+
+To start with, you need to get SciDAVis installed. You should have a package available in most distributions. In Debian-based ones, you would install it with
+   sudo apt-get install scidavis
+There are also binaries available for Mac OSX. If you don't have binaries available, you can download the source tarball and build it specifically for your system. You will need to have the Qt libraries installed, since the interface is built using them. When you first start SciDAVis, you get an empty project and an empty data table of two columns of numeric values. [Picture1] Selecting a column will display the details of that column in a window on the right-hand side. Selecting the description tab lets you change the name of the column, as well as add a comment describing what the column represents. The type tab lets you change what kind of data you can enter for this column from numeric to text, month names, day names or full dates. You can also set the format of the data type for each column. When you are just learning to use SciDAVis, you just need some junk data to play with. You can do this easily by right-clicking the columns and selecting "Fill Selection with". You can then fill the column with either row numbers or random numbers. In order to play with some of the other features, we'll set the first column to be the row numbers and the second column to be a set of random numbers.
+
+
+
+
+Links
+
+http://scidavis.sourceforge.net
