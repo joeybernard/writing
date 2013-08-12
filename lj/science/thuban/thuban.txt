@@ -1,0 +1,10 @@
+Mapping Your GIS Data
+
+We've already looked at other GIS applications available on Linux. Programs like GRASS and qgis provide a full set of tools to do GIS. Sometimes, this is really overkill. You may just want to display the data geographically and create a map. In these cases, there is thuban. 
+
+If you don't already have data of your own, there are sources of public domain GIS data available online. In the links below, you will find a few sites to get you started.
+
+
+Links
+http://www.naturalearthdata.com/features/
+http://wiki.openstreetmap.org/wiki/Shapefiles
