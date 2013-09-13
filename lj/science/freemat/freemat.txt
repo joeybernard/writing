@@ -1,0 +1,76 @@
+Freemat - Yet Another Matlab Replacement
+
+
+There are lots of programs out there that try and be a replacement to Matlab. They all differ in their capabilities, some extending beyond what is available in Matlab and others giving subsets of functions that are focused on some problem area. This month, we'll look at another option available - freemat. The main web site for freemat is hosted on SourceForge. Installation for most Linux distributions should be as easy as using you friendly neighborhood package manager. Freemat is also available as source code, as well as installation packages for Windows and Mac OSX. Once it is installed, you can go ahead and start it up. This will bring up the main window, with a working console that should be displaying the license information for freemat. [freemat1.png]
+
+As with most programs like freemat, you can do arithmetic right away. All of the arithmetic operations are overloaded to automatically do "the right thing" based on the data types of the operands. The core data types include integers (8, 16, and 32 bits, both signed and unsigned), floating point numbers (32 and 64 bits) and complex numbers (64 and 128 bits). Along with these, there is a core data structure, implemented as an N-dimensional array. The default value for N is 6, but is arbitrary. As well, freemat supports heterogeneous arrays, where different elements are actually different data types. Commands in freemat are line-based. This means that a command is finished and executed when you hit the Enter key. As soon as you do, the command is run and the output is displayed immediately within your console. You should notice that results that are not saved to a variable are automatically saved to a temporary variable named 'ans'. You can use this temporary variable to access and reuse the results from previous commands. For example, if you wanted to find the volume of a cube of side length 3, you could do this with
+   --> 3 * 3
+   ans =
+    9
+   --> ans * 3
+   ans =
+    27   
+Of course, a much faster way would be to do something like
+   --> 3 * 3 * 3
+   ans =
+    27
+or
+   --> 3^3
+   ans =
+    27
+If you wish to not clutter up your console with the output from intermediate calculations, you can tell freemat to hide this output by adding a semi-colon to the end of the line. So, instead of
+   --> sin(10)
+   ans =
+      -0.5440
+you would get
+   --> sin(10);
+   -->
+Assignment in freemat is done with the equals operator, "=". Variable names are untyped, so you can re-use the same name for different data types in different parts of your worksheet. For example, you can store the value of tan(10) in the variable a, and the value of 2 times a in the variable b, with
+   --> a = tan(10)
+   a =
+       0.6484
+   --> b = 2 * a
+   b =
+       1.2967
+You should notice that the variables active in your current session are all listed in the variable window on the left-hand side. [freemat2.png] 
+
+The arithmetic operators are also overloaded when it comes to interacting with arrays, too. For example, let say that you wanted to take all of the elements of an array and double them. In a lower level language, like C or FORTRAN, you would need to write a fair bit of code to handle looping through each element and multiplying it by 2. In freemat, this is as simple as
+   --> a = [1,2,3,4]
+   a =
+    1 2 3 4
+   --> a * 2
+   ans =
+    2 4 6 8
+If you are used to something like numpy in the Python programming language, this should seems very familiar. Indexing arrays is done with brackets. Freemat uses 1-based indexes, so if you wanted to get the second value you would use
+   --> a(2)
+You can also set the value at a particular index using the same notation. So you would change the value of the third element with
+   --> a(3) = 5
+These arrays all need to have the same data type. If you have need of a heterogeneous list of elements, this is called a cell array. Cell arrays are defined using curly braces. So you could setup a name and phone number matrix using
+   --> phone = { 'Name1', 5551223; 'name2', 5555678 }
+There are two new pieces of syntax introduced here. The first is how you define a string. In freemat, strings are denoted with a set of single quote marks. So this cell array has two strings in it. The second new item of syntax is the use of a semi-colon in the definition of our array. This tells freemat that we are moving to a new row. In essence, we are now creating a matrix instead of an array.
+
+Plotting in freemat is similar to plotting in R or matplotlib. Graphics functions are broken down into high level and low level functions. The most basic high level function is plot(). This function is overloaded to try and do the right thing based on the input. A basic example would be plotting a sine function:
+   --> t = -63:64;
+   --> signal = sin(2*pi*t/32);
+   --> plot(t, signal)
+This will pop up a new window to contain the results of the plot function. [freemat3.png] You can then use low level functions to alter these plots. For example, you can set the title of your graph with the function
+   --> title('This is my plot')
+There are low level functions to alter almost all of the elements of your plots. 
+
+One process that freemat tries to excel at is making the importation of external code easy on the end user. The import function is used to import a function from an external library and make it available to be used just like any other freemat function. The signature of the import function is
+   import(libraryname,symbol,function,return,arguments)
+This way, if you have some piece of code that is already written and tuned in C to get the maximum performance, you can simply import it and use it from within freemat with very little fuss.
+
+Since freemat is as capable as Matlab or octave, you can assume that we have barely covered anything offered by freemat. Hopefully we have looked at enough to spark your interest and you can make some time to go and explore even more.
+
+
+
+Links
+Main Web Site - http://freemat.sourceforge.net
+Freemat Tutorials - https://code.google.com/p/freemat/wiki/Tutorials
+Freemat Wiki - https://code.google.com/p/freemat/w/list
+
+Images
+freemat1.png - When you first start freemat up, you are given a fresh console to begin working in.
+freemat2.png - All of the current variables, along with their values and datatypes, are listed in the variable window.
+freemat3.png - Plots are generated and displayed in their own window.
