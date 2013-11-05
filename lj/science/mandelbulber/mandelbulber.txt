@@ -1,0 +1,23 @@
+Taking fractals off the page
+
+
+Fractals are one of the weirder things you may come across when learning about computer science and programming algorithms. From Wikipedia, we see that "A fractal is a mathematical set that has a fractal dimension that usually exceeds its topological dimension and may fall between integers." This is a really odd concept, that you could have something like an image that isn't made up of lines or of surfaces, but something in between. The term fractal was coined by Benoit Mandelbrot in 1975. A key property of fractals is that they are self-similar. This means that if you zoom in on a fractal, it will look similar to the way the fractal looked originally. The concept of recursion is also very important here. Many types of fractal algorithms use recursion to generate the values in the given set. Almost everyone has seen computer generated images of classic fractals, like the Mandelbrot set or the Cantor set. One thing about all of these classic images is that they are 2-dimensional (or actually greater than 1 and less than 2 dimensional, if you want to be pedantic). But there is nothing that forces this to be the case. Fractals can be any dimension, including greater than 2. And with modern 3D graphics cards, there is no reason why we shouldn't be able to examine these and play with them. Now you can, with the software package mandelbulber.
+
+Mandelbulber is an experimental, open-source package that lets you render 3 dimensional fractal images and interact with them. It is written using the GTK toolkit, so there are downloads available for Windows and Mac OSX as well as Linux. Actually, most Linux distributions should include it in their package management systems. If not, you can always download the source code and build it from scratch. If you want some inspiration on what is possible with mandelbulber, I would strongly suggest that you go check out the gallery of images that have been generated with this software. There are some truly innovative and amazing images here, and some of them include the parameters you need in order to regenerate the image on your own. In fact, there is a fairly large amount information available on the mandelbulber wiki. When you are done reading this article, you should go and check out everything else that you can do with mandelbulber.
+
+When you first start up mandelbulber, you get three windows opened. The first is the parameters window. [mandelbulber1.png] Along the very top are the two main buttons: render and stop. Below this is a list of 12 buttons which pull up different panes of parameters. You get an initial set of default parameters that will generate a 3 dimensional version of the classic Mandelbrot set. Clicking on the render button will start the rendering process. If you have multiple cores on your machine, mandelbulber will grab them to help speed up the calculations. The rendered plot will be drawn in its own window. [mandelbulber2.png] The third window gives you some measures of how the rendering progressed. [mandelbulber3.png] You get two histograms describing the number of iterations and the number of steps.
+
+
+
+If you are looking to generate some amazing 3 dimensional landscapes or unique shapes for something science fictiony, you should definitely check mandelbulber out. Just be prepared to lose several hours as you start playing with all of the parameters available.
+
+
+LINKS
+http://www.mandelbulber.com  -  Main web site
+http://wiki.mandelbulber.com/index.php?title=Main_Page  -  Mandelbulber wiki
+
+
+IMAGES
+mandelbulber1.png  -  The main window gives you allparameters that control the generation of your fractal.
+mandelbulber2.png  -  This is what the default 3D fractal looks like.
+mandelbulber3.png  -  Histograms of the renering progression.
