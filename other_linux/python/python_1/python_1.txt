@@ -1,2 +1,5 @@
 The Object of Python
 
+Welcome to the first of what will be a series of articles talking about what is great about Python, and what is not so great. Even though I am a fan of the language, I am not so enamored as to be blind to its weaknesses. So over the coming months we will not only learn about how to do certain tasks in Python, but also what pitfalls you may run into during your travels. The first subject we will look at is using objects in Python. According to the official documentation, objects are Python's abstraction for data. All data in a Python program is represented by objects or by relations between objects. More specifically, we will look at classes and how to work with objects of your own design.
+
+Classes in Python support all of the most common concepts in Object Oriented Programming. The mechanisms of classes in Python were inspired by C++ and Modula-3. A class can inherit from multiple base classes and can override any methods in the base classes. As for data, objects can contain arbitrary amounts and types. And because Python is a dynamic language, all of this is modifiable at runtime.
