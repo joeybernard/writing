@@ -1,0 +1,34 @@
+Spelunking with Linux
+
+Mapping is ordinarily a complex task. Hence, all of the available software to help maintain and generate maps. And this is all happening in two dimensions. Trying to maintain and generate maps of caves bumps this complexity up a notch. Caves exist in all three dimensions. So any mapping software needs to keep track of volumes rather than areas. There are not very many options available which can handle this task. Luckily, one of the available packages can do this job very well, therion. Therion is an open source program, released under the GPL, and available for Windows, Mac OSX and Linux. Most distributions should have a package available, or you can always download the source and build it from scratch. In Debian based distributions, you can grab it with the command
+   sudo apt-get install therion
+Once it is installed, you can either find it in your desktop environment's menu system, or run 'xtherion' from a terminal window.
+
+When you first start therion up, you essentially get a blank canvas to work on. You can either open an exisitng file, or create a new one to begin your work on. We should start by creating a new project. You can either click the menu entry "File -> New", or press Alt-N. Therion will then ask you to enter a name for your new project. This name should end with ".th". You end up with two black panes as the main part of the interface. On the far right, there are a number of sub-panes, with the settings pane opened. Here you can set the working directory for your current project and the related configuration file. You can also set command line options, and there is a compile button, which we will come to shortly. The main interface is actually comprised of three separate windows. You start in the first one, the "Text Editor". There is also a "Map Editor" window and a "Compiler" window. They are accessible two ways. The first is by using the menu. The window entries are located under the main menu entry "Window". There are also keyboard shortcuts for each of these. The text editor is brought up with F1, the map editor with F2 and the compiler with F3.
+
+We'll start with the text editor. The first step is to define the survey for this project. Since this is just a quick tutorial, we'll just use the name "example1". In the text editor window (hit F1 to bring it up) enter the following text:
+   survey example1
+   endsurvey
+Between these two lines is where you need to enter your survey data. You could enter this data manually, but usually it would have been collected using some other system. One example of this is using PocketTopo to go and collect the survey data directly in the field. If you don't have any data available, there is some available online. There is a very good tutorial available online at the Cave Surveying Group. They also include some example data that you can use while you are learning to use therion. We'll use the example file "bpwth.txt". In the text editor window, add an extra blank line between the two lines we already entered and place the cursor on this new blank line. You can now click on the menu entry "File -> Import" and select the file "bpwth.txt". This will import the data you are going to plot. [therion3.png] Once you have all of your data imported, you need to save this off to a file. Since we named the project example1, we will go ahead and name the text file "example1.th". The next step is to run the compile stage to process all of this data. You will want to hit F3 to switch to the compile window. You need to give the compiler some options so that it knows what to do. You will need to open a new configuration file by either clicking the menu item "File -> New", or pressing Alt-N. The default file name that comes up is "thconfig". To keep things clean, name the file "thconfig.thc" and save it in the same location as the text file you created earlier. Click in the top pane to set the focus there, and enter the following text:
+   source example1.th
+   export model -fmt survex -o example1.3d
+The first line tells therion where the data is to compile. The second line tells therion what file format we want to save the compiled model in. In this particular case, the model is being saved in Survex 3D format. There are several different file formats supported by therion. With this information in the system, you can now go ahead and compile your model. You can either press F9, or click the menu entry "File -> Compile". Therion will now process your model, and write out details in a log which is displayed in the lower pane. [therion4.png] So, what does this look like? Luckily, therion includes a viewer which can handle Survex 3D files called loch. You should have an entry for it in the menu system for your desktop envirnment. You can also start it up from a terminal window with the command "loch". [therion5.png] It uses OpenGL to draw the three dimensional model of your cave data. There is also another program, called aven, which you can use to visualize the cave data. [therion6.png]
+
+The last window to look at is the map editor. In this example, we will switch to the map editor by pressing F2. Add a new file by clicking the menu item "File -> New" and save it as the filename "example1.th2". The file ending ".th2" is the default for mapping files in therion. You can add images from several different file formats to your map, but in this case we are actually going to add data from the PocketTopo export data. Go ahead and click the menu entry "Edit -> Insert Image", and change the file type to "PocketTopo therion export". Select the same sample data file as before, "bpwth.txt". You will end up with a very nice layout of the cave that was surveyed with PocketTopo. [therion7.png] You can then go ahead and edit this map, adding points, lines and areas.
+
+Hopefully, you will be able to plan safe and rewarding trips into your local caves with therion. And with more and more publicly accessible caves using therion, you will have a growing set of information available before you ever leave home. Don't forget to check out the other great tutorials available online to learn all of the other great things you can do with therion.
+
+
+IMAGES
+therion1.png - The main window that comes up when you first start therion.
+therion2.png -
+therion3.png - The survey data is simply a list of data points.
+therion4.png - The log of results from the compile shows up in the lower pane of the main window.
+therion5.png - Loch is one of the viewers for 3D files available from therion
+therion6.png - You can also use aven to view 3D files generated from therion
+therion7.png - You can import map data from PocketTopo, into therion.
+
+
+URLs
+http://therion.speleo.sk/index.php - Main website for therion
+http://cp.cavesurveying.org.uk/index.php/articles/3-therion-tutorial - Tutorial on Therion and DistoX
