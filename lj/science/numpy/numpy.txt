@@ -1,0 +1,50 @@
+Numerical Python
+
+Over the last several months, we have covered several software packages for scientific computations. Over the next several months, we'll take a deeper look at using Python to come up with your own algorithms for your scientific problems. Python seems to be completely taking over the scientific communities for developing new code, so it is a good idea to have a good working knowledge of the fundamentals to be able to build up solutions to your own problems. We will start with numpy this month, scipy next month, and then look at some of the more complicated modules available the following month.
+
+This month, we will start with the root module that almost all other scientific modules are built from, numpy. Out of the box, Python support real numbers and integers. You can also create complicated data structures with lists, sets and so on. This makes it very easy to write algorithms to solve scientific problems. But just diving in naively, without paying attention to what is happening under the hood, will lead to inefficient code. This is true with all programming languages, not just Python. Most scientific code needs to squeeze every last available cycle out of your hardware. One of the things to remember about Python is that it is a dynamic language where almost all functions and operators are polymorphic. This means that Python doesn't really know what needs to be done, at a hardware level, until it hits that operation. Unfortunately, this rules out any optimizations that can be made by rearranging operations to take advantage of how they are stored in memory and cache. One property of Python that causes a much larger problem is the polymorphism. In this case, Python needs to check the operands of any operator or function to see what type they are, decide whether this particular operand or function can handle these data types, then use the correct form of the operand or function to do the actual operation. In most cases, this is not really an issue since modern computers have become so fast. But in many scientific algorithms, you end up applying the same operations to thousands, or millions, of data points. A simple example is just taking the square of the first 100,000 numbers:
+   import time
+   a = range(100000)
+   c = []
+   starttime = time.clock()
+   for b in a:
+      c.append(b*b)
+   endtime = time.clock()
+   print "Total time for loop: ", (endtime - starttime)
+This little program uses the function "range" to create a list of the first 100,000 integers. We need to import the time module to get access to the system clock to do timing measurements. Running this on my desktop takes approximately 0.037775 seconds (remember to always take several measurements, and take the average). It takes this much time because for every iteration of the loop, Python needs to check the type of the variable b before trying to use the multiplication operator. What can we do if we have even more complicated algorithms?
+
+This is where numpy comes in. The key element that numpy introduces is an N-dimensional array object. The great flexibility of Python lists, allowing all sorts of different types of elements, comes at a computational cost. Numpy arrays deal with this cost by introducing restrictions. Arrays can be multi-dimensional, and must all be the same data type. Once this is done, we can start to take some shortcuts by taking advantage of the fact that we already know what the type of the elements is. It adds extra overloading functions for the common operators and functions to help optimize uses of arrays. All of the normal arithmetic operators work on numpy arrays in an elementwise fashion. So, to get the squares of the elements in an array, it would be as simple as "array1 * array1". Numpy also uses external standard, optimized libraries written in C or FORTRAN to handle many of the actual manipulations on these array data types. This is handled by libraries like BLAS or lapack. Python simply does an initial check of each of the arrays in question, then hands them as a single object to the external library. The external library does all of the hard work, then hands back a single object containing the result. This removes the need for Python to check each element when we used the loop notation above. Using numpy, the earlier example becomes
+   import numpy
+   import time
+   a = numpy.arange(1000000)
+   starttime = time.clock()
+   c = a * a
+   endtime = time.clock()
+   print "Total time used: ", (endtime - starttime)
+Running this toy code results in an average run time of 0.011167 seconds for this squaring operation. So we cut our time down by one third, and simplified the readability of our code by getting rid of the loop construct.
+
+We have just dealt with one dimensional arrays, so far. But, numpy supports multi-dimensional arrays just as easily. If you want to define a two-dimensional array, or a matrix, you can set up a small one with something like
+   a = numpy.array([[1,2,3,4], [2,3,4,5]])
+Basically, you are creating a list of lists, where each of the sub-lists is each of the rows of your matrix. This will only work if each of the sub-lists is the same size, i.e. each of the rows has the same number of columns. You can get the total number of elements in this matrix, with the property "a.size". The dimensions of the matrix are stored in the property "a.shape". In this case, the size is 8, and the shape is (2, 4), or two rows and four columns. What shape did our array in the earlier example have. If you go ahead and check, you should see that the shape is (1000000,). The other key properties of these arrays is:
+   ndim - the number of dimensions
+   dtype - the data type of the elements
+   itemsize - the size in bytes of each element
+   data - the buffer that stores the actual data
+You can also reshape arrays. So if you wanted to take the earlier example of the first 100,000 integers and turn it into a three dimensional array, you could do something like
+   old_array = numpy.arange(100000)
+   new_array = old_array.reshape(10,100,100)
+This will give you a new 3-d array laid out into a 10x100x100 element cube.
+
+Let's now look at some of the other functions available to apply to arrays. If you remember from earlier, all of the standard arithmetic operations are overloaded to operate on arrays one element at a time. But, most matrix programming languages use the multiplication element to mean matrix multiplication. This is something to keep in mind when you start using Python. To get a true matrix multiplication, you need to use the "dot()" function. If you had two matrices, A and B, you can multiply them with "numpy.dot(A, B)". Many of the standard mathematical functions, like cosine, sine, square root, etc., are provided by numpy as something called universal functions. Just like with the arithemtic operators, these universal functions are applied element-wise across the array. In science, there are several common functions that are used. You can get the transpose of a matrix with the object function "a.transpose()". If you need to get the inverse of a matrix, there is the module function "inv()", so you would execute "numpy.inv(a)". The trace is also a module function, given by "numpy.trace(a)". There are even more complicated functions available. You can solve systems of equations with numpy. If you have a matrix of coefficients given by a, and a vector of numbers representing the right-hand side of you equations given by y, you can solve this system with "numpy.solve(a,y)". In many problems, you may be interested in finding the eigenvalues and eigenfunctions of a given system. If so, you can use "numpy.eig(array1)" to get these values.
+
+The last thing we will look at is a class which provides even more shortcuts, at the cost of more restrictions. Matrices (2-d arrays) are so prevalent that numpy provides a special class to optimize operations using them as much as possible. To create a new matrix, say a 2x2 matrix, you would write
+   A = numpy.matrix('1.0, 2.0; 3.0, 4.0')
+Now, you can get the transpose with just "A.T". Similarly, the inverse is found with "A.I". The multiplication operation will do actual matrix multiplication when you use matrix objects. So, given two matrix object A and B, you can do matrix multiplication with "A*B". The solve function still works as expected on systems of equations that are defined using matrix objects. There are lots of tips and tricks available on the numpy website that is well worth a look, especially as you start out.
+
+This short introduction should get you started in thinking of Python as a viable possibility in "real" numerical computations. The numpy module provides a very strong foundation to build up complex scientific workflows. Next month, we look at one of the available modules, scipy. Until, then play with all of the raw number-crunching possibilities provided by numpy.
+
+
+
+URLs
+http://www.numpy.org  -  Main website for numpy
+
