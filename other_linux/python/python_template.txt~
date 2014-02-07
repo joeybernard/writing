@@ -1,0 +1,9 @@
+@Title (probably something like 'The Python column'
+@standfirst (what you're coving in this column - a nice hook to reel people in - 10-20 words)
+
+@body copy 1000 words
+
+
+@ boxout - a good 200 words on a topic related or expanded upon from the body copy. This could include code. 
+
+@code - if you can do some example code all the better. We can style it up properly. Max of 50-70 lines, though. 

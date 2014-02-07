@@ -1,4 +1,0 @@
-# We will be sending signals out from our Raspberry Pi
-
-# First, import the GPIO module
-import RPi.GPIO as GPIO
