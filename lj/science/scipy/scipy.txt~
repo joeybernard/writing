@@ -1,0 +1,3 @@
+Scipy for Scientists
+
+Last month, we looked at numpy and some of its uses in numercial simulations. While numpy does provide some really robust building blocks, it is a bit lacking in more sophisticated tools. Scipy is one of the many Python modules that build on the foundation of numpy.
