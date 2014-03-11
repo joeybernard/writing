@@ -1,9 +1,113 @@
-@Title (probably something like 'The Python column'
-@standfirst (what you're coving in this column - a nice hook to reel people in - 10-20 words)
+@Title
 
-@body copy 1000 words
+Looking at the World with RPi and Python
 
 
-@boxout - a good 200 words on a topic related or expanded upon from the body copy. This could include code. 
 
-@code - if you can do some example code all the better. We can style it up properly. Max of 50-70 lines, though. 
+@standfirst
+
+This month, you will learn some of the ways you can look at the world using Python and a Raspberry Pi.
+
+
+
+@body
+
+Last issue, we looked at using the GPIO pins to send signals out from your Raspberry Pi. This month, we will look at using the input functions of these input/output pins. As with the last article, we won't be looking at the electronics side, but instead focusing on the Python code that you can use to collect data from your environment. Having said that, we should mention something about safety. When you are reading in voltages, you always need to be concerned about the potential for damaging spikes. The Raspberry Pi, while sturdy, is not indestructible. You should always have a buffer between the outside environment and your Raspberry Pi that will limit the maximum possible currents and voltages. There are lots of examples on the internet that can give you some ideas.
+
+Once you have your sensor wired up, it is time to start up your code and actually start using the data that you are reading in. If you remember from last issue, the first step is to import the RPi.GPIO module. Remember that you can import this module as another shorter name to make the rest of your code easier to write and read. Then you will need to set the mode for the module, which will set which number scheme you will be using. The two options are either GPIO.BOARD or GPIO.BCM. The last step to set yourself up is to pick a pin and setup the channel. At this point, we need to discuss pull-up and pull-down resistors. If the input pins are left alone, then they will tend to float and pick up any stray voltages that may be in the environment. Being inside a modern house, this is usually some stray electromagnetism from the mains wires. What we want is to have the pins tied either to high or low as the default voltage. In many cases, this is done in hardware where you tie the pin down physically to either ground or to the max voltage. You need to have a resistance in the circuit to either the high or low voltage, hence the name pull-up or pull-down resistor. The Raspberry Pi has the ability to define these internally in software. When you setup the channel, you can define an extra option, called pull_up_down, to be either high or low. This way, you can deal with this problem of floating inputs without the extra hardware. To do this, you can use either
+   GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+      # or
+   GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+where channel is the pin number, based on the mode you set.
+
+So, now that you have everything setup, you probably want to start reading data in. A key thing to know is that none of the GPio pins is designed to handle analog input. This means that you can't directly measure things like voltages or currents. What you need to do is use some form of analog-to-digital circuit to convert any analog signal into a measurable digital signal that your Raspberry Pi can use. A simple signal is when a button is pressed. It is easy to wire a circuit so that when a button is pressed, you get either a low or high signal. You can use this to test your code separate from whatever circuitry you have to actually measure some environmental signal. The GPIO module includes a function called "input()" that reads some signal from a channel tied to a particular pin. Since the GPIO pins are digital, you will get either a 1 or true, or a 0 or false. So you can make decisions on either the numerical value or the boolean value.
+
+Assuming you have everything wired up correctly, you have two different techniques you can use to read this data. The first is straightforward polling. Essentially, you try to read from your input pin continuously, with some sort of a sleep statement between each attempt. Assuming that you set the pin up to have a pull-down resistance, so that the default value is low, the you can poll the pin with a piece of code like
+   while GPIO.input(channel) == GPIO.LOW:
+      time.sleep(0.01)
+In this case, the code checks to see whether the pin is low, and if so, then it sleeps for 0.01s. While this code is easy to write, polling puts a fairly heavy load on the CPU. If you want to free up the CPU of your Raspberry Pi, you may want to use a callback function instead. Callbacks are handled in a single extra thread. This means that if you define more than one callback function, they will get executed sequentially. A basic callback function is defined with code like
+   GPIO.add_event_callback(channel, my_callback_func)
+where my_callback_func is some function you have defined. This callback is triggered whenever a change is detected. If you want to only trigger your function either when the pin goes high, or when it goes low, then you need to tie your callback function to on eof these edges. For example, if you wanted to run your callback function when the pin goes high, you would use something like
+   GPIO.add_event_detect(channel, GPIO.RISING, callback=my_callback)
+You can equivalently trigger your callback function on GPIO.FALLING or GPIO.BOTH. When you have detected the event in question, you may want to stop the triggering of callbacks. You can do this with a call to GPIO.remove_event_detect(channel). Don't forget, once you have finished all of your interactions with the GPIO pins you need to clean up. You can do this by calling GPIO.cleanup(). If you only want to cleanup the individual pins you were working with, you can do so with GPIO.cleanup(channel).
+
+Now that you can both read and write from the GPIO pins, you are ready to use your Raspberry Pi to interact fully with the real world. Next issue, we'll look at using matplotlib to visualize some of this interaction with the world at large. Until then, put some thought to how you can interact with the world at large and let your imagination run wild.
+
+
+
+@boxout 
+
+While you can read and write to the GPIO pins directly, as we have in this article and the previous one, you can also look at the pins as a group, giving you a communication bus. The Raspberry Pi can actually support several different modes. One of them is I2C, or Inter-Integrated Circuit. On the Raspberry Pi, I2C is not enabled by default. You can enable it by editing the file '/etc/modprobe.d/raspi-blacklist.conf' and commenting out the two lines that blacklist the kernel modules spi-bcm2708 and i2c-bcm2708. Next, you will need to load the I2C module by editing the file '/etc/modules' and adding the text 'i2c-dev' at the end of the file on its own line. The last step to use I2C is to load some extra packages. You can do this with the command
+   sudo apt-get install i2c-tools python-smbus
+After a reboot, you are now ready to start accessing the I2C bus to interact with other devices. You can test the system and see if anything is connected with the command 'i2cdetect -y 0'. To use it, you need to import the smbus Python module and create a bus object. Some boilerplate for this would look like
+   import smbus
+   bus = smbus.SMBus(0)
+To talk to a device on the bus, you need its address. This address is in the form of a hexadecimal number. For example, if you have a device at the address 0x60, you can read data in with
+   bus.read_byte(0x60)
+If you want to read from a specific register on the device in question, you can use
+   bus.read_byte_data(0x60, 1)
+There are also write versions of these to send data to your I2C devices, too.
+
+
+
+@code
+
+# The first step is to import the GPIO module
+import RPi.GPIO as GPIO
+
+# You need to pick a numbering scheme for the pins
+GPIO.setmode(GPIO.BOARD)
+
+# If you have hardware pull-up or pull-down
+# resistors, you can setup a pin simply
+GPIO.setup(12, GPIO.IN)
+
+# If you want to use software, you can force
+# input pins to default to high or low
+GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+# If you just want to read a single value in
+GPIO.input(12)
+
+# Mode likely, you need to poll until you get
+# a particular value that you are looking for
+while GPIO.input(13) == GPIO.LOW:
+   time.sleep(0.01)
+
+# If you want to instead wait for some change
+# on a pin rather than a particular value
+# you can detect the rising edge, lowering edge
+# or both of a signal change
+GPIO.wait_for_edge(12, GPIO.RISING)
+
+# Instead of reading from a pin and blocking
+# all other activity, you can define a callback
+def my_callback(channel):
+   print('This is my callback function')
+
+GPIO.add_event_detect(13, GPIO.RISING)
+GPIO.add_event_callback(13, my_callback)
+
+# When you are done with the callbacks, you
+# can remove it 
+GPIO.remove_event_detect(13)
+
+# Cleanup the pins you have used
+GPIO.cleanup(12)
+GPIO.cleanup(13)
+
+# To use the I2C bus, you need import smbus
+import smbus
+
+# Create a new bus object
+bus = smbus.SMBus(0)
+
+# To send data to a device, you need an address
+address = 0x50
+bus.write_byte(address, 1)
+
+# To read data or measurements, you can use
+measurement1 = bus.read_byte(address)
+
+# When you are done, clean everything up
+GPIO.cleanup()
