@@ -7,7 +7,34 @@ The python-matplotlib-doc package also includes extra documentation for matplotl
 
 Like other large Python modules, matplotlib is broken down into several sub-modules. The first one we'll look at is pyplot. This sub-module contains most of the functions that you will want to use to graph your data. Because of the long names involved, you will likely want to import it as something shorter. In the examples below, we will be using
    import matplotlib.pyplot as plt
-The underlying design of matplotlib is modelled on the graphics module for the R statistical software package. Thegraphical functions are broken down into two broad categories, high level functions and low level functions. These functions don't work directly with your screen. All of the graphics generation and manipulation happens via an abstract graphical display device.
+The underlying design of matplotlib is modelled on the graphics module for the R statistical software package. The graphical functions are broken down into two broad categories, high level functions and low level functions. These functions don't work directly with your screen. All of the graphics generation and manipulation happens via an abstract graphical display device. This means that the functions behave the same way, and all of the display details are handled by the grphics device. These graphics devices may represent display screens, printers, or even file storage formats. The general workflow is to do all of your drawing in memory on the abstract graphics device. You then push the final image out to the physical device in one go. 
+
+The simplest example is to plot a series of numbers stored as a list. The code looks like
+   plt.plot([1,2,3,4,3,2,1])
+   plt.show()
+The first command plots the data stored in the given list in a regular scatterplot. If you have a single list of values, they are assumed to be the y-values, with the list index giving the x-values. Since you did not setup a specific graphics device, matplotlib assumes a default device mapped to whatever physical display you are using. After executing the first line, you won't see anything on your display. To actually see anything, you will need to execute the second "show()" command. This pushes the graphics data out to the physical display. [matplotlib1.png] You should notice that there are several control buttons along the bottom of the window, allowing you to do things like saving the image to a file. You should also have noticed that the graph you generated is rather plain. You can add labels with the commands
+   plt.xlabel('Index')
+   plt.ylabel('Power Level')
+You then get a graph with a bit more context. [matplotlib2.png] You can also add a title for your plot with the "title()" command. The plot command is even more versatile than this. You can change the plot graphic being used, along with the color. For example, you can get green triangles by adding 'g^' or blue circles with 'bo'. If you want more than one plot in a single window, you can simply add them as extra options to 'plot()'. So, you could plot squares and cubes on the same plot with something like
+   t = [1.0,2.0,3.0,4.0]
+   plt.plot(t,[1.0,4.0,9.0,16.0],'bo',t,[1.0,8.0,27.0,64.0],'sr')
+   plt.show()
+You should now see both sets of data in the new plot window. [matplotlib3.png] If you import the numpy module and use arrays, you can simplify the plot command to
+   plt.plot(t,t**2,'bo',t,t**3,'sr')
+
+What if you wanted to add some more information to your plot, maybe a text box? You can do this with the "text()" command. You can set the location for your text box, along with its contents. For example, you could use
+   plt.text(3,3,'This is my plot')
+This will put a text area at x=3, y=3. A specialized form of text box is an annotation. This is a text box linked to a specific point of data. You can define the location of the text box with the xytext parameter and the location of the point of interest with the xy parameter. You can even set the details of the arrow connecting the two with the arrowprops parameter. An example may look like
+   plt.annotate('Max value', xy=(2, 1), xytext=(3, 1.5), arrowprops=dict(facecolor='black', shrink=0.05),)
+
+There are several other high level plotting commands available. The "bar()" command lets you draw a barplot of your data. You can change the width, height and colors with various input parameters. You can even add in error bars with the "xerr" and "yerr" parameters. Similarly, you can draw a horizontal bar plot with the "barh()" command. Box and whisker plots can be drawn with the command "boxplot()". contour
+
+
+
+Images
+matplotlib1.png - A basic scatterplot window includes controls on the bottom of the pane.
+matplotlib2.png - You can add labels with the xlabel and ylabel functions.
+matplotlib3.png - You can draw multiple plots with a single command.
 
 
 
