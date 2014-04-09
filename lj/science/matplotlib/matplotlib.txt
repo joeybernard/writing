@@ -27,7 +27,19 @@ What if you wanted to add some more information to your plot, maybe a text box? 
 This will put a text area at x=3, y=3. A specialized form of text box is an annotation. This is a text box linked to a specific point of data. You can define the location of the text box with the xytext parameter and the location of the point of interest with the xy parameter. You can even set the details of the arrow connecting the two with the arrowprops parameter. An example may look like
    plt.annotate('Max value', xy=(2, 1), xytext=(3, 1.5), arrowprops=dict(facecolor='black', shrink=0.05),)
 
-There are several other high level plotting commands available. The "bar()" command lets you draw a barplot of your data. You can change the width, height and colors with various input parameters. You can even add in error bars with the "xerr" and "yerr" parameters. Similarly, you can draw a horizontal bar plot with the "barh()" command. Box and whisker plots can be drawn with the command "boxplot()". contour
+There are several other high level plotting commands available. The "bar()" command lets you draw a barplot of your data. You can change the width, height and colors with various input parameters. You can even add in error bars with the "xerr" and "yerr" parameters. Similarly, you can draw a horizontal bar plot with the "barh()" command. Box and whisker plots can be drawn with the command "boxplot()". You can get plain contour plots with the "contour()" command. If you want filled in contour plots, you can use "contourf()". The command "hist()" will draw a histogram, with options to control items like the bin size. There is even a command, called "xkcd()", which sets a number of parameters so that all of the subsequent drawings will be in the same style as the xkcd comics.
+
+Sometimes, you may need to be able to interact with your graphics. Matplotlib needs to interact with several different toolkits, like GTK or Qt. But you don't want to have to write code for every possible toolkit. The pyplot sub-module includes the ability to add event handlers in a GUI-agnostic way. The FigureCanvasBase class contains a function called "mpl_connect()", which you can use to connect some callback function to an event. For example, let's say you have a function called "onClick()". You can attach it to the button press event with the command
+   fig = plt.figure()
+   ...
+   cid = fig.canvas.mpl_connect('button_press_event', onClick)
+Now when your plot gets a mouse click, it will fire your callback function. It returns a connection ID, stored in the variable cid in our example, that we can use to work with this callback function. When you are done with this interaction, you disconnect the callback function with
+   fig.canvas.mpl_disconnect(cid)
+If you need to just do basic interaction, you can use the "ginput()" command. It will listen for a set amount of time and return a list of all of the clicks that happen on your plot. You can then process those clicks and do some kind of interactive work.
+
+The last thing we'll look at is animation. Matplotlib includes a sub-module called animation that provides all of the functionality that you need to generate MPEG videos of your data. These movies can be made up of frames of various file formats, including png, jpeg or tiff. There is a base class, called Animation, that you can subclass and add extra functionality. If you aren't interested in doing too much work, there are included subclasses. One of them, FuncAnimation, can generate an animation by repeatedly applying a given function and generating the frames of your animation. There are several other low-level functions available to control creating, encoding and writing movie files. You should have all the control you require to generate any movie files that you may need.
+
+Now that you have some matplotlib under your belt, you can go out and generate some really stunning visuals for your latest paper. Also, you will be able to find new and interesting relationships by graphing them out. So go check your data and see what might be hidden there.
 
 
 
