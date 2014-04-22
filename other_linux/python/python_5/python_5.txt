@@ -1,0 +1,91 @@
+@Title
+Making your own Raspberry Pi Supercomputer
+
+
+
+@standfirst (what you're covering in this column - a nice hook to reel people in - 10-20 words)
+Now that you have built your own Raspberry Pi based supercomputer, learn the basics of how to write Python code to take advantage of all of this power that you have collected together.
+
+
+
+@body - 1014 words
+One project you may have seen talked about is using a cluster of Raspberry Pi's as a supercomputer. The physical build is relatively easy. All you need to do is to have a number of Raspberry Pi computers, linked together over Ethernet with one or more switches.Once this is done, you have a high performance computer at your command. But what can you do with this? This is where the hard part comes in. You can't simply run regular software on such a machine and expect to see any kind of speed up. You need to actually write a parallel program that takes advantage of all of this power that you have collected together. There are two broad categories of parallel programs - shared memory and message passing. In shared memory programs, all of the parallel threads of execution run on the same physical box and all have access to the same global memory. In this way, information is passed back and forth between the threads from within shared memory. The very strict limit on this type of shared memory is that you are confined to be in one physical machine. The second category of parallel program is message passing. In this type of program, the threads of execution can exist on one or more machines, as long as they can communicate with each other in some fashion. This is usually done over a regular Ethernet network. Then information passes back and forth between the threads by passing explicit messages. The most common library for doing message passing programming is MPI, a specification managed by the OpenMPI group. In Python, there is a module called MPI for Python. You can install it with
+   sudo apt-get install python-mpi4py
+This will also install all of the required dependencies.
+
+In MPI, the various threads are organized into groups called communicators. All of the threads within a given communicator can talk to each other, but not with threads outside the given communicator. When MPI starts up, a default communicator is created containing all of the available threads. This way, everyone can talk to everyone else. But you do have the option of creating new communicators containing subsets of these threads to better control which threads have access to each other. But this is more advanced coding. Usually, you will be fine just using the default communicator. To start using MPI, you will need to import the MPI portion of the mpi4py module, with something like
+   from mpi4py import MPI
+If you have some experience with MPI in another language, you may think that we need to now initialize the library. In Python, this is done automatically for you when you import the module. So that saves you one step. In order to send messages, you need some way to address the threads of execution. These are indexed by numbers, referred to a thread's rank. So, the next usual step is to find out what your rank is (as a thread) and how many threads exist in this particular communicator. You can do this with
+   comm = MPI.COMM_WORLD
+   rank = comm.Get_rank()
+   size = comm.Get_size()
+So the variable size will contain the total number of threads, and rank will contain this particular thread's rank.
+
+Now, you need some way to send and receive messages. The default functions for sending and receiving are blocking functions. This means that when you send a message, that thread will stop until the message is done being sent. The same on the receive end; it will block and wait until the incoming message is completely received. There are two ways to send messages. If you want to send and receive regular Python objects, like lists, you can do this with lowercase commands of the COMM class. These functions actually pickle the object in question under the hood, and then send this serialized version around on the network. So, if you had a list of numbers that you wanted to send from the root thread (rank 0) to thread 1, you could use something like
+   data = [1.0, 2.0, 3.0, 4.0]
+   comm.send(data, dest=1, tag=0)
+So, we are sending the information in 'data' to the destination thread at rank 1. The third parameter is a 'tag' that you can use in your code to label different types of messages. So you could decide that data messages are tagged with a 1, and control messages are tagged with a 2. This way, the receiving thread can do something different with different types of massages. On the receiving end, you would call
+   data = comm.recv(source=0, tag=0)
+Now, the observant of you may have noticed an area for possible bugs. What would happen if you had a typo in the 'recv' command? Say, having the source be 1, or the tag be 10? Then, this call will block and wait forever for a message from rank 1 and tagged as type 10 that will never come. These types of bugs are very hard to catch, since they don't cause your program to crash. Things just simply lock up. With these two basic functions, you can start to write some very complex code. If you are also using numpy with arrays, you can use uppercase versions of these functions (Send and Recv) to send these arrays without having to pickle them first. 
+
+Now that you have some code written, you might be wondering how to run it. As with other languages, you actually use the script 'mpirun' to load and execute your program. Say you had four Raspberry Pi's networked together. You could then run your code across all four boards with the command
+   mpirun -host 192.168.0.10,192.168.0.11,192.168.0.12,192.168.0.13 python my_program.py
+This assumes that your four Raspberry Pi's are networked with the IP addresses above, and your code is in the file 'my_program.py'. Hopefully, you now have enough to start playing with MPI on your Raspberry Pi and see how you can use them for high performance computations. We will revisit this topic in a later issue to look at some of the more advanced functions available to write even more complex code.
+
+
+
+@boxout - 222 words
+While you can send data directly from one thread to another with the 'send' and 'recv' functions, there are also collective functions that can either broadcast data out across all of the available threads or gather in data from all of the threads. The 'bcast' function sends a data object out to all of the threads, including itself. Everyone gets a copy of this data. You can instead break up your data and send a chunk to each of the available threads with the 'scatter' function. The reverse of this is the 'gather' function, which collects data from across all of the threads and stores it together in rank order in the rank thread. In this way, you can have one thread handle all of the data loading and saving, and have it then send working copies out to all of the computing threads. It can then gather the results and write it out to disk. Depending on the calculations being done, you may find the 'reduce' function useful. This function takes data from each of the threads, and performs some reduction operation on this data. So, you could sum values from all of the threads with the command
+   comm.reduce(data, op=SUM, root=0)
+This will add up all of the 'data' variables from each thread and deliver the result to the root thread.
+
+
+
+@code - 47 lines
+# The first step is to import mpi4py
+
+import mpi4py as MPI
+
+# The usual next step is to find out who you are
+# and how many other slots you can use
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+# The classic hello world looks like
+hello_world = 'Hello from slot ' + rank + ' of a total of ' + size + ' size'
+print hello_world
+
+# Now, we will want to find a series of numbers raised to a series of powers
+# The data will only be setup in the root slot
+if rank == 0:
+   raw_nums = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+   powers = [1, 2, 3, 4, 5]
+
+# We broadcast the full list of numbers to everybody
+raw_nums = comm.bcast(raw_nums, root=0)
+
+# We scatter the powers out to the available slots
+my_powers = comm.scatter(powers, root=0)
+
+# Everybody does their calculation
+result = []
+for curr_pow in my_powers:
+   temp = []
+   for curr_num in raw_nums:
+      temp.append(curr_num ** curr_pow)
+   result.append(temp)
+
+#Now, we need to gather everything back to the root slot
+result = comm.gather(result, root=0)
+
+# The root slot should do something with these results
+if rank == 0:
+   print result
+
+# You can send these results back out to everyone else, too
+if rank == 0:
+   for curr_rank in range(1,size):
+      comm.send(result, dest=curr_rank, tag=0)
+else:
+   my_result = comm.recv(source=0, tag=0)
