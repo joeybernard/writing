@@ -1,0 +1,9 @@
+If you do even a cursory search online, you will be able to find any number of modules that will add functionality to your Raspberry Pi. Many of these are sensor modules that let you observe the world around you. What you may not know is that you probably already have a very powerful sensor module that you can use with your Raspberry Pi if you own an XBox, the Kinect sensor. The Kinect connects through a regular USB cable, so theoretically it could be connected to your Raspberry Pi. All you need is a library to establish communication. Luckily, this is provided through the OpenKinect project (http://www.openkinect.org). If you use Raspbian, then you should have everything you need available in the package repository. The base libraries are available with the command
+   sudo apt-get install freenect
+If you were to write C code, you could stop here. Since we are focussing on Python, you will also need to install the Python wrappers. You do this with the command
+   sudo apt-get install python-freenect
+The last step to getting set up is to connect the Kinect to your Raspberry Pi. The USB ports on the Raspberry Pi probably can't provide enough power for the Kinect, so you will need a powered USB hub placed between the two devices.
+
+Now that everything is connected together, we will look at some Python code to start communicating with the sensor. We will be borrowing heavily from the demos included in the Python wrapper source code. The first step is to import the freenect module, with
+   import freenect
+Be sure that everything is connected and powered up before doing this. You should now have access to your kinect. 
