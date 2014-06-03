@@ -1,0 +1,17 @@
+Getting Good Vibrations with Linux
+
+Vibrations and wave motions describe many different physical systems. In fact most systems that dissipate energy do so through waves of one form or another. This month we will look at gvb (Good ViBrations), a Linux application that you can use to visualize and model wave motion and vibrations. To begin with, installation should be relatively easy. It should already exist in the packaging system of most distributions. For example, on Debian-based systems, you can install it with
+   sudo apt-get install gvb
+You will notice that a large number of Python requirements will also get installed. This gives you an idea of what you need as requirements if you wanted to build gvb from source.
+
+Now that you have gvb and its requirements installed, you can start it up by running the command 'gvb'. When it starts up, you will see a main display window with a pane on the right-hand side with calculation options. In the main window, there will be a starting sine wave form. [gvb1.png] Just to see that everything is working, you can click on the start button in the right-hand pane. This will start the calculations used to model the wave motion and displaying each time step in the main display window. You should see the evolution of a basic sine wave happening. We will use this starting waveform to play with some of the calculation options available. The first option is the speed of the wave. You can change this while the wave is being modelled and animated so you can see in real-time how the wave changes with a different speed. Below the start button are three options available. The calculation dropdown lets you change the algorithm used to do the calculations. The default is 'eig', and the other three methods are 'quad', 'naif' and 'naif matrix'. When you select any of the other three methods, the step size option at the top of the pane becomes active. You can then change the size of the steps used in calculating the wave motion.
+
+As you have seen, gvb can be a very fun application to use. It especially gives students a more intuitive feel for how waves behave, in both one and two dimensions. The ability to also visualize the speeds for various sections also helps conceptualize the physics involved. Hopefully the teachers out there will keep gvb in mind when they are planning their next science class and that it helps their students understand wave mechanics.
+
+
+IMAGES
+gvb1.png - When you first start gvb up, you will see a sine wave ready to start modeling.
+
+
+URL
+http://www.pietrobattiston.it/gvb
