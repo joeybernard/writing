@@ -1,0 +1,17 @@
+Astronomy on Linux
+
+There are several astronomy packages available on Linux, but one that does not get covered very often is nova. Like other astronomy programs, it provides a view of the night sky with the ability to use different projections. It can also do ephemeris calculations and plot them on the display. Going beyond what most other programs provide, nova has the ability to handle observatory control and CCD image capture. It even has the ability to automatically schedule your observation activities. This month, we will take a quick look at what you can do with this project.
+
+Nova is actually broken down into three separate projects. The project libncat provides a general purpose astronomy database for other programs. It wraps and abstracts away the underlying file formats for various data sources. This way. your program doesn't need to worry about the details for most of the file formats that are used in astronomy. The second project is libnova. This project provides a general purpose, double precision, celestial mechanics, astrometry and astrodynamics library. This library provides functions to do calculations like aberration, precession, orbits, atmospheric refraction and heliocentric time corrections, among many others. Like libncat, libnova can be used in your own code to handle these types of astronomical calculations. The final project is nova. Nova uses libncat and libnova to provide all of the heavy lifting, while the graphical interface is handled by nova itself. Unlike most other similar applications, you probably won't find packages in your distribution for easy installation. For example, in Ubuntu, there is only a package for libnova, and even this package is quite out of date. So we will be installing from source here. The main SourceForge web site provides links to all three project sites. You can either download tarballs of the latest release version, or use CVS to get the most recent updates on the main branch. We'll assume that you are OK with the latest release version, so you can download the three tarballs and unpack them into a temporary source directory. One thing to be aware of is that, as of the time of writing this article, the download link for libncat is broken. There does not seem to be any formal release available, so you will need to go to the code section on the SourceForge site and download a snapshot.
+
+Building should be straightforward. First, be sure you have the build-essential meta-package installed (or the equivalent for your distribution). To start with libnova, you can try to build it with the standard
+   ./configure
+   make
+   sudo make install
+You will probably get an error when you try and run the make step. If you do, be sure you have the 'autoconf' package installed in your distribution and run 'autoreconf'. You can then try the three steps over again. Assuming it finished successfully, you will have the libnova library installed under '/usr/local'. If you want it somewhere else, because you may not have root access on the box in question for example, then you can use
+   ./configure --prefix=$HOME/local
+instead for the first step. Next we will build libncat by changing directories to its source directory. Once here, run the './autogen.sh' script to generate the configure scripts. You can then run the same three steps as for libnova. You will also need the 'ftplib-dev' installed to build libncat.
+
+
+URL
+http://nova.sourceforge.net
