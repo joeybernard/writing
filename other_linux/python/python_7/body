@@ -1,0 +1,11 @@
+Last issue, we looked at using a Kinect with your Raspberry Pi. The problem is that Kinects are a bit on the expensive side and the available functionality is not quite complete yet. An alternative to this is to use a web camera. You can get a relatively good quality web camera for less than $20. Since they have been around for quite a while, there is support for pretty much all of the available functionality. The major difference is that the Kinect does a lot of image processing on board in order to extract information about motion and object recognition. If you want to try and get some of the same functionality using a web camera, you will need to do this kind of image processing on the Raspberry Pi.Luckily, there are several Python modules available to talk to USB cameras. In this short article, you will learn the basics of using imgproc.
+
+If you are using one of the standard Raspberry Pi distributions, you should already have the imgproc module available. If not, you will need to download some custom modules available at
+   http://www.cl.cam.ac.uk/projects/raspberrypi/tutorials/robot/resources/
+You then need to unzip them, change directory to the library subdirectory and run
+   sudo make install
+You can then import the module in your Python script with
+   import imgproc
+Imgproc provides three classes to simplify interacting with your USB camera. Connecting with the camera is handled with the class 'Camera'. When you start collecting image data from the camera, you can store it using the 'Image' class. There is a 'Viewer' class available to simplify the display of the images you just grabbed from your camera.
+
+Now that we have covered the basics of using a web camera in Python, you should have lots of ideas that you can now try out. A quick search online will lead you to lots of projects other people have done, like security systems, robotic vision systems or motion tracking Nerf guns. Let your imagination run wild.
