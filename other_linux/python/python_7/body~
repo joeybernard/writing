@@ -1,1 +1,0 @@
-A few issues ago, we looked at using MPI with Python on your Raspberry Pi. This is useful when you are dealing with large problems that you want to spread across multiple machines. But what kind of work can you do on each of these machines? If you want to create a cluster of Raspberry Pis to do scientific work, you will want to look into using scipy to handle 
