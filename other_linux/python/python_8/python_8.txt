@@ -1,0 +1,105 @@
+@Title (probably something like 'The Python column'
+Using a USB Camera with your Raspberry Pi
+
+
+
+@standfirst (what you're coving in this column - a nice hook to reel people in - 10-20 words)
+You will learn how to use a USB webcam in your own Python program on your Raspberry Pi.
+
+
+
+@body - 1008 words
+In a previous issue, we looked at using the kinect with the Raspberry Pi. But not everyone has access to this kind of hardware. Another class of project that is popular with Raspberry Pi's is using USB cameras to create monitors of one form or another. A lot of these projects use command line applications to talk to the USB camera and generate images or movies that are used as part of the system. But, what if you are writing your own program in python and you want to add some form of image system to your code? Luckily, there are several modules available for you to choose from. In this article, we will take a look at using SimpleCV to get your program to talk with the USB camera. SimpleCV is built on top of OpenCV, making it easier to use for many common tasks. Assuming you are using Raspbian, you can go to the main page for SimpleCV (http://www.simplecv.org) and download a DEB file. To install it, you can simply run
+   sudo dpkg -i SimpleCV-1.31.deb
+Before you do, however, you will want to install all of the dependencies. You can do that with the command
+   sudo apt-get install python python-support python-numpy python-scipy ipython python-opencv python-pygame python-setuptools
+You can check that everything worked by running the command 'simplecv' at the command line. This will start Python up and run the interactive shell that is provided by the SimpleCV module. You can then try connecting to your USB camera and pulling images from it.
+
+Now that everything should be up and running, how do you actually use it in your own code? You can load all of the available functions and objects into the global scope with the command
+   from SimpleCV import *
+Making sure that you have your USB camera plugged in, you can now create a camera object with
+   cam = Camera()
+This will load the required drivers, and initialize the camera so that it is ready to start taking pictures. Once this object creation returns, you can grab an image from the camera with
+   img = cam.getImage()
+At least in the beginning, when you are experimenting, you may want to see what this image looks like. You can do this with 
+   img.show()
+You will, of course, need to have a GUI up and running in order to actually see the movie. Otherwise, you will get an error when you try and call 'img.show()'. Don't forget that you can always pull up documentation with commands like
+   help(cam)
+   help(img)
+With the 'Image' object, you can do some basic processing tasks right away. You can scale an image by some percentage, say 90%, with 'img.scale(90,90)'. You can also crop an image by giving it a start location and saying how many pixels across and how many up and down you want to crop to. This looks like 'img.crop(100,100,50,50)'. SimpleCV has the location (0,0) as the top left corner of an image.
+
+The really interesting functionality in SimpleCV is the ability to find features within an image and to work with them. One of the clearest features you can look for is blobs, where a blob is defined as a continuous light region. The function 'img.findBlobs()' will search the captured image for all blobs and return them as a FeatureSet. You can set the minimum number of pixels to consider a single blob, the maximum number of pixels, as well as a threshold value. If you are looking at a region that has some hard edges, you can use the function 'img.findCorners()'. This function will return a FeatureSet of all of the corners within the captured image. A very simple monitor program could use one of these functions to see if there is any motion happening. If there is, then the set of blobs or corners will change from one frame to another. Of course, a little more reading will lead you to the 'img.findMotion()' function. This function will take two subsequent images and see if any motion can be detected going from one to the other. The default method is to use a block matching algorithm, but you can also use either the Lucas-Kanade method or the Horn-Schunck method.
+
+The above methods will let you know some features of the captured images, and if any kind of motion has occurred. But what if you are more interested in identifying whether people have been moving around? Maybe you have an area you need to secure from espionage. In this case, you can use the function 'img.findSkintoneBlobs()'. You can use a binarize filter threshold to set what constitutes a skin tone. If you need to do more, you have access to all of the underlying OpenCV functionality. One of these more advanced functions is face recognition. You can use the function 'img.findHaarFeatures()' to look for a known type of object. If you wanted to look for faces, you could use something like
+   faces = HaarCascade("./SimpleCV/Features/HaarCascades/face.xml","myFaces")
+   img.findHaarFeatures(faces)
+When you start developing these types of programs, one thing that might come into play is timing issues. You want to be sure that your code is fast enough to catch everyone that may be moving through the field of the camera. In order to figure out what is costing time, you need to be able to profile your code. The shell in SimpleCV provides a feature called 'timeit' that will give you a quick and dirty profiling tool that you can use while you are experimenting with different algorithms. So, as an example, you can see how long the 'findBlobs()' function takes on your Raspberry Pi with something like
+   img = cam.getImage()
+   timeit img.findBlobs()
+Once you find and fix the bottlenecks in your code, you can create the end product for your final version. 
+
+With this article, you should now have enough to start using cameras from within your own programs. We have only been able to cover the bare essentials, however, so don't forget to go check out the documentation covering all of the other functionality that is available in the SimpleCV module.
+
+
+
+@boxout - 185 words 
+SimpleCV is built on top of OpenCV, and provides a simplified set of functions. But what can you do if you have more complicated work to do? You always have the option of using OpenCV directly to gain access to the full set of functions. You can import the module into the local namespace with
+   from cv2 import *
+Not only do you have the usual image manipulation functions and the feature recognition tools, but you also have the ability to process video. You can use meanshift and camshift to do colour based motion detection. There are functions to look at optical flow. These are functions that look at apparent motions in a video, from one frame to the next, that are caused by either the object moving or the camera moving. You can even subtract the background from a moving foreground object. This is a common preprocessing step in vision systems. You can even construct 3D information from a set of stereo images gathered by a pair of cameras. With OpenCV, you really can deal with almost any vision problem you might be tackling. 
+
+
+@code - 54 lines 
+# SimpleCV provides a simple interface to OpenCV
+# First, we will import everything into the local namespace
+
+from SimpleCV import *
+
+
+# Make sure your USB camera is plugged in,
+# then you can create a camera object
+cam = Camera()
+
+
+#Getting an image from the camera is straightforward
+img = cam.getImage()
+
+# You can rescale this image to 1/2 its original size
+img2 = img.scale(50,50)
+
+
+# There are several features that you may want to look at
+
+# You can extract a list of blobs
+blobs = img.findBlobs()
+
+# You can draw these blobs and see where they are on the image
+blobs.draw()
+
+# or a list of corners
+corners = img.findCorners()
+
+
+# If you want to identify motion, you will need two frames
+img2 = cam.getImage()
+
+# You can get a FeatureSet of motion vectors with
+motion = img2.findMotion(img)
+
+
+# Face recognition is possible too. You can get a list of the types
+# of features you can look for with
+img.listHaarFeatures()
+
+# For faces, you can generate a Haar Cascade
+faces = HaarCascade('face.xml')
+
+# Now you can search for faces
+found_faces = img.findHaarFeatures(faces)
+
+
+# You can load image files with the Image class
+my_img = Image('my_image.jpg')
+
+# You can save images to the hard drive, too
+img.save('camera.png')
+
