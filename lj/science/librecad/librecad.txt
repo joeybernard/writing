@@ -1,0 +1,34 @@
+Drafting on Linux
+
+
+
+One task that happens in science is designing new hardware to help make measurements. A powerful tool to help with this design work is a Computer Aided Design system, or CAD software. There are several tools available on Linux to do CAD work. In this issue, we will take a look at LibreCAD. LibreCAD started as an extension of QCad. It was known, for a short while, as CADuntu before finally being renamed as LibreCAD. It should be available as a package in most distributions. In Debian based distributions, you can install it with the command
+   sudo apt-get install librecad
+or, you can always install from source if you want the latest and greatest features.
+
+Once LibreCAD is installed, you can either launch it from the application launcher for your desktop, or you can run the command 'librecad' from a terminal. The very first time you start LibreCAD, you will be presented with a welcome window. [librecad1.png] Here, you will be presented with the ability to set options for the default unit, the GUI language and the command language. Once you set these options, you will get a blank canvas where you can start your new project. [librecad2.png] The main window is the actual drawing canvas, where you can setup your design. On the left-hand side you should see a palette of drawing tools. On the right-hand side you will see two smaller windows containing the layer list and the block list for your design. If you already have some design work done, you can import this work into LibreCAD. You can insert an image to your design by clicking the menu item 'File->Import->Insert Image'. LibreCAD can handle most common file formats. If you had been working with another CAD program and have a DXF file of that work, you can import it by clicking on the menu item 'File->Import->Block'. [librecad4.png] This option will also handle CXF files, in case you were using those. You may have a text file with raw point data for the object you are trying to draw. If so, you can click on the menu item 'File->Import->Read ascii points'. This will pop up an option window where you can define what the points represent and how to treat them. You can even import GIS data from a shape file if you wish with the menu item 'File->Import->shape file'.
+
+So, now you should be ready to start designing your project. Clicking the icons in the palette on the left-hand side opens a new palette with multiple options for each of the categories. For example, if you click on the circle icon, you will get a new palette giving you the option to draw circles with either two point on the circumference, a point at the center and one at the circumference or a circle which fits within a triangle, among many other options. The other icons in the drawing palette also give you tools to draw many other components, such as lines, arcs and splines. All of these items a drawn on the default layer that you get with a new project. You can add a new layer by clicking the plus icon in the top pane of the right-hand side. This will pop up a new option window where you can set things like the layer name and the drawing color for the new layer. [librecad3.png] You can toggle visibility of the various layers by clicking the eye icon to the right in the layer list. When you have a layer set the way you want it, you can make uneditable by clicking on the lock icon for that layer. That way, you won't accidentally change it while you work on other layers. If you need to add labels, explaining parts of your design, you can click on the multi-line text option in the tool palette. This will pop up a window where you can enter the text and set options like font and color. [librecad5.png]
+
+Once you have the basic objects drawn on your project, you can use the many modification tools available to either fine tune your drawing, or to generate more complex objects based on some modification of one of the basic types. These modifications are available under the menu item 'Modify'. You can do things like scaling, mirroring, rotating and moving. Using these tools is a bit nonintuitive. Say you want to scale an element of your drawing. The first thing you will want to do is to click on the menu item 'Modify->Scale'. You will now notice that the command line box at the bottom of the window has changed, asking you to 'Select to scale'. You then need to click on the element you want to scale, say a line element, and hit the enter key. The command line window will then change to saying 'Specify reference point'. LibreCAD scales based on a reference point to act as a point of perspective. So go ahead and click on a point. This will pop up an option window where you can set things like the scaling factor and whether it is isotropic or not. [librecad6.png] When you click on 'OK', LibreCAD will apply the modification and refresh the drawing. You can also change the properties of the different elements, which may be needed to clarify parts of special interest. To do this, you will need to click on the menu item 'Modify->Properties', and then click on the element in question. This will pop up a dialog box where you can edit properties which apply for that element type. [librecad7.png] 
+
+When you have finished your design, you will want to share it with others. The default file format is the Drawing Exchange Format (dxf). LibreCAD supports the versions 2007, 2004, 2000, R14 and R12. If you need to, you can also save it as a LFF Font file (lff), a QCad file (cxf) or a Jww Drawing file (jww). If you just want a simplified output, you can click on the menu item 'File->Export' and save it in one of a large number of image file formats. With these options, you should be able to share your design with most people.
+
+Hopefully, this article has shown you enough to help you decide whether LibreCAD might be a good fit for your next design project. If so, you can find even more information at the LibreCAD wiki and forum. There are also a great deal of examples available on the Internet that can show you just what is possible with a good CAD system. Since these are available in DXF files, you can load them in LibreCAD and play with the possibilities.
+
+
+
+IMAGES
+librecad1.png  -  When you start LibreCAD the first time, you need to set some initial options.
+librecad2.png  -  LibreCAD starts up with a blank canvas, ready for your new project.
+librecad3.png  -  You can set options for new layers added to your project.
+librecad4.png  -  You can import DXF files from lots of places.
+librecad5.png  -  You can set several options when you add a multi-line text object.
+librecad6.png  -  You can set several options for scaling an element of your drawing.
+librecad7.png  -  You can change both the display properties of you circle, as well as the physical properties.
+
+
+
+URLs
+http://www.librecad.org  -  The main home page for LibreCAD
+
