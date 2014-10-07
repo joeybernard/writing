@@ -1,0 +1,74 @@
+Computing Without a Computer
+
+
+I've covered a lot of various pieces of software that are designed to help you do scientific calculations of one type or another. But I have neglected a whole class of computational tool that is rarely used anymore. Before there was the electronic computer, computations had to be made by hand, and hence were error prone. To try and minimize these human errors, shortcuts and aids of one form or another were developed. A common computational problem is to solve equations of some number of variables. The tool that was developed for this class of problem is the nomograph, or nomogram. A nomograph uses a graphical representation of an equation to make solving the equation as simple as setting down a straightedge and reading off the result. Once a nomograph is constructed, it is one of the fastest ways to solve an equation by hand. This month, we will look at some common nomographs that many people will likely have seen. As well, we'll look at a Python package, PyNomo, that can be used to create your own. We'll walk through creating some new nomographs, which will hopefully inspire you to try creating some of your own.
+
+First, we should look at what a nomograph actually is. Electrical engineers should have already seen and used one example, the Smith chart. This chart is a very quick way to solve problems involved with transmission lines and matching circuits. Solving these types of problems by hand was a very tedious task that wasted quite a lot of time. The introduction of the Smith chart increased productivity immensely. A Smith chart is scaled in normalized impedance, or normalized admittance, or both. The scaling around the outside is in wavelengths and degrees. The wavelength scale measures the distance along the transmission line between the generator and the load. The degree scale measures the angle of the voltage reflection coefficient at that point. Since impedance and admittance changes as frequency changes, you can only solve problems for one frequency at a time. The result calculated at one frequency is a single point on the Smith chart. For wider bandwidth problems, you just need to solve for a number of frequencies to get the behaviour over the full range. Since this isn't meant to be a lesson in electrical engineering, I will leave it as an exercise for the reader to see just how many other problems can be solved with a Smith chart. Another example which should be recognizable to any parent is the height/weight charts used by doctors. These charts allow a doctor to take the weight and height of a child and see where they fit on a nonlinear scale which compares one child to the available statistics of a population very quickly. This is much easier than plugging these values into an equation and trying to calculate it manually.
+
+But, what can you do if you want to use a totally new type of nomograph? Enter the Python module PyNomo. The easiest way to install PyNomo is to use pip. You would type
+   pip install PyNomo
+You may need to preface this command with sudo if you want to have it installed as a system module. To get started, we need to import everything from the nomographer section with
+   from pynomo.nomographer import *
+This section contains the main Nomographer class that actually generates the nomograph you want to create. There are 10 types of nomographs that you can create with PyNomo. They are described in the following table
+   Type 1    Three parallel lines
+   Type 2    N or Z
+   Type 3    N parallel lines
+   Type 4    Proportion
+   Type 5    Contour
+   Type 6    Ladder
+   Type 7    Angle
+   Type 8    Single
+   Type 9    General determinant
+   Type 10   One curved line
+Each of these is also described by a mathematical relationship between the various elements. For example, a type 1 nomograph is described by the relationship
+   F1(u1) + F2(u2) + F3(u3) = 0
+Each element of a given nomograph must be of one type or another. But, they can be mixed together as separate elements of a complete nomograph. A simple example, borrowed from the PyNomo examples on the main website, is a temperature converter for converting between Celsius and Fahrenheit degrees. It is generated out of two type 8 blocks. Each block is defined by a parameter object, where you can set maximum and minimum values, titles, tick levels, as well as several other options. A block for a scale going from -40 to 90 degrees Fahrenheit would look like
+   F_para={'tag':'A',
+           'u_min':'-40.0,
+	   'u_max':'90.0,
+	   'function':lambda u:celcius(u),
+	   'title':r'$^\circ$ F',
+	   'tick_levels':4,
+	   'tick_text_levels':3,
+	   'align_func':celcius,
+	   'title_x_shift':0.5
+	   }
+We will need a similar parameter list for the Celsius scale. Once we have those, we need to create block definitions for each of the scales, which look like
+   C_block={'block_type':'type_8',
+            'f_params':C_para
+	    }
+The last step is to define a parameter list for the main Nomographer class. For the temperature converter, you can use something like the following
+   main_params={'filename':'temp_converter.pdf',
+                'paper_height':20.0,
+		'paper_width':2.0,
+		'block_params':[C_block,F_block],
+		'transformations':[('scale paper')]
+		}
+You can now create the nomograph you are working on with the Python command
+   Nomographer(main_params)
+[pynomo2.png]
+
+A more complicated example is a nomograph to help in the calculations involved in celestial navigation. [pynomo3.png] To handle such a complex problem, we'll need to use a type 9 nomograph. This type is a completely general form. You need to define a determinant form to describe all of the various interactions. If the constituents are functions of one variable, then they will create a regular scale. If they are of two variables, then they will create a grid section. For example, one of the single scales in this example would look like
+   'g':lambda u:-cos(u*pi/180.0)
+whereas the grid is defined by
+   'g_grid':lambda u,v:-sin(u*pi/180.0)*sin(v*pi/180.0)
+Once this nomograph is constructed, you can use it to compute the altitude azimuth.
+
+PyNomo goes through several steps in generating the nomograph. The last step is to apply any transformations to the various parts. Transformations to individual components can only be applied to type 9 nomographs. If you do apply transformations to individual components, you are responsible to be sure that relative scalings between the various parts are still correct. For other nomograph types, transformations can only be applied to the entire nomograph. There aren't a large number of transformations available yet, but there are enough to handle most customizations that you may want to make. The transformations available are
+   scale paper - scale the nomograph to the size defined by paper_height and paper_width
+   rotate - rotates the nomograph through the given number of degrees
+   polygon - applies a twisting transformation so that the tops and bottoms of the various scales
+   optimize - tries to optimize numerically the sum squared lengths of the axes with respect to paper area.
+With these transformations, you should be able to get the look you want for your nomograph.
+
+Now that you know about nomographs, and even more importantly, how to make them, you really have no excuse to avoid your trip to that isolated South Pacific island. You should go ahead and play with PyNomo and see what other kinds of nomographs you can make and use.
+
+
+IMAGEs
+pynomo1.png  -  With a Smith chart, you can work on problems around transmission lines and circuit matching.
+pynomo2.png  -  A simple nomograph is a Celsius-Fahrenheit temperature conversion scale.
+pynomo3.png  -  You can even do something as complicated as celestial navigation with a nomograph.
+
+
+URLs
+http://www.pynomo.org  -  The main website
