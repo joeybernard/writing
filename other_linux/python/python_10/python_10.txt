@@ -1,0 +1,82 @@
+@Title
+Using IPython to manage your RPi cluster
+
+
+
+@standfirst - 16 words
+In this issue, you will learn how to configure a cluster of Raspberry Pi's through IPython.
+
+
+
+@body - 1019 words
+In a previous article, we looked at using a cluster of Raspberry Pi's and doing parallel computations with MPI. But with Python, there is more than one option available. This issue, we will look at IPython and see what kind of parallel work you can do with it. Many Python programmers should already know about IPython, and how it can be used as an advanced terminal to do interactive Python coding. But, it is so much more than that. IPython is built on a client-server type of model that means that it can be very flexible. Part of that flexibility leads to being able to do very powerful parallel programming. IPython supports lots of different parallel methodologies, including single program multiple data (SIMD), multiple program multiple data (MIMD), task farming, data parallelism, and several other paradigms. With the flexibility afforded by the underlying structure, you can develop almost any type of parallel program. IPython is broken down into four separate sections: IPython engine, IPython hub, IPython schedulers and a controller client. To use IPython on the Raspberry Pi, you need to install that relevant packages. Assuming that you are using Raspbian, or something similar, you can install the required packages with the command
+   sudo apt-get install ipython
+One prerequisite that does not get installed automatically is zmq. You will need to install this manually with the command
+   sudo apt-get install python-zmq
+So, what can you do once you have IPython installed? We should take a quick look at how IPython is structured to get a better feel for how you can use it to do really cool stuff.
+
+The first portion to look at is the engine. An IPython engine is a Python instance that listens on a network interface and execute incoming Python commands. Incoming commands and outgoing results might include Python objects, too. When you start up multiple engines, you essentially have a parallel programming system at your disposal. One thing to be aware of is that each individual engine can only execute a single command at a time, and is blocking while any particular command is being run. The solution to this potential problem is the controller. A controller is made up of a hub and a collection of schedulers. This controller accepts connections from both engines and clients, and acts as a bridge between the two sections. Users talk to the controller, and the controller communicates to the attached engines. This is done through a Client object that connects to a controller, and hence to a cluster of CPU's.
+
+In order to do parallel programming, you need to create a cluster of IPython engines, and then you need to connect to it. To start up a cluster of engines, you need to use the command ipcluster. So, if you wanted to start up 2 engines on a given Raspberry Pi, you would use the command 
+   ipcluster start -n 2
+To test that everything is working, you could start the ipython interface and try to connect to these two new engines. The code would look like
+   from IPython.parallel import Client
+   c = Client()
+You can check the number of engines available by querying the 'ids' property of the newly created client object. In this case, you should see the list '[0,1]'. This might be OK if you are just testing some code out. But the whole point is to chain a number of Pi's together and use them as slaves. 
+
+We will start by assuming that you will be using a laptop to do your programming on. This machine will act as the front-end to your Raspberry Pi cluster. I am also going to assume that you are using some distribution of Linux. You will want to install the ipython and python-zmq packages on your laptop using your distribution's package manager. Once that is done, you will need to create a new IPython profile to store the configuration for your cluster. You can do this with the command
+   ipython profile create --parallel --profile=rpi
+This will create a new directory named 'profile_rpi' in your IPython configuration directory. This will vary depending on your distribution. In this directory, you will want to edit the file 'ipcluster_config.py' to set up the details for your cluster. In the sample code here, we are using SSH as the communication method. You can then set the hosts as a list which is stored in the property 'SSHEngineSetLauncher.engines' of the configuration. The hosts are enumerated with the format 'hostname : number_of_engines'. In the sample code, I have used IP addresses, since everything sits on an internal network. The other property you need to set is the command used to start an engine on the individual cluster nodes, which is stored in the property 'SSHEngineSetLauncher.engine_cmd'. If you are using Raspbian, this should simply be 'ipengine'. The last step is to be sure that the profile directories exist on the cluster nodes. On each Pi, you will want to run the command
+   mkdir -p .ipython/profile_rpi/security
+since it doesn't get created automatically. You also need to be sure that all of the machines on the network can talk to each other cleanly. You may want to look into setting up passwordless SSH, otherwise you will need to enter passwords when you try and start the cluster. These types of communication issues will likely be the primary cause of any issues you may have in getting everything setup.
+
+Now, you have an IPython cluster, ready to run. On your local laptop, you can start the cluster up by running the command
+   ipcluster start --profile=rpi
+A series of messages will display in the console. Once the controller has finished initializing, you can start using it. You simply create a new client object using the rpi profile, and use it to do different types of parallel programming. You should now be able to start using all of those Raspberry Pi's that you have been collecting. With IPython, you can rein them all in and get them working together on all of your largest problems. You now have the tools to build one of the lowest energy super computers available.
+
+
+
+@boxout - 219 words 
+Once you have an IPython cluster configured and running, how do you actually use it? You need to create a view of the engines to manage executing code. The simplest view is created using list syntax and the client object. For example, you can create a view of all available engines with the command
+   my_view = my_client[:]
+You can then use the view's map function to distribute the mapped function across all available engines with
+   par_results = my_view.map_sync(lambda x: x**10, range(32))
+There are two other basic ways to execute code on the engines, which are handled through function decorators. The first, remote, tells each engine to run the same piece of code defined the function. The second is parallel, which takes an input list and divides it up among the available engines. Then each engine executes the given function on its share of the initial list. These are both built on top of the view's apply function, which provides a very generic way to execute code on a remote engine. You can control how this code gets executed through flags in the view. You can set 'my_view.block' to true if you want to wait for the results, or set it to false if you want to return right away. An AsyncResult object tracks the status of the function call.
+
+
+
+@code - 33 lines 
+Edit the cluster configuration file ipcluster_config.py
+Make sure the following lines exist in this file
+-----------------
+c = get_config()
+c.IPClusterEngines.engine_launcher_class = 'SSH'
+c.LocalControllerLauncher.controller_args = ["--ip='*'"]
+c.SSHEngineSetLauncher.engines = {
+   'localhost' : 2,
+   'rpi1' : 1,
+   'rpi2" : 1
+}
+c.SSHEngineSetLauncher.engine_cmd = ['ipengine']
+-----------------
+
+
+In IPython, work with the engines you started up
+-----------------
+from IPython.parallel import Client
+
+# Create a client and view for the cluster
+my_client = Client()
+my_view = my_client[:]
+
+# You can map a function across the entire view
+par_result = my_view.map_sync(lambda x: x**10, range(32)
+
+# You can create a remote function that runs our on the engines
+@my_view.remote(block=True)
+def getpid():
+   import os
+   return os.getpid()
+# Calling 'getpid()' will get the PID from each remote engine
+
+-----------------
