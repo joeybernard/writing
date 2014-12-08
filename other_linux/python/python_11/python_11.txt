@@ -1,9 +1,107 @@
-@Title (probably something like 'The Python column'
-@standfirst (what you're coving in this column - a nice hook to reel people in - 10-20 words)
-
-@body copy 1000 words
+@Title
+Forecasting the weather with your Raspberry Pi
 
 
-@boxout - a good 200 words on a topic related or expanded upon from the body copy. This could include code. 
 
-@code - if you can do some example code all the better. We can style it up properly. Max of 50-70 lines, though. 
+@standfirst - 22 words
+With Python and a Raspberry Pi you can keep an eye on the weather and be prepared for the next big storm.
+
+
+
+@body - 997 words
+Being someone who lives on the east coast of Canada, the weather is something that is constantly a topic of conversation. The common wisdom is that if you don't like the weather, just wait five minutes and it will change to something else. While people have used Raspberry Pis to create lots of applications like Twitter tickers, I thought this issue we could look at how to write up a weather ticker in Python. There are many different services available that provide weather data through a number of different APIs. Some can be accessed directly through a URL, while others are a bit more complicated. Luckily, for the more complicated options there are are wrappers written to make the data collection easier. We will look at several services and see how to pull data from a number of them. From there, you can decide how best to display all of this information.
+
+The first service we will look at is the one provided by Weather Underground (http://www.wunderground.com). This service uses weather information collected by individuals from around the world, using data from personal weather stations. As with most services, you will need to get an API key in order to pull down the weather data for your ticker. You can purchase a developer key for free, as long as you don't download data more than 500 times per day or 10 times per minute. This should be adequate for personal use. If you need more than this, you can purchase an API key that covers more usage. Interacting with Weather Underground involves sending a request as an HTTP URL and receiving back either a JSON or XML file. In the sample code, we pull back the data as JSON. The first thing you will need is your location identifier. You can request a location identifier by either latitude and longitude, or by geolocating your current IP address. You can even do a search by place name. Once you have this, you can go ahead and start to make data requests. You can import the urllib2 and json modules to make the request and parse the output. For example, let's say you wanted to get the current conditions at Cedar Rapids. You could do this with the following Python code
+   f = urllib2.urlopen('http://api.wunderground.com/api/YOUR_KEY/geolookup/conditions/q/IA/Cedar_Rapids.json')
+This will return a JSON file. You can now load this data and parse it with
+   json_str = f.read()
+   json_parsed = json.loads(json_str)
+The json_parsed variable will now contain all of the available current conditions, such as temperature or precipitation. There are many other data features provided by the Weather Underground, including weather alerts, a 3 day forecast, a 10 day forecast, hourly forecasts and tide forecasts. There is also historical information, in case you need historical data for some other project.
+
+The next service we will look at is that provided by forecast.io. Forecast.io aggregates weather data from several different sources around the world. It parses through all of these data sources and provides current weather conditions and a forecast for your location through an API over HTTP. The returned data can be a bit messy, so there are wrappers for many different environments, including Python. This wrapper is available on GitHub from Ze'ev Gilovitz (https://github.com/ZeevG/python-forecast.io). While you can download and install from source, you should be able to install it using pip with
+   pip install python-forecastio
+As with Weather Underground, you will need to go to forecast.io and get an API key in order to make requests. And, as with Weather Underground, this API key is free. Once you import the module, you can call 'load_forecast()' to get the data. The object storing the returned results contains everything available and has several access functions. For example, you can get the hourly forecast with the object function 'hourly()'. These access functions have functions within them to access parts of the sub-data. For example, you can look at the hourly temperature with
+   byhour = forecast.hourly()
+   for hourlyData in byhour.data:
+      print hourlyData.temperature
+In most instances, the information available through the wrapper functions should be good enough. But, you may have need of more control over your request. In these cases, the forecast.io module has a function called 'manual()'. You can use this to send a particular URL data request to the forecast.io service to pull back the exact information you are interested in.
+
+The last option we will look at is the python-weather-api module. This module provides access to weather service providers "Yahoo! Weather", "weather.com" and NOAA. This module is actually available as a package within Raspbian. You can install it with the command
+   sudo apt-get install python-pywapi
+You can also install it with pip, as well. Once you have it installed, you can import it and request data from any of the three data service providers. The three main functions are 
+   pywapi.get_weather_from_yahoo()
+   pywapi.get_weather_from_weather_com()
+   pywapi.get_weather_from_noaa()
+These functions essentially get all of the available information from these different servers in a single call. You can then parse the results to pull out the information you are most interested in. The results actually come back as XML data, and are then parsed in the return object. You can then pull out the relevant data by using keywords, such as 'forecasts'. You should review the module documentation to see what information is available from each of the data sources.
+
+Once you have collected the weather data that you were looking for, you need to display this information. The simplest is to just print it out. This works well if you are using a console as the interface. There are also several LCD options available if you want to make a self-contained weather reporting service. The exact code used to handle the LCD will vary by manufacturer, but they all have very good documentation available. And, now that you do have the weather reports being served up to you, you will no longer have any excuses for being caught unawares by a storm or showing up to work drenched by rain.
+
+
+
+@boxout - 210 words
+With the availability of reasonably priced home weather stations, weather data can also travel in the other direction to online services. One of the most popular citizen weather reporting services is Weather Underground. If this is something that you are interested in doing, you can use Python to log the data and send it in to Weather Underground. You can install the required module with
+   pip install weather
+This module actually contains three separate sub-modules, which provides functions to do all kinds of weather tasks. These sub-modules need to be imported individually. The first sub-module provides a number of conversion functions, as well as calculation functions such as 'weather.units.calc_wind_chill()'. The second sub-module, 'weather.stations', provides the capabilities to talk to the weather station over a serial connection. This module currently only talks to the Vantage and VantagePro. If you have a different variety of weather station, you will likely need to add that support yourself. The third sub-module, 'weather.services', provides the functions to upload your data to the online services. The services sub-module provides functions to upload your data recordings to Weather Underground, pwsweather.com, and even to a text file for storage on your own device. Now you can easily share all of that weather data that you have been recording.
+
+
+
+@code - 59 lines
+# To talk to Weather Underground we need
+# to import modules to handle URLs and
+# JSON data
+import urllib2
+import json
+
+# The next step is to open a URL and
+# read the data
+f = urllib2.urlopen('http://api.wunderground.com/api/YOUR_KEY/geolookup/conditions/q/IA/Cedar_Rapids.json')
+json_string = f.read()
+
+# Now you can parse the JSON data
+# read off the information you need
+parsed_json = json.loads(json_string)
+location = parsed_json['location']['city']
+temp_f = parsed_json['current_observation']['temp_f']
+
+
+
+# To talk to forecast.io you need to
+# import the forecastio module
+import forecastio
+
+# You need your API key and location
+apikey = "YOUR_KEY"
+latitude = 36.4
+longitude = 46.567
+
+# The next step is to load the forecast data
+forecast = forecastio.load_forecast(apikey, latitude, longitude)
+
+# You can print out the available hourly data
+by_hour = forecast.hourly()
+for hourly_data in by_hourly.data:
+   print hourly_data
+
+# You can also get summaries
+by_day = forecast.daily()
+print by_day.summary
+
+
+
+# To use the Python weather API you need to
+# import the pywapi module
+import pywapi
+
+# Getting the weather from any of the 
+# available sources is a single call
+# You will need to find and use the 
+# appropriate location ID
+weather_com_result = pywapi.get_weather_from_weather_com('10001')
+yahoo_result = pywapi.get_weather_from_yahoo('10001')
+noaa_result = pywapi.get_weather_from_noaa('KJFK')
+
+# The data is now in a key/value pair
+# structure, ready to read off and used
+print weather_com_result['current_conditions']['text']
+print yahoo_result['condition']['text']
+print noaa_result['weather']
