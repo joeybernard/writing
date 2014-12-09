@@ -1,0 +1,146 @@
+{\rtf1\ansi\deff3\adeflang1025
+{\fonttbl{\f0\froman\fprq2\fcharset0 Times New Roman;}{\f1\froman\fprq2\fcharset2 Symbol;}{\f2\fswiss\fprq2\fcharset0 Arial;}{\f3\froman\fprq2\fcharset0 Liberation Serif{\*\falt Times New Roman};}{\f4\froman\fprq0\fcharset128 Courier New;}{\f5\froman\fprq0\fcharset128 Times New Roman;}{\f6\froman\fprq0\fcharset128 Arial;}{\f7\fswiss\fprq0\fcharset128 Arial;}{\f8\fnil\fprq0\fcharset128 Times New Roman;}{\f9\fswiss\fprq0\fcharset128 Times New Roman;}}
+{\colortbl;\red0\green0\blue0;\red255\green255\blue255;\red128\green128\blue128;\red0\green0\blue1;}
+{\stylesheet{\s0\snext0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Normal;}
+{\s1\sbasedon0\snext1\ql\nowidctlpar\sb440\sa60\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs34\lang1033 Heading 1;}
+{\s2\sbasedon0\snext2\ql\nowidctlpar\sb440\sa60\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs28\lang1033 Heading 2;}
+{\s3\sbasedon0\snext3\ql\nowidctlpar\sb440\sa60\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs24\lang1033 Heading 3;}
+{\s4\sbasedon0\snext4\ql\nowidctlpar\sb440\sa60\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs24\lang1033 Heading 4;}
+{\*\cs15\snext15 Endnote Characters;}
+{\s16\sbasedon0\snext17\ql\nowidctlpar\sb240\sa120\keepn\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs28\alang1081\loch\f7\fs28\lang1033 Heading;}
+{\s17\sbasedon0\snext17\sl288\slmult1\ql\nowidctlpar\sb0\sa120\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Text Body;}
+{\s18\sbasedon17\snext18\sl288\slmult1\ql\nowidctlpar\sb0\sa120\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af9\afs24\alang1081\loch\f5\fs24\lang1033 List;}
+{\s19\sbasedon0\snext19\ql\nowidctlpar\sb120\sa120\noline\ltrpar\cf1\i\kerning1\dbch\af8\langfe1081\dbch\af9\afs24\alang1081\ai\loch\f5\fs24\lang1033 Caption;}
+{\s20\sbasedon0\snext20\ql\nowidctlpar\noline\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af9\afs24\alang1081\loch\f5\fs24\lang1033 Index;}
+{\s21\snext21\ql\nowidctlpar\tx1584\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Chapter Heading;}
+{\s22\snext22\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Box List;}
+{\s23\snext23\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Star List;}
+{\s24\snext24\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Lower Case List;}
+{\s25\sbasedon0\snext25\ql\nowidctlpar\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Table Contents;}
+{\s26\sbasedon25\snext26\qc\nowidctlpar\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f5\fs24\lang1033 Table Heading;}
+{\s27\snext27\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Triangle List;}
+{\s28\snext28\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Upper Case List;}
+{\s29\snext29\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Bullet List;}
+{\s30\snext30\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Heart List;}
+{\s31\sbasedon0\snext31\ql\nowidctlpar\li1440\ri1440\lin1440\rin1440\fi0\sb0\sa120\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Block Text;}
+{\s32\snext32\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Square List;}
+{\s33\sbasedon0\snext33\qc\nowidctlpar\sb240\sa120\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs32\lang1033 Contents Header;}
+{\s34\sbasedon0\snext34\ql\nowidctlpar\li288\ri0\lin288\rin0\fi-288\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs20\alang1081\loch\f5\fs20\lang1033 Footnote;}
+{\s35\snext35\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Numbered List;}
+{\s36\snext36\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Diamond List;}
+{\s37\snext37\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Hand List;}
+{\s38\sbasedon35\snext38\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Upper Roman List;}
+{\s39\sbasedon0\snext39\ql\nowidctlpar\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f4\fs24\lang1033 Plain Text;}
+{\s40\snext40\ql\nowidctlpar\tx1584\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Section Heading;}
+{\s41\snext41\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Implies List;}
+{\s42\snext42\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Tick List;}
+{\s43\sbasedon0\snext43\ql\nowidctlpar\li288\ri0\lin288\rin0\fi-288\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs20\alang1081\loch\f5\fs20\lang1033 Endnote;}
+{\s44\snext44\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang4105 Dashed List;}
+{\s45\sbasedon0\snext45\ql\nowidctlpar\li720\ri0\lin720\rin0\fi-431\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Lower Roman List;}
+{\s46\sbasedon0\snext46\ql\nowidctlpar\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Endnote Symbol;}
+{\s47\sbasedon1\snext47\ql\nowidctlpar\tx431\li0\ri0\lin0\rin0\fi0\sb440\sa60\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs34\lang1033 Numbered Heading 1;}
+{\s48\sbasedon2\snext48\ql\nowidctlpar\tx431\li0\ri0\lin0\rin0\fi0\sb440\sa60\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs28\lang1033 Numbered Heading 2;}
+{\s49\sbasedon3\snext49\ql\nowidctlpar\tx431\li0\ri0\lin0\rin0\fi0\sb440\sa60\ltrpar\cf1\b\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\ab\loch\f6\fs24\lang1033 Numbered Heading 3;}
+{\s50\sbasedon0\snext50\ql\nowidctlpar\tx2160\tx2880\tx3600\tldot\tqr\tx14292\li720\ri0\lin720\rin0\fi-431\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Contents 1;}
+{\s51\sbasedon0\snext51\ql\nowidctlpar\tx4320\tx5760\tx7200\tldot\tqr\tx18329\li1440\ri0\lin1440\rin0\fi-431\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Contents 2;}
+{\s52\sbasedon0\snext52\ql\nowidctlpar\tx6480\tx8640\tx10800\tldot\tqr\tx22366\li2160\ri0\lin2160\rin0\fi-431\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Contents 3;}
+{\s53\sbasedon0\snext53\ql\nowidctlpar\tx8640\tx11520\tx14400\tldot\tqr\tx26403\li2880\ri0\lin2880\rin0\fi-431\ltrpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033 Contents 4;}
+}{\info{\title Invoice}{\author amuzzall}{\creatim\yr0\mo0\dy0\hr0\min0}{\revtim\yr0\mo0\dy0\hr0\min0}{\printim\yr0\mo0\dy0\hr0\min0}{\comment LibreOffice}{\vern67241475}}\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709\deftab709
+\viewscale100
+{\*\pgdsctbl
+{\pgdsc0\pgdscuse451\pgwsxn12240\pghsxn15840\marglsxn1800\margrsxn1800\margtsxn1440\margbsxn1440\pgdscnxt0 Default Style;}
+{\pgdsc1\pgdscuse451\pgndec\pgwsxn12240\pghsxn15840\marglsxn1134\margrsxn1134\margtsxn1134\margbsxn1134\pgdscnxt1 Endnote;}}
+\formshade{\*\pgdscno0}\paperh15840\paperw12240\margl1800\margr1800\margt1440\margb1440\sectd\sbknone\sectunlocked1\pgndec\pgwsxn12240\pghsxn15840\marglsxn1800\margrsxn1800\margtsxn1440\margbsxn1440\ftnbj\ftnstart1\ftnrstcont\ftnnar\aenddoc\aftnrstcont\aftnstart1\aftnnar
+\pgndec\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qc{\cf1\ul\ulc1\b\langfe1025\alang1025\ab\rtlch \ltrch\loch\fs36\lang2057
+Invoice}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qc\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033{\cf1\b\langfe1025\alang1025\ab\rtlch \ltrch\loch\fs28\lang2057
+TO}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+Linux User and Developer Magazine}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+Imagine Publishing}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+Joey Bernard}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+116 Tudor Ave}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+Fredericton, NB}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+E3C 1X6}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+Canada}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+November 4}{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+, 2014}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qr{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+LU-03}{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs28\lang2057
+1}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\cf1\rtlch \ltrch\loch
+
+\par \trowd\trql\trleft-108\ltrrow\trpaddft3\trpaddt0\trpaddfl3\trpaddl0\trpaddfb3\trpaddb0\trpaddfr3\trpaddr0\clbrdrt\brdrs\brdrw15\brdrcf4\clbrdrl\brdrs\brdrw15\brdrcf4\clbrdrb\brdrs\brdrw10\brdrcf4\clcbpat2\cellx1258\clbrdrt\brdrs\brdrw15\brdrcf4\clbrdrl\brdrs\brdrw15\brdrcf4\clbrdrb\brdrs\brdrw10\brdrcf4\clcbpat2\cellx5369\clbrdrt\brdrs\brdrw15\brdrcf4\clbrdrl\brdrs\brdrw15\brdrcf4\clbrdrb\brdrs\brdrw15\brdrcf4\clbrdrr\brdrs\brdrw10\brdrcf4\clcbpat2\cellx8532\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs28\lang2057
+Purchase Order Number}\cell\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs28\lang2057
+Description of Work Completed}\cell\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+Amount}\cell\row\pard\trowd\trql\trleft-108\ltrrow\trpaddft3\trpaddt0\trpaddfl3\trpaddl0\trpaddfb3\trpaddb0\trpaddfr3\trpaddr0\clbrdrt\brdrs\brdrw15\brdrcf4\clbrdrl\brdrs\brdrw15\brdrcf4\clbrdrb\brdrs\brdrw10\brdrcf4\clcbpat2\cellx1258\clbrdrt\brdrs\brdrw15\brdrcf4\clbrdrl\brdrs\brdrw15\brdrcf4\clbrdrb\brdrs\brdrw10\brdrcf4\clcbpat2\cellx5371\clbrdrt\brdrs\brdrw15\brdrcf4\clbrdrl\brdrs\brdrw15\brdrcf4\clbrdrb\brdrs\brdrw15\brdrcf4\clbrdrr\brdrs\brdrw10\brdrcf4\clcbpat2\cellx8532\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+4}{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+7076}\cell\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+Python Column: Part }{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+10}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs24\lang1033
+Running Ipython engines for parallel code}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+Total:}\cell\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+\uc2 \u163\'81\'92120\uc1 }
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar{\cf1\kerning1\dbch\af8\langfe1025\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs32\lang2057
+\uc2 \u163\'81\'92120\uc1 }
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\rtlch \ltrch\loch\fs24\lang1033
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\intbl\ql\nowidctlpar\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1025\rtlch \ltrch\loch\fs24\lang1033
+\cell\row\pard\pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\cf1\rtlch \ltrch\loch
+
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qc{\cf1\langfe1025\alang1025\rtlch \ltrch\loch\fs32\lang2057
+Please make Cheques payable to:}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\qc{\cf1\ul\ulc1\b\langfe1025\alang1025\ab\rtlch \ltrch\loch\fs36\lang2057
+Joey Bernard}
+\par \pard\plain \s0\ql\nowidctlpar\ltrpar{\*\hyphen2\hyphlead2\hyphtrail2\hyphmax0}\cf1\kerning1\dbch\af8\langfe1081\dbch\af8\afs24\alang1081\loch\f5\fs24\lang1033\rtlch \ltrch\loch
+
+\par }
