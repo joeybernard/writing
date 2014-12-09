@@ -1,0 +1,11 @@
+Linux for Astronomers
+
+In the past, we have looked at specialty distributions that were created for engineers and biologists. But these aren't the only scientific disciplines that have their own distributions. This month, we will look at a distribution created specifically for astronomers, called Distro Astro. This distribution bundles together astronomy software to help users with tasks like running observatories or planetariums, doing professional research, or doing outreach.
+
+
+
+
+
+
+URL
+http://www.distroastro.org  -  Main website for Distro Astro
