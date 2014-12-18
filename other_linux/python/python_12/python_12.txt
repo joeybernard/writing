@@ -1,0 +1,95 @@
+@Title 
+Monitoring the network 
+
+
+
+@standfirst - 10 words
+Monitor your network activity with Python and your Raspberry Pi.
+
+
+
+@body - 936 words
+Raspberry Pi's are great devices to use in monitoring applications. With the full set of IO pins, you can attach all sorts of devices to it. This leads to all sorts of environmental monitoring solutions. But what if you have a need to monitor something a bit more technological, like network activity? This month, we will take a look at some of the options available, using Python, to code up your own tools to look at what is happening on your network. One thing that you do need to keep in mind is that you will only have access to what is visible to your Raspberry Pi. This may seem obvious, but if you have it connected to a switch, by default it will only see network packets addressed to it. If you want to monitor everything, you will need to configure your switch to mirror everything to the relevant port.
+
+We'll start by looking at the lowest level available to Python. The standard Python library includes a module called socket. By importing this module, you have the ability to talk to a network interface and observe what is happening on that interface. Remember that you will need root access in order to talk to physical devices, like the network interface. This means that you will need to either be the root user, or to run your Python code under sudo. The first thing you need to do is to create a new socket object with the function 'socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)'. The first parameter is the address family, the second parameter is the socket type, and the last parameter is the protocol type. There is a full description of the options available in the Python documentation. You can then bind this socket object to a specific address which represents the interface you are interested in. If you want to capture particular information, you can use the 'setsockopt()' function of the socket object to set those elements. This will allow you to capture network packets that are addressed to you, but what if you want to capture everything that is visible? For this, you need to set the interface into promiscuous mode. While you can do this within Python with the fcntl module, it can be a bit messy. The much easier way is to use
+   sudo ifconfig eth0 promisc
+If you are running your Python code as root, you can do this from within your program with 
+   import os
+   os.system("ifconfig eth0 promisc")
+You are now ready to start collecting data. You can use the functions 'recv()' and 'recvfrom()' to collect data. They both take a number defining the buffer size. The difference is that recvfrom also includes the address that the data came from.
+
+You can also use these raw socket objects to actively go out on the network to check what is happening rather than simply passively listening. Assuming that ICMP packets are not being blocked on your network, you can create a socket object with a prototype of IPPROTO_ICMP. You can then use this to go out and try and ping hosts on your network. The function 'connect()' takes a tuple of a host and a port. If you can hit this machine at this port, then the connect succeeds. Otherwise, it will fail with an error. You can then send out an ICMP packet to this host. You will need to use the 'pack()' of the Python struct module to create a binary struct that you can send out on the socket connection. Don't forget to close this socket before moving on. If you have specific services you want to check, you can create a stream socket. If you then connect this new socket to the host and port where the service is located, you can then use the 'sendall()' function to send some query. You can check the response from the service with the 'recv()' function. You can then check services like email or web servers directly.
+
+You may instead be interested in looking at the network activity happening on your Raspberry Pi, rather than what is happening out on the network. In this case, you will want to look at system information. If you are not interested in working directly with socket objects, there are several modules that wrap this and give you higher level functions to look at various system metrics. One example is the psutil module. You can get a list of all of the network connections on your Raspberry Pi with the function 'psutil.net_connections()'. You can then count how many there are, or you can iterate over the list and query the elements for details like the remote address, the prototype or the status of the network connection. If you are more interested in throughput numbers, you can get this data through psutil, too. The function in question is 'net_io_counters()'. With no parameter, you will get the aggregate over all of the network interfaces. If you want it divided out, you can pass in the parameter 'pernic=True'. The returned object has the values of 'bytes_sent', 'bytes_recv', packets_sent' and 'packets_recv'. If you asked for the results broken down by network interface, you can get the list of interfaces with the function 'keys()'. You can then pull the results for each interface using the keys.
+
+With what we have covered here, you hopefully have enough ideas and tools to be able to add some basic network monitoring options to your own code. In an article this short we have only been able to cover the basics, so don't be afraid to do some research and see what else is possible.
+
+
+
+@boxout - 232 words
+This month, we have looked at some examples of how to include network monitoring into your own program code. But, what if your primary intention is to do some serious monitoring and still want to be able to use Python? A good choice might be nagios. Assuming that you are using Raspbian, you can install nagios with the command
+   sudo apt-get install nagios3
+This installs the monitoring tools, along with the web interface that you can use to control it. While nagios includes a large number of monitoring tools, you can use Python to write your own plugins to add even more functionality. In order to do so, you will also need to install the NRPE server package with
+   sudo apt-get install nagios-nrpe-server
+You should put your Python scripts in the same directory (/usr/lib/nagios/plugins) as the system plugins. This just makes configuration much easier. In order to trigger alerts within nagios, you will need to set an exit code with 'sys.exit()', where the possible values are
+   Exit Code   Status
+      0         OK
+      1         WARNING
+      2         CRITICAL
+      3         UNKNOWN
+Once you have your script written, you need to define it as a command in the file '/etc/nagios/nrpe.cfg' where you give it a command name and point it to the location on the file system. To add this new command to the checks, you will need to add a 'define' section to the file '/stc/nagios/objects/commands.cfg'.
+
+
+
+@code - 51 lines
+# The first step is to import the socket module
+import socket
+
+# You need a socket object to work with
+# The first parameter is the address family
+# The second parameter set the socket type to raw
+# The third parameter sets the protocol to TCP
+s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+
+# The interface needs to be in promiscuous
+# mode. If you forgot, you can use the
+# following code
+import os
+os.system("ifconfig eth0 promisc")
+
+# In order to see the outside world, you
+# need to bind this socket to a physical
+# interface
+s.bind(('192.168.0.11', 0))
+
+# You can start collecting data
+# recvfrom include the source address
+packet_data = s.recvfrom(65565)
+
+# To check a web server, you can
+# send a request to get the index
+# page
+s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s2.connect(('www.google.com', 80))
+s2.sendall('GET index.html')
+
+# You can get the response data with
+data = s2.recv(10)
+
+
+# With psutil, you can easily get
+# both individual and aggregate network data
+import psutil
+
+# The network connections are given by
+net_conns = psutil.net_connections()
+
+# The number is
+num_conns = len(net_conns)
+
+# Aggregate data is give by
+agg_stats = psutil.net_io_counters()
+
+# The individual elements are
+print "Bytes sent = ", agg_stats.bytes_sent
+print "Packets received = ", agg_stats.packets_rev
