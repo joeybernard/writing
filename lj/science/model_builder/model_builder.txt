@@ -1,0 +1,16 @@
+Solving ODE's on Linux
+
+Many problems in science and engineering are modeled through ordinary differential equations (ODE's). An ODE is an equation that contains a function of one independent variable and its derivatives. This means that pratically any system that changes over time can be modelled with an ODE, from celestial mechanics to chemistry reaction rates to ecology and population modelling. Because of this ubiquity, many tools have been developed over the years to help solve and analyze ODE's. This month, we will be looking at one of the tools available on Linux, Model Builder. The project is hosted on Source Forge, so you can always build it from source. But, most distributions should have a package available. On Debian-based ones, you can install it with the command
+   sudo apt-get install model-builder
+It will also install several Python modules to support the tasks it can handle.
+
+To start Model Builder, you can either click on its menu item in your desktop environment or you can run the command 'PyMB' from a terminal window. When the main window pops up, you are presented with a template where you can define the problem you are analyzing. [mb1.png] 
+
+
+URLs
+ODE Wikipedia article - http://en.wikipedia.org/wiki/Ordinary_differential_equation
+Model Builder main site - http://model-builder.sourceforge.net
+
+
+Images
+mb1.png - When Model Builder starts up, you have the ability to set several parameters and the equations you wish to analyze.
