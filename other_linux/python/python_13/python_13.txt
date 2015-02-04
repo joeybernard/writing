@@ -1,0 +1,94 @@
+@Title
+Creating Your Own Digital Assistant
+
+
+
+@standfirst - 20 words
+Everyone would like to tell their computers exactly what to do. With Python and a Raspberry Pi, now you can.
+
+
+
+@body - 1009 words
+Everyone who has watched the Iron Man movies has probably dreamt of having their own artificially intelligent computer system to do their every bid and call. While Jarvis has massive amounts of computing power behind him, you can construct the front end with very modest resources. With a Raspberry Pi and the Python programming language, you can build your own personal digital assistant that can be used as a front-end to whatever massive supercomputing resources that you use in your day-to-day life as a playboy, philanthropist genius. We will go over the basics that you will need to know over the next few issues, so that by the end of the series, you should be able to build your own rudimentary, customized agent.
+
+The first step to interacting with the humans around us is to listen for verbal commands so that we know what we need to process. You have several options available to handle this task. To keep things simple, we will be dealing only with devices that are plugged into one of the USB ports. With that stipulation, you can talk directly with the USB device at the lowest level. This might be necessary if you are trying to use something that is rather unusual to do the listening, but you will probably be better off using something that is a bit more common. In this case, you can use the Python module PyAudio. PyAudio provides a Python wrapper around the low level cross-platform library PortAudio. Assuming that you are using something like Raspbian for your distribution, you can easily install the required software with the command
+   sudo apt-get install python-pyaudio
+If you need the latest version, you can always grab and build it from source. PyAudio provides functionality to both read in audio data from a microphone, along with the ability to play audio data out to head phones or speakers. So we will use it as our main form of interaction with the computer.
+
+The first step is to be able to read in some audio commands from the humans who happen to be nearby. You will need to import the 'pyaudio' module before you can start interacting with the microphone. The way PyAudio works is similar to working with files, so it should seem familiar to most programmers. You start by creating a new PyAudio object with the statement 'p = pyaudio.PyAudio()'. You can then open an input stream with the function 'p.open(...)', with several parameters. You can set the data format for the recording; in the example code we used 'format=pyaudio.paInt16'. You can set the rate, in Hertz, for sampling. For example, we are using 'rate=44100', which is the standard 44.1KHz sampling rate. You need to say how big a buffer to use for the recording; we used 'frames_per_buffer=1024'. Since we want to record, you will need to use 'input=true'. The last parameter is to select the number of channels to record on, in this case we will use 'channels=2'. Now that the stream has been opened, you can start to read from it. You will need to read the audio data in using the same chunk size you used when you created the stream. It would look like 'stream.read(1024)'. You can then simply loop and read until you are done. There are then two commands to shutdown the input stream. You need to call 'stream.stop_stream()' and then 'stream.close()'. If you are completely done, you can now call 'p.terminate()' to shutdown the connection to the audio devices on your Raspberry Pi.
+
+The next step is to be able to send audio output so that Jarvis can talk to you, too. For this, you can use PyAudio, so we won't have to look at another Python module. To make things simple, let's say that you have a WAVE file you want to play. You can use the 'wave' Python module to load it. You would again create a PyAudio object and open a stream. The parameter 'output' would be set to true. The format, the number of channels and the rate is all information that will be derived from the audio data stored in your WAVE file. To actually hear the audio, you can simply loop through, reading one chunk of data from the WAVE file at a time and immediately writing out to the PyAudio stream. Once you are done, you can stop the stream and close it, as you did above.
+
+In both of the above cases, the functions block when you call them until they have completed. What are the options if you want still be able to do processing while you are either recording audio or outputting audio? There are non-blocking versions that take a callback function as an extra parameter called 'stream_callback'. This callback function takes 4 parameters, named 'in_data', 'frame_count', 'time_info', and 'status'. The 'in_data' parameter will contain the recorded audio if input is true. The callback function needs to return a tuple with the values 'out_data' and 'flag'. Out_data contains the data to be outputted if output is true in the call to the function open. If input is true instead, then 'out_data' should be equal to None. The 'flag' can be any of 'paContinue', 'paComplete' or 'paAbort', with obvious meanings. One thing to be aware of is that you cannot call read or write functions when you wish to use a callback function. Once the stream is opened, you simply call the function 'stream.start_stream()'. This starts a separate thread to handle this stream processing. You can use 'stream.is_active()' to check on the current status. Once the stream processing is done, you can call 'stream.stop_stream()' to stop the secondary thread.
+
+Now that we have covered how to get audio information into and out of your Raspberry Pi, you can start by adding this functionality to your next project. In the next issue, we will look at how to convert this audio information into something usable by the computer by using voice recognition modules. We will also look at ways to turn text into audio output using TTS modules.
+
+
+
+@boxout - 204 words 
+In this and subsequent issues, we will be looking at the parts needed to make your own voice control software and how to include it into your own projects. If you simply want a virtual assistant, one popular project is the Jasper system (http://jasperproject.github.io/). It includes a full set of instructions for getting it installed and using it on a Raspberry Pi. The documentation on the main web site includes a description of suggested hardware to attach to your Raspberry Pi, and a full set of instructions for installation and configuration. There are a set of standard modules include to allow interaction with various services. You can get the time with the time module, your emails with the gmail module or knock-knock jokes with the jokes module. You can even ask the meaning of life with the life module. There are also third-party modules to give you access to your Google Calendar, Twitter or Evernote.  There is even a developer API and documentation to help you add your own functionality to Jasper. So, unless you want to learn how to do it for yourself, or you want to include this kind of functionality to your own projects, you should definitely give Jasper a look.
+
+
+
+@code - 60 lines 
+# With Python, you can listen and talk
+
+# You need to import the pyaudio module
+import pyaudio
+
+# First, we will listen
+# We need to set some parameters
+# Buffer chunk size in bytes
+CHUNK = 1024
+# The audio format
+FORMAT = pyaudio.paInt16
+# The number of channels to record on
+CHANNELS = 2
+# The sample rate, 44.1KHz
+RATE = 44100
+# The number of seconds to record for
+RECORD_SECS = 5
+
+# Next, we create a PyAudio object
+p = pyaudio.PyAudio()
+
+# We need a stream to record from
+stream = p.open(format=FORMAT, channels=CHANNELS,
+                rate=RATE, input=TRUE, frames_per_buffer=CHUNK)
+
+# We can now record into a temporary buffer
+frames = []
+for i in range(0, int(RATE / CHUNK * RECORD_SECS)):
+   data = stream.read(CHUNK)
+   frames.append(data)
+
+# We can now shut everything down
+stream.stop_stream()
+stream.close()
+p.terminate()
+
+# If we want to play a wave file, we will need the wave module
+import wave
+
+# We can open it, give a filename
+wf = wave.open("filename.wav", "rb")
+
+# We need a new PyAudio object
+p = pyaudio.PyAudio()
+
+# We will open a stream, using the settings from
+# the wave file
+stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
+                channels=wf.getnchannels(), rate=wf.getframerate(),
+		output=True)
+
+# We can now read from the file and play it out
+data = wf.readframes(CHUNK)
+while data != '':
+      stream.write(data)
+      data = wf.readframes(CHUNK)
+
+# Don't forget to shut everything down again
+stream.stop_stream()
+stream.close()
+p.terminate()
