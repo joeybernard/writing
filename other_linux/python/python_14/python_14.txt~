@@ -1,0 +1,88 @@
+@Title (probably something like 'The Python column')
+Python speech recognition on your Raspberry Pi
+
+
+
+@standfirst - 22 words
+In this second installment, learn how to decode your audio and figure what commands are being given by the humans around you.
+
+
+
+@body - 956 words
+In the last issue, we looked at how we could have our Raspberry Pis listen to the world around them. This is the first step in building our own version of the Jarvis system made famous in the Iron Man movies. The next step is to try and make sense of what we may have just heard. In general, this is called speech recognition, and is a very large and active area of research. Every major cell phone operating system has applications trying to take advantage of this mode of human interaction. There are also several different Python modules available that can do this speech to text (STT) translation step. In this second article, we will look at using Pocket Sphinx to do the heavy lifting. Sphinx was developed by Carnegie Mellon University and is licensed under a BSD license. So you are free to add any extra functionality that you may need for specific tasks. Because of the activity in this field, it is well worth your time to keep track of updates and performance improvements.
+
+While you can download the source code for all of these modules and build it all from scratch, we are going to assume that you are using one of the Debian based distributions, like Raspbian. For these, you can simply use
+   sudo apt-get instal python-pocketsphinx
+to get all of the required files for the engine. You will also need audio model files and language model files in order to get a translation in you language of choice. To get the files needed for english, you can install the packages
+   sudo apt-get install pocketsphinx-hmm-wsj1 pocketsphinx-lm-wsj
+You may need to go outside the regular package management system if you want to process other languages. Then, you can simply start writing and using your code. To start using these modules, you will need to import both pocketsphinx and sphinxbase, with
+   import pocketphinx as ps
+   import sphinxbase
+These modules are actually Python wrappers around the C code that handles the actual computational work of transalting sounds to text. The most basic workflow involves instantiating a Decoder object from the pocketsphinx module. The Decoder object takes several input parameters to define the language files it is allowed to use. These include 'hmm', 'lm' and 'dict'. If you use the above packages, used to handle english, then the files you need will be in the directories '/usr/share/pocketsphinx/model/hmm/wsj1' and '/usr/share/pocketsphinx/model/lm/wsj'. If you don't set these parameters, then it tries to use sensible defaults which usually work fine for english language speech. This newly created Decoder object can now be given WAV files with data to process. If you remember from last issue, we saved the recorded speech as a WAV file. In order to have this audio recorded in the correct format, you will want to edit the code from last issue and ensure that you are recording in mono (i.e. using 1 channel), and recording at 16kHz and with 16 bits. To read it properly, you can use a file object and load it as a binary file with read permissions. WAV files have a small piece of header data at the beginning of the file that you need to jump over. This is done by using the seek function to jump over the first 44 bytes. Now that the file pointer is in the correct position, you can hand the file object in to the Decoder object's 'decode_raw()' function. It will then go off and do a bunch of data crunching to try and figure what was said. To get the results, you would use the 'get_hyp()' function call. You get a list with three elements from this function: a string containing the best guess at the spoken text, a string containing the utterance ID and a number containing the score for this guess.
+
+So far, we have only looked at how to use the generic language and audio models for a particular language. But, pocketsphinx is a research level language system, so it has tools available to allow you to build your own models. In this way, you can train your code to understand your particular voice with all of its peculiarities and accents. This is a long process, so most people will not be interested in doing something so intensive. If you are interested, there is information available at the main web site (http://cmusphinx.sourceforge.net). You can also define your own models and grammars to tell pocketsphinx how to interpret the audio that it is processing. Again, these tasks will require more in depth reading on your part.
+
+If you want to process audio more directly, you can tell pocketsphinx to start processing with the function 'start_utt()'. You can then start reading audio from your microphone. You will want to read in appropriate sized blocks of data before handing it in to pocketsphinx, specifically to the function 'process_raw()'. You will still need to use the function 'get_hyp()' to actually get the translated text. Because your code can't know when someone has finished a complete utterance, you will need to do this from within a loop. On each pass of the loop, read another chunk of audio and feed it into pocketsphinx. You then need to call 'get_hyp()' again to see if you can get anything intelligible from the data. When you are done doing this realtime processing, you can use the function 'end_utt()'.
+
+So far, we have covered how to record your speech, and how to turn that speech into text. Next issue, you will learn how to take that translated speech and actually take actions based on how the system has been configured. But even with only these two steps, you could build yourself a nifty littel dictaphone, or vocal note-taking system.
+
+
+
+@boxout - 231 words
+While pocketsphinx is a great option for on-board sound to text decoding, this isn't your only one. If you have a fast internet connection, you can completely offload this audio data processing to a much larger computer system; namely, Google. You can access the API directly over HTTP by posting your audio data to the appropriate URL. You end up with a JSON file as your returned value, with a list of possible decodings for the submitted audio. This isn't required, though. You can install the Python module 'SpeechRecognition' to wrap the messy details. You can install using pip with
+   pip install SpeechRecognition
+Once it is installed, you can create an instance of the 'Recognizer' object. A helper object, called 'WavFile', will take an audio file and prepare it for use by the Google API. You then need to process it with the 'record()' function, and then hand this processed audio in to the function 'recognize()'. When it returns, you will get a list of pairs of possible texts, along with a percentage confidence level for each possible text decoding. One thing to be aware of is that this module uses an 'unofficial' API key to do its decoding work. If you want to use it for anything more than small personal testing, you should probably get your own API key by following the directions at the chromium developer's web site.
+
+
+
+@code - 50 lines
+# You first need to import the required modules
+
+import pocketsphinx as ps
+import sphinxbase
+
+
+# Next, you need to create a Decoder object
+
+hmmd = '/usr/share/pocketsphinx/model/hmm/wsj1'
+lmd = '/usr/share/pocketsphinx/lm/wsj/wlist5o.3e-7.vp.tg.lm.DMP'
+dictd = '/usr/share/pocketsphinx/lm/wsj/wlist5o.dic'
+d = ps.Decoder(hmm=hmmd, lm=lmd, dict=dictd)
+
+
+# You need to jump over the header information in your WAV file
+
+wavFile = file('my_file.wav', 'rb')
+wavFile.seek(44)
+
+
+# Now you can decode the audio
+
+d.decode_raw(wavFile)
+results = d.get_hyp()
+
+# The most likely guess is the first one
+decoded_speech = results[0]
+print "I said ", decoded_speech[0], " with a confidence of ", decoded_speech[1]
+
+
+# To do live decoding, you need the PyAudio module
+
+import pyaudio
+p = pyaudio.PyAudio()
+
+# You can now open an input stream
+in_stream = p.open(format=pyaudio.paInt16, channels=1, rate=16000, input=True, frames_per_buffer=1024)
+in_stream.start_stream()
+
+# Now you can start decoding
+d.start_utt()
+while True:
+   buf = in_stream.read(1024)
+   d.process_raw(buf, False, False)
+   results = d.get_hyp()
+   # Here you would do something based on the
+   # decoded speech
+   # When you are done, you can shut everything down
+   break
+d.end_utt()
