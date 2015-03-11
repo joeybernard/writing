@@ -1,0 +1,12 @@
+CERN Program Library
+
+CERN is the European Laboratory for Particle Physics. It has been in the news quite a bit lately with the discovery of the Higgs Boson at the Large Hadron Collider. Something that many people may not know is that it also has a long tradition of developing software for scientific use. The HTML document format and the first browser were both developed there as a way of using rich documents that could include links between many different sources of information. This was so useful that it ended up sparking the World Wide Web. Along with such widespread software, CERN has been responsible for quite a bit of scientific software. This is especially true for physics software. This issue, we will take a look at a fairly large group of module and libraries called the CERN Program Library (CERNLIB). CERNLIB contains several thousand subroutines and programs that are written in FORTRAN, C and even some assembly language code. You can download and install the code from source located at the main website if you have any special needs. But, considering the long list of required external libraries, I would suggest that you avoid this if possible. You should have packages available for your distribution. For Debian-based ones, you can install everything you need with the command
+   sudo apt-get install cernlib cernlib-extras
+There are also several other packages built on top of the CERNLIB software, such as the Physics Analysis Workstation (paw). We will look at a few of these in the coming months.
+
+
+
+
+URLs
+http://cernlib.web.cern.ch/cernlib/  -  The main CERNLIB web site
+
