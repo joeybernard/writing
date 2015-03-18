@@ -1,0 +1,81 @@
+@Title
+Getting Python to Run Other Programs
+
+
+
+@standfirst  -  20 words
+This third and final article will cover how to actually run the commands you are giving to your Raspberry Pi.
+
+
+
+@body  -  976 words
+This is the last in our trilogy of articles to help you build your own voice control system. The first article looked at how to listen for incoming commands. This involved listening on a USB device and also outputting audio feedback to a user. The second article looked at how to interpret those commands. This involved using speech-recognition libraries to translate the recorded audio into text that can be processed. This issue, we will look at how to actually run the commands that were given. We will look at a few different options available to execute tasks and get work done based on the interpreted speech. If you have put together a system based on the suggestions from the first two articles, you should have a string containing the text that was spoken to your Raspberry Pi. But, you need to figure out what command this maps to. One method you could use is to do a search for keywords. If you have a list of keywords available, you can loop through them and search the heard string to see if any one of those keywords exist within it as a substring. Then you can execute the associated task with that keyword. The only issue is that this method will only find the first match. What happens if your user accidentally includes a keyword in their spoken command before the actual command word? This is the auditory equivalent to having fat fingers and mistyping a command on the keyboard. Being able to deal gracefully with these kinds of errors is an ongoing area of research. Maybe you can create a new algorithm to handle these types of situations?
+
+Let's say that you have a series of Python scripts that contain the various tasks you want your system to be able to tackle. You need some way to have your system be able to run these scripts when called upon. The most direct way to run a script is to use 'execfile' to run the script. Say you have a script called 'do_task.py' that contains Python code you want to run when a command is given. You can run it with
+   execfile("do_task.py")
+Using this form, you can add command line options to the string being handed in. This will look in the current directory for the script of that file name and run it in the current execution context of your main program. If you need to rerun this code multiple times, you need to call 'execfile' each time. If you don't need the script to run within the same context, you can use the subprocess module. You need to import it with
+   import subprocess
+You can then execute the script with a command like
+   subprocess.call("do_task.py")
+This will fork off a subprocess of the main Python interpreter and run the script there. If your script needs to interact with the main program, this is probably not the method to use. Collecting output from a call to 'do_task.py' with subprocess is not straightforward. Another way of achieving the same thing is to use the import statement. It also runs the code in your script at the point the import statement is called. If your script only contains executable Python statements, these get run at the point of importation. In order to rerun this code, you need to use the 'reload' command. The reload command doesn't exist in version 3, if you are using that particular Python version. A better option is to encapsulate the code contained in the script within a function. You can then import the script at the beginning of your main program and simply call the relevant function at the correct time. This is a much more Pythonic way of doing this. If you have the following contents for 'do_task.py'
+   def do_func():
+      do_task1()
+      do_task2()
+You can then use it with the following code within your main program
+   import do_task
+   ....
+   ....
+   do_task.do_func()
+   ....
+An even more Pythonic method is to use classes and objects. You can write a script that defines a class that contains methods that you can call when you need it.
+
+What are the options if you want to do something that isn't achievable with a Python script? In these cases, you need to be able to run arbitrary programs on the host system. The host system in this case is your Raspberry Pi. As a toy example, let's say you need to download some email using the fetchmail program. You can do this a couple of different ways. The older way to do this is to use the 'os.system()' command where you hand in a string. In our example, this would look like
+   os.system("/usr/bin/fetchmail")
+You need to explicitly use 'os.wait()' to be told when the task has finished. This method is now being replaced by the newer subprocess module. It gives you more control over how the task gets run and how to interact with it. A simple equivalent to the above command would look like
+   subprocess.call("/usr/bin/fetchmail")
+It waits until the called program has finished and returns the return code to your main Python process. But, what if your external program needs to feed in results to your main program? In this case, you can use the command 'subprocess.check_output()'. This is essentially the same as 'subprocess.call()', except when it finishes, anything written out by the external program to stdout get handed in as a string object. If you also need information written out on stderr, you can add the parameter 'stderr=subprocess.STDOUT' to your call to 'subprocess.check_output'.
+
+After these three articles, you should have enough of the bare bones to be able to build your own version of the Jarvis system. You will be able to fine-tune it to do basically anything you want to do. Go forth and order your machines around; and have them actually listen to what you are saying.
+
+
+
+@boxout  -  198 words 
+Several of the tasks that you may want your system to handle are probably checking your social media accounts on the internet. Luckily, there are several Python modules available to handle this very problem. As an example, let's say you want to be able to check your Facebook account. You can install the Python module with the command
+   sudo apt-get install python-facebook
+You can then use 'import facebook' to get access to the Facebook API. If you are a Twitter person, you install the 'python-twitter' Debian package. This gives you the functions needed to use the Twitter API. Email is a bit easier to work with, as long as your email provider offers either IMAP or POP access. You can then just 'import email' and be able to get your voice control system to go and get your unread email and read it out to you. For the Google fans out there, Google provides a Python module that provides access to the APIs for almost everything available. You can work with your calendar, your email and even your fitness data. If you want to get location information, this same library gives you access to the Google Maps functionality.
+
+
+
+@code  -  32 lines
+do_task.py
+----------
+def do_func():
+   print "Hello World"
+
+
+main_program.py
+---------------
+# You can import your own module to do
+# tasks and commands
+import do_task
+
+# You can then go ahead and run any
+# included functions
+do_task.do_func()
+
+# You can run system programs directly
+import os
+
+# The exit code from your program is in
+# the variable returncode
+returncode = os.system("/usr/bin/fetchmail")
+
+# The subprocess module is a better choice
+import subprocess
+
+# You can duplicate the above with
+returncode = subprocess.call("/usr/bin/fetchmail")
+
+# If you want to get the output, too, you
+# can use
+returned_data = subprocess.check_output("/usr/bin/fetchmail")
