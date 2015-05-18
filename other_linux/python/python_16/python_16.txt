@@ -1,0 +1,103 @@
+@Title
+Profiling Python Code
+
+
+
+@standfirst - 17 words
+To maximize your Raspberry Pi, you need to use profiling to figure out where the problems are.
+
+
+
+@body - 1001 words
+One of the problems when writing code on a Raspberry Pi is the fact that your computational resources are limited, at least by modern standards. This means that you, as a programmer, need to be more aware of what your code is doing and how it is doing it. Since Python is the language of choice on the Raspberry Pi, we will use it and look at several topics over the next few issues. This month, we will start with profiling and instrumentation of your code to help you decide what parts need optimization.
+
+There are two broad categories of profiling: time and memory. Time profiling involves looking at how much time is spent in each section of code. This is most useful in trying to improve the overall algorithm you are using and the specific way you have implemented it. Memory profiling is used to to analyze how efficiently you are using memory, and potentially finding areas where you are wasting memory through leaks, or simply inefficiencies. There are also two different methods of doing profiling: deterministic and probabilistic. Deterministic profiling tracks the execution of every instruction within your program. The advantage of this method is that you get perfectly correct results. The disadvantage is that it introduces a huge amount of overhead to you program. This means that you cannot do any benchmarking at the same time as you do profiling. The extra overhead also means that it may not be practical to use deterministic profiling on a program that needs to run for a long period of time. The second method of profiling is probabilistic profiling. This method essentially samples you program at some regular interval to see what instruction it is executing. The advantage to this method is that it introduces almost no overhead, and so is ideal for long running programs. The problem is that you are only collecting statistical data about how often each instruction is being executed. This means that you may actually miss some information. You should end up collecting data on the most heavily used instructions, on average, so this should not cause any problems in most cases.
+
+The simplest form of time profiling is to simply use the 'time' function. You can record a start time and an end time around some chunk of code to see how long the given chunk takes to run. While this is easy, it is relatively coarse and takes up quite a bit of programmer time. The Python standard library itself includes two profiling modules: 'profile' and 'cProfile'. 'profile' is a pure Python profiling module that offers deterministic time information. The overhead for this module is very high, but because it is pure Python it is easy to extend and add in any extra functionality that you may need. If you don't need that much control, you can use the module 'cProfile' instead. This profiler is actually written in C and imported into Python. This results in quite a lower amount of overhead. In both cases, after importing the relevant module, you can use the function 'run()' to profile a given function. By definition, this means that your code needs to be packaged as a callable function that can be handed in to 'run()'. The other option available is to include a call to 'cProfile' on the command line. It would look like
+   python -m cProfile myscript.py
+In this way, you can profile an entire Python script file rather than just a given function. The default output you get is a summary line giving the total number of functions calls and how long the entire process took. Below this, you are given a breakdown of each function with the following columns
+   ncalls - number of calls
+   tottime - total time in each function
+   percall - tottime divided by ncalls
+   cumtime - cumulative time spent in each function plus all sub-functions
+   percall - cumtime divided by number of primitive calls
+   filename:lineno(function) - location data for each function call
+Another parameter for the 'run()' function takes a filename in which to save the raw profiling code. You can then use this raw data to do more complex analysis. For example, you can use the 'Stats' class from the 'pstats' module. You can then apply some different sorting schemes or do some filtering of the data. You can also print out how many callers or callees each function has.
+
+For memory profiling, the most common option is to use a third-party module called 'memory_profiler'. This module is available through pip, so you can install it with the command
+   pip install memory_profiler
+If you want to see the memory usage for an entire script, you can use it in a similar way to using 'cProfile':
+   python -m memory_profiler myscript.py
+The output from 'memory_profiler' is given by the line, rather than by the function. For each line, it will printout the current memory usage, the increment in memory usage from the previous line, and the executable contents of the given line. If you want to narrow down your area of interest to a single function, you can import a function decorator to do memory profiling one function at a time. To use it, you would use
+   from memory_profiler import profile
+   @profile
+   def my_func():
+It is important to note that the 'cProfile' module also includes a decorator named 'profile', so you won't be able to use both at the same time. 'memory_profiler' also includes an executable called 'mprof' that can be used to profile external scripts or codes. To record your data, you can use
+   mprof run myscript.py
+You can then get a time plot of memory usage with the command
+   mprof plot
+There are several other functions available through 'mprof'.
+
+Now that you know what parts of your code are in need of attention, be sure to check back in next issue. There, we will look at optimization tips and tricks that may apply to your specific problem. If not, they may point in directions that you should further consider.
+
+
+
+@boxout - 201 words
+Both 'profile' and 'cProfile' provide information at the function level, but this may still be too coarse. You can use the third-party module 'line_profiler' to breakdown the temporal results to individual line of code. You can install it with the command
+   pip install line_profiler
+Once it is installed, the easiest way to use it is to use the included 'kernprof' executable. You would run it with the command
+   kernprof -l myscript.py
+This will create a decorator that you can use within your Python script. As with 'cProfile' and 'memory_profiler', this decorator is called 'profile'. The profiling data in the above case would be written out to the file 'myscript.py.lprof'. You can view the results with the command
+   python -m line_profiler myscript.py.lprof
+The results are given per line of code. For each line, you get the number of hits, the total amount of time, the time per hit and the percent of of the total time spent on each line. If you wish to only profile a single function, you can import 'line_profiler' into your script. As with 'cProfile', it includes a function called 'run()' to profile a single function. The profiling data can also be run through 'pstats' for further processing.
+
+
+
+@code - 47 lines
+The following file can be used whenever you use one of the available decorators from memory_profiler or cProfile. You would run it with a command like
+   python -m memory_profiler myscript.py
+
+myscript.py
+-----------
+@profile
+def my_func(x):
+    if x == 0:
+       return 1
+    elif x == 1:
+       return 1
+    else:
+	return my_func(x-1)
+
+my_func(10)
+------------
+
+
+
+The following file can be used to explicitly use the run functions from the various profilers.
+myscript2.py
+-----------
+import memory_profiler as mp
+
+def my_func(x):
+    if x == 0:
+       return 1
+    elif x == 1:
+       return 1
+    else:
+	return my_func(x-1)
+
+mp.run("my_func(10)")
+------------
+
+
+The output would be
+------------
+         12 function calls (3 primitive calls) in 0.000 seconds
+
+   Ordered by: standard name
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    0.000    0.000 <string>:1(<module>)
+     10/1    0.000    0.000    0.000    0.000 myscript2.py:3(my_func)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+------------

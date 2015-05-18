@@ -1,0 +1,52 @@
+General Relativity in Python
+
+We have looked at several different software packages that are available when doing scientific computation. We have not spent as much time looking at libraries that are available, and what kind of work that can be done with these libraries. This issue, we will look at sympy, the Python module that allows you to do symbolic mathematics, and specifically at a utility named GraviPy that is built upon sympy. With this utility, you can do all sorts of computations around what you will want to do when doing research in general relativity. Both of these modules can be installed using pip, with the following command
+   sudo pip install sympy
+   sudo pip install gravipy
+Then, you can import everything from both of these modules with the Python statements
+   from sympy import *
+   from gravipy import *
+This way, you will have access to all of the functionality from these modules within the name-space of your own Python code. When you do work in general relativity, you very often need to look at very complicated equations. The GraviPy module includes a function, called init_printing(), that sets up everything you need for pretty-printed equations. You will probably want to call this near the top of your code so that your worksheet is more human readable.
+
+The first thing we will look at is the Python module sympy. Sympy is designed to give you the ability to do symbolic mathematical computations. With it, you can do things like solve algebraic expressions, rearrange and simplify equations, and even do symbolic derivatives and integrals. We looked at sympy in a previous issue, so this month we will just look at some of the core parts, as a reminder. The first necessary part is to define the symbolic variables that you are going to use in your calculations. Using the symbol command, you can define them with
+   x,y,z = symbols('x y z')
+This way, you define the variables which define the three space dimensions in Cartesian coordinates. If you wanted to have all four space-time coordinates defined in spherical coordinates, you can use
+   t, r, theta, phi = symbols('t, r, \\theta, \phi')
+Remember that you are feeding a string into the symbols function. This means that you will need to escape any special characters to get the results you are expecting. These commands will give you the symbolic variables that you can use in expressions. But general relativity has a special class of variables, called coordinates, that are used to define the space-time itself. There is a class, called Coordinates, that helps define this. Using the spherical coordinates above, you can create the coordinates with the statement
+   x = Coordinates('\chi', [t, r, theta, phi])
+The four space-time coordinates are stored in the object 'x'. You can access the individual coordinates by using an index. In general relativity, there are two different ways of indexing variables, covariant and contravariant indexes. To look at the element values for the covariant version, you need to use positive index values. Negative index values will give you the contravariant versions. As an example, if you wanted to the get the time variable, you would use
+   x(-1)
+Right away, you should notice that this implies that GraviPy uses 1-based indexing rather than 0-based indexing.
+
+Now that we have a set of variables to define the space-time coordinates to be used, we can move on to doing some actual general relativity. The core part of general relativity is the metric. The metric defines how space-time is shaped. This space-time shape is what defines the gravitational force. The usual phrase that explains what is happening is that 'matter tells space-time how to bend, and space-time tells matter how to move'. To define the metric within GraviPy, you need to start by creating a metric tensor object. You can do this with the statement
+   Metric = diag(-(1-2*M/r), 1/(1-2*M/r), r**2, r**2*sin(theta)**2)
+In this example, we have introduced a new variable, named 'M', which represents the mass of the matter which is creating this space-time distortion. If it is an item that will remain static, then you don't need to do anything extra. But there is no reason that it should remain static. If it is something that can change, you will need to use the symbols command to define it. In its most general form, the metric tensor is a 4-by-4 matrix of elements. In the above example, we are only looking at a diagonal metric where the only non-zero elements are along the diagonal. Once you have this tensor object, you can define the metric based on it with the statement
+   g = MetricTensor('g', x, Metric)
+Here, we have given the function the metric definition and the coordinate system to be used. To access the various elements, you can use indices that follow the same format as above. For example, you could use the following
+   g(1, 1)  ->  2M/r-1
+For both vectors and tensors, you can use a special index called 'All' which will give you every possible value for the index in question. For example, you can get the entire list of coordinates with
+   x(-All)  ->  [t r theta phi]
+You can get all of the elements of the metric tensor with the statement
+   g(All, All)
+
+Now that you have a set of coordinates and a metric tensor, there are a number of standard tensors that need to be calculated to help workout what the geometry of space-time actually looks like, and how things like light beams travel through this geometry. The GraviPy module includes the tensor classes 'Christoffel', Riemann', 'Ricci', 'Einstein' and 'Geodesic'. The Christoffel, Riemann and Ricci tensors only depend on the metric. They all have very similar forms, therefore, to create new instances and get results out. For example, you can define the Christoffel tensor values with the statement
+   Ga = Christoffel('Ga', g)
+You can get individual elements with indices, just like with the metric tensor. But some of these tensors can have a number of uninteresting zero entries. So, you can get the non-zero values with the statement
+   Ga.components
+This returns a dictionary, where the keys are the coordinate sets for where this particular value is located, as well as the actual non-zero value at the point. The Einstein tensor is the one used in the actual Einstein equations for space-time, and so are a little different. In order to calculate them, you need to first calculate the Ricci tensor with the statement
+   Ri = Ricci('Ri', g)
+Once you have this tensor, you can calculate the Einstein tensor with
+   G = Einstein('G', Ri)
+
+Before we leave off, we should look at two techniques that are absolutely necessary to doing general relativity. The first is index contraction. This is where you end up summing values over two of the indices in a tensor. In Python, you can do this by explicitly summing with
+   Rm = Riemann('Rm', g)
+   ricci = sum([Rm(i, All, k, All)*g(-i, -k) for i, k in list(variations(range(1, 5), 2, True))], zeros(4))
+These two lines are equivalent to the above single creation of the Ricci tensor. In many cases, complicated calculations are not automatically simplified. This means that you need to explicitly do this simplification with the command
+   ricci.simplify()
+The other important technique is to calculate geodesics, which are equations that define how light beams travel in this space-time. You need to create a new variable to handle the world line parameter for these equations.
+   tau = symbols('\\tau')
+Now, you can calculate the geodesics with
+   w = Geodesic('w', g, tau)
+Again, you can use 1-based indices to access the various nontrivial equations for your space-time of interest.
+
+With sympy, you can do all sorts of symbolic calculations normally reserved for programs like Maple, Maxima or Mathematica. Building on these capabilities, GraviPy lets you play with space-times and do calculations to determine curvature and gravitational effects. There is not a great deal of information available online explaining what GraviPy can do. Your best option is to download the source files, which include a tutorial iPython notebook, even if you install GraviPy through pip. Now you can do your gravitational research all from the comfort of Python. There is a great deal of functionality that we have not been able to even introduce here. If you are a Python fan, this module will let you do interesting research work in your favourite language.
