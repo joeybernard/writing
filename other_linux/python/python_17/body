@@ -1,1 +1,0 @@
-In the last issue, we looked at a few techniques to profile your Python code and figure out which parts of it were most in need of attention. When you are running code on a Raspberry Pi, 

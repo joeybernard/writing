@@ -1,9 +1,54 @@
-@Title (probably something like 'The Python column'
-@standfirst (what you're coving in this column - a nice hook to reel people in - 10-20 words)
-
-@body copy 1000 words
+@Title (probably something like 'The Python column')
+Optimizing Python Code
 
 
-@boxout - a good 200 words on a topic related or expanded upon from the body copy. This could include code. 
+
+@standfirst - 22 words
+After you have profiled your code, to figure out what needs work, the next step is to actually optimize the relevant parts.
+
+
+
+@body - 1027 words
+In the last issue, we looked at a few techniques to profile your Python code and figure out which parts of it were most in need of attention. When you are running code on a Raspberry Pi, you only have limited resources. Hence the need to optimize in order to get the most work done that you can. This month, we will look at a number of different techniques that can be used to maximize the amount of RAM and CPU that you have available to you. There are several broad categories of optimization tricks that we will look at, along with a few specific examples. Always remember that the first step is to have code that works correctly. Then you should only do the minimum amount of optimization to get the performance you actually need. Any extra work is essentially wasted, unless you are only interested in using the process as a learning opportunity.
+
+The first item to look at is how strings are handled. Strings are immutable lists of characters. This means that when you want to add more characters to a starting string, you need to make a new string and copy both the old and new characters into the new space. In those cases where you are programmatically building up large pieces of text, all of this moving of characters around in memory can be rather expensive. Instead of using a construct like
+   str1 = ""
+   for word in list:
+      str1 += word
+you can use
+   str1 = "".join(list)
+This essentially builds up the string in a single step, for a reasonable speed up. Since we are looking at for loops anyway, we should look at other things we can do to speed them up. There is a fair amount of overhead involved when Python manages a for loop. If the code within your for loop can be bundled as a function, you can use the 'map' command to have this function run for each value stored within a list. In this way, you can remove the overhead of the for loop, and essentially move the computational content from Python to C. If you can't do the shift to using a map command, another item to look at is whether there are references to object methods. If so, Python needs to do type checking on every call around the for loop. You can remove this overhead by assigning these calls to a new name. This way, it only gets checked once outside the loop. So the code
+   for word in oldlist:
+      newlist.append(word)
+with the more efficient code
+   append = newlist.append
+   for word in oldlist:
+      append(word)
+
+If you are doing numerical computation of any kind, you need to start using the numpy module. Numpy provides functionality that improves the performance of Python numerical code close to the performance you would expect to see when using C or FORTRAN. As an example, let's say that you want to multiply the elements of two vectors. In "regular" Python, you would use a loop like
+   for index1 in range(50):
+      c[index1] = a[index1] * b[index1]
+where a and b are vectors of length 50. In this case, every time you run through the loop, Python needs to check the types for a[index1] and b[index1]. This is quite a bit of overhead. By using numpy, and the provide array data structures and functions, you can rewrite this code as
+   c = a * b
+This makes the code clearer to read. It also only involves a single type check to see whether a and b can be multiplied together. The actual operation then gets passed off to a C library, usually from some linked in linear algebra packages like BLAS or LAPACK. This provides a substantial speed increase.
+
+There are some obscure ways of speeding up your code, too. For example, Python needs to regularly check to see whether something else needs to be done. This something else may be looking to see if a different thread needs to run, or whether a system call needs to be processed. This can take quite a bit in terms of resources. You can use the command 'sys.setcheckinterval()' to change the how long Python waits to run these checks. If you aren't using threads, or making system calls that may be sending signals to your code, you can set this to a higher value to improve the performance of your code. Another more obscure technique that optimizes both memory and speed is to use the xrange command. If you need a list of integers, this is usually handled by the command range. The problem with this command is that the entire list gets created in total and stored in memory. The xrange command provides the list of integers through a generator. This means that you only have one element of the list in memory at any particular time. Also, you don't have the wait while the entire list is being generated.
+
+If all of these techniques don't work, then you can always move to a different language and use this alternate code within Python. As an example, you can use Cython to take optimized C code and make it available within your Python program. There are equivalent techniques for other languages used in high performance applications. There are several cases where the algorithm, available in the alternate language, is just not easily translated to efficient code within Python. In these cases, you have the tools available to leverage this previous work within your own code.
+
+Now that we have taken a look at a few different ways of speeding up your code, hopefully this article will give enough tools to really do some amazing things with your Raspberry Pi. Not that long ago, techniques like those above were common. It was the only way to get serious work done. The resources available on the Raspberry Pi  are only limited compared to modern standards. With a bit more thought, quite a bit of computational work can be done. Just remember the quote, "premature optimization is the root of all evil" and be sure you invest your time where it will have the greatest impact.
+
+
+
+@boxout - 213 words
+While you have the ability to use an alternate language within Python, through Cython for example, you can get optimized code and still stay with pure Python. The numba project (http://numba.pydata.org) provides a LLVM just-in-time compiler that translates your Python code to optimized machine code. Once you install the numba module, you can import the jit portion with the statement
+   from numba import jit
+This provides a function decorator, "@jit", that tells numba to compile the given function to machine code. By default, numba needs to check the types of any input variables, and compile appropriate code. If you know what data types are going to be handed in, you can skip this check by including type information in the decorator. For example, you could have something like
+   @jit(int32(int32, int32))
+   def f(x, y):
+      return x + y
+Numba also uses lazy compilation, which means that it will only compile when the relevant function is first called. You can use the included pycc utility to compile your Python code ahead of time. This will save you even more at runtime. There are limitation on which data types are supported, and how complex the code can be. But it is still effective enough to make it well worth your time to give it a try.
+
+
 
 @code - if you can do some example code all the better. We can style it up properly. Max of 50-70 lines, though. 
