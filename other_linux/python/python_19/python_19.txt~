@@ -1,0 +1,95 @@
+@Title
+Working with RSS Feeds
+
+
+
+@standfirst  -  14 words
+Learn how to build a feed ticker with your Raspberry Pi and a display.
+
+
+
+@body  -  907  words
+There are many projects around the Internet that use Raspberry Pi's as the engines for ticker type displays. In this way, you can keep track of all of your twitter or facebook feeds. This month, we will take a look at another ticker service, specifically RSS feeds. While we could start with first principles and look at making raw network connections and parsing the returned RSS data, that is a bit beyond the scope of such a short article. Instead, we will look at using the Python module 'feedparser', or the "Universal Feed Parser". This module will abstract out the lower level complications and allow us to focus on actually playing with the RSS data. True to its name, the Universal Feed Parser can work with most feed formats currently in use. This includes multiple versions of RSS, multiple versions of Atom and even CDF. Installation should be easy for most people. If you are using something like Raspbian, you can install feedparser with
+   sudo apt-get install python-feedparser
+If you are using something else, you can always use pip and install it directly from Pypi.
+
+Once you have feedparser instaled, you need to start by defining the feed you want to read. While feedparser can read input from a file, or even a string object, the source we are most interested in is reading the RSS data from a URL. This way, we can get access to the most recent entries. The most basic form this takes looks like
+   import feedparser
+   feed1 = feedparser.parse('http://feedparser.org/docs/examples/atom10.xml')
+This gives us an object the allows us to start accessing the data provided by this RSS feed. For example, you can get the title of this feed from the element "feed1['feed']['title']". The feed element of the returned object contains information about the RSS channel as a whole. This includes the title, and other items like the description, the feed link and the published date for the feed. This is good for the portions of your display where you indicate where a particular entry came from. The actual entries are available as a list, stored the 'entries' element of the 'feed' object. Since this is a list, you can access the individual entries with all of the usual list syntax, like slices. To save on typing, you may want to create a new reference to this list of entries, with something like
+   entries_list = feed1['entries']
+Each of these entry elements has a number of values available. The individual articles have a title, a link URL, and a description, along with a summary of the article. In most cases, these article entries will have embedded markup of one kind or another. BecauseThere is also a published date, if you wanted to filter out specific articles based on the date. Depending on how you want to have the display, you could just loop through and print the article titles. Or, you may want to print out the article summaries.
+
+Now that we have collected the information, we need to display it somehow. If you wanted to use an LCD display to have a scrolling ticker type of readout, there are several modules available. The one we will use in the sample code is RPLCD. This particular module was inspired by the CharLCD module from Adafruit Industries, which they wrote to support the LCD units that they build to add to your Raspberry Pi. In order to use this, you will need an LCD module plugged into the GPIO pins. You can then write some string out to the LCD with something like
+   from RPLCD import CharLCD
+   lcd = CharLCD()
+   lcd.write_string(u'Test String')
+This is pretty simple to use. You can just loop through your feeds, pull the article titles and summaries, and then write them out to the LCD device. If you don't want to use an LCD display, or would simply rather use a traditional display, you can use a banner module to get the same rolling ticker type display. The classic command line utility on Linux to do this type of display is figlet. In our examples here, we will use a "port" of figlet, called pyfiglet. You can select one of multiple different fonts and print out the feed data to the screen. To use it within your Python program, you can use something like
+   from pyfiglet import Figlet
+   f = Figlet(font='slant')
+   print f.renderText('sample text')
+This means that you can use almost anything for a display, as long as it has an HDMI connection. There are a massive number of fonts available to change the look of your RSS feeds. You may need to tell pyfiglet how wide the physical display is, in some number of characters. The default is 80 characters, which is the default on most terminal applications. If you are using a smaller screen, this is something you may need to deal with.
+
+Now that we have looked at the Univeral Feed Parser, you have no reason to miss any of the important news that may come across the Internet. And since we are just playing around with text, you can feed this news to whatever you would like as a display, whether that is a full monitor screen or just a single line text display. And the really nice thing is that you can fit your Raspberry Pi news feed display just about anywhere. Hopefully, this inspires you to add your own news reader to your home or workspace.
+
+
+
+@boxout -  294 words 
+The flip side to reading RSS feeds to keep up with the news is to publish RSS from your Raspberry Pi so that everyone else can keep up with what is going on with you. While you can craft all of the required meta-information that wraps your feed and all of its articles by hand, this is not necessary. You can import the Python module PyRSS2Gen, which wraps all of the formatting work. There is a core function, named "PyRSS2Gen.RSS2()", that creates your formatted RSS feed. It takes a number of named parameters that allow you set all of the meta-data. You can set the title, a link, and description. The parameter "items" takes a list of the individual article entries. Each of the items also needs to be formatted. This is done with the function "PyRSS2Gen.RSSItem()". You can set the meta-data for the item with a title, link, description and a publication date. Once everything is properly formatted, you need to dump this out so that it is available to other people. The object returned by the "PyRSS2Gen.RSS2()" has a "write_xml()" function to dump the final XML file for your feed. You need to give it a file handle to write to, so you could use something like
+   rss.write_xml(open("pyrss2gen.xml", "w"))
+to dump the feed contents to. If you have regular information on your Raspberry Pi that you want to provide to the outside world, you can set up a cron job to keep it updated. You will also need to have some way to make the feed visible to the outside world. You can do this by setting up a web server, or at least putting the file up in an accessible location. This might be a file service, like Dropbox or equivalent.
+
+
+
+@code - 50 lines
+-----------------------------------------------------------------
+# Reading RSS feeds
+import feedparser
+
+# The first thing to do is to read the RSS feed
+feed1 = feedparser.parse('http://feedparser.org/docs/examples/atom10.xml')
+# The title of the feed is available
+feed1['feed']['title']
+# You can get the originating link for the feed
+feed1['feed']['link']
+# The feed has an overall description
+feed1['feed']['description']
+# The publication date is also available
+feed1['feed']['published']
+
+# The articles are available as a list
+articles = feed1['entries']
+# Each article has a title
+articles[0].title
+# and a description
+articles[0].description
+# and the publication date
+articles[0].published
+# The summary is probably usefule, too
+articles[0].summary
+
+-----------------------------------------------------------------
+# Generating RSS feeds
+import datetime
+import PyRSS2Gen
+
+rss = PyRSS2Gen.RSS2(
+    title = "MY Raspberry Pi",
+    link = "http://www.example.com/Python/PyRSS2Gen.html",
+    description = "This is a n example RSS feed",
+    lastBuildDate = datetime.datetime.now(),
+    items = [
+       PyRSS2Gen.RSSItem(
+         title = "Article 1",
+         link = "http://www.example.com/news/030906-PyRSS2Gen.html",
+         description = "This is the first article",
+         guid = PyRSS2Gen.Guid("http://www.example.com/news/030906-PyRSS2Gen.html"),
+         pubDate = datetime.datetime(2003, 9, 6, 21, 31)),
+       PyRSS2Gen.RSSItem(
+         title = "Article 2",
+         link = "http://www.example.com/writings/diary/archive/2003/09/06/RSS.html",
+         description = "This is the second article",
+         guid = PyRSS2Gen.Guid("http://www.example.com/writings/diary/archive/2003/09/06/RSS.html"),
+         pubDate = datetime.datetime(2003, 9, 6, 21, 49)),
+    ])
+rss.write_xml(open("pyrss2gen.xml", "w"))

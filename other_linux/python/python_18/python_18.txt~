@@ -1,0 +1,100 @@
+@Title (probably something like 'The Python column'
+Optimizing Python by Going Outside
+
+
+
+@standfirst - 18 words
+This last article on optimization looks at how to use external compiled code to speed your program up.
+
+
+
+@body - 1006 words
+This is the last article in the trilogy on trying to squeeze more performance out of Python code running on the Raspberry Pi. The previous two articles looked at profiling code, to see where to apply your skills, and then optimizing the existing Python code. But, sometimes this is not enough. In those cases, you have the option of actually outsourcing the troublesome parts to an external language and compiling that code to machine language. That way, you can get the advantage of having high performance code that runs on the hardware, rather than through the Python interpreter. The most common technique to do this is to use Cython (http://www.cython.org) to take C code, compile it to machine code, and then use it within your Python code. The first item you will need is a C compiler that Cython can use. On Linux systems, the default compiler is GCC. To be sure that you have all of the tools that you will need to compile C code, you can use the command
+   sudo apt-get install build-essential
+The second item you need is the Cython package for Python. If you want the latest version available in Pypi, you can use
+   sudo pip install cython
+to install the Cython package into the system Python library location. Several of the examples in this article are taken from the documentation at the Cython website, and a very thorough tutorial is available which will cover a broader array of topics than we can look at in this short article.
+
+Before we dive into how to actually use Cython, we will confirm that everything is working correctly first. Your Cython code needs to be in its own file, with a '.pyx' file name ending. A Hello World function (in the file hello.pyx) would look like
+   def hello_world(name):
+      print("Hello World to %s" % name)
+You then need a 'setup.py' file to define the compilation step. The contents would be
+   from distutils.core import setup
+   from Cython.Build import cythonize
+   setup(name='Hello world app', ext_modules=cythonize("hello.pyx"),)
+With these two files, you can build the external code with the command "python setup.py build_ext --inplace". This process creates a C source code file and compiles it into a shared binary file with a '.so' file name ending. You can then use this new external code with the Python command
+   from hello import hello_world
+and then use it like you would any other Python function.
+
+While the above will let you take your Python code and move it out to compiled machine code, the real power comes when you use Cython to use C libraries within your Python code. The functions within the standard C library are already defined within Cython. You can import these functions with the cimport statement. For example, if you wanted to use the function 'atoi()' to convert a string to an integer, you could use
+   from libc.stdlib cimport atoi
+   cdef parse_char_to_int(char* s):
+      assert s is not NULL, "String is NULL"
+      return atoi(s)
+Cython also includes declarations for the C math library. You can import these from the 'libc.math' package. While these two libraries are handy, the majority of the code you will likely want to use will reside in other libraries. In these cases, you will need to provide declarations of them yourself. As an example, we can look at using the sine function from the math library and do the importation manualy. The first step is to provide a declaration. This would look like
+   cdef extern from "math.h":
+      double sin(double x)
+This declaration code resides in a file with the ending ".pxd". One caveat to be aware of is that this file needs to have a different name than any ".pyx" files. As an example, you might place the above code in a file named "csine.pxd". You can the import it within a file named "sine.pyx",
+   cimport csine
+and then use it within your Cython code. If you use an object, you can use the function "__cinit__" to handle any memory management issues. When you are done using an instance of this object, you can use the "__dealloc__" function to do any clean up steps and memory frees. You also need to tell Cython which external libraries need to be linked in. You can do this with the extra option
+   libraries=["libname"]
+to the 'Extension' entry in the 'setup.py' file.
+
+One area that normally isn't of consideration to Python programmers is memory management. Within Python, you can create new objects without worrying about where they will be stored, and you can discard them with equal impunity about making sure they are properly cleaned up after. But sometimes, when you are including C code, you need to take more control over how memory is managed. Cython includes declarations for the functions malloc, realloc and free from the C standard library. For example, let's say you want space for an array of doubles. You can do this with
+   cdef double *my_array = <double *>malloc(number * sizeof(double))
+When you are done with this array, you can clean up with
+   free(my_array)
+The problem with these methods is that this memory is outside of the regular Python heap and so is unaccounted for. A preffered method is to use the C-API functions provided in the package "cpython.mem". The equivalent functions are PyMem_Malloc, PyMem_Realloc and PyMem_Free. These functions have the same usage and interface as the lower level C functions from the standard C library. Of course, once you start down this road, you are responsible for freeing memory and avoiding memory leaks.
+
+Now that you've seen how to start adding C code to your Python code, you can start to do some major optimization. This is actually how packages like numpy and scipy get their impressive speeds. And now you can apply these same techniques to your own code. However, as always, you need to balance the amount of work it takes to write the code with the amount of work it takes to maintain the code and the amount of speedup you get. Try to avoid the temptation of over-optimization.
+
+
+
+@boxout - 199 words 
+One major issue with using Cython is that you are dragged back into the development cycle of compiled languages. In order to test new code, you need to write, compile, then run these changes in order to see how they behave. If the code you are writing isn't too complicated, then a different option you can choose is to use pyximport. Pyximport is provided through the Cython package, and allows you to have your code compiled on the fly when you need to use it. In order to use it, you need to import it and run the install function.
+   import pyximport; pyximport.install()
+Then, when you import your pyx file, it gets silently compiled. However, one issue is that you don't have much control over how this compilation is handled. In most cases, though, the defaults are usually fine. Pyximport behaves like make, in that it only does a recompile when a source file is newer than the associated source file. In simple cases, you usually just have a single pyx file. If you have multiple dependencies, you can delineate them within a file with the ending ".pyxdep". Each dependency should be on a separate line within this file.
+
+
+
+@code - 39 lines
+# The contents here should be divided into several
+# separate files in order to use the examples
+
+# hello.pyx
+# Basic Cython hello world
+def hello_world(name):
+   print("Hello World to %s" % name)
+
+# setup1.py
+# This is the setup Python script to compile the
+# Hello World Cython example
+from distutils.core import setup
+from Cython.Build import cythonize
+setup(name='Hello world app', ext_modules=cythonize("hello.pyx"),)
+
+# c_atoi.pyx
+# You can import standard Library functions directly
+from libc.stdlib cimport atoi
+cdef parse_char_to_int(char* s):
+   assert s is not NULL, "String is NULL"
+   return atoi(s)
+
+# csine.pxd
+# You need to declare external C library functions
+# to use them within Python
+cdef extern from "math.h":
+   double sin(double x)
+
+# sine.pyx
+# You can then import and use the C function
+cimport csine
+csine.sin(45.6)
+
+# setup3.py
+# You need to add in which external libraries to link to
+from distutils.core import setup
+from distutils.extension import Extension
+from Cython.Build import cythonize
+ext_modules=[Extension("sine", sources=["sine.pyx"], libraries=["m"])]
+setup(name = "Sine", ext_modules = cythonize(ext_modules))
