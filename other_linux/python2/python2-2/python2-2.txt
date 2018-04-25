@@ -1,0 +1,199 @@
+
+@ Title  -  13 words
+
+Getting more speed for your Python code by moving to a different interpreter
+
+
+
+@ Standfirst  -  23 words
+
+The standard CPython interpreter is not your only choice in running your code. This month, we will look at a few other options.
+
+
+
+@ Profile
+
+[Joey Bernard]
+Joey Bernard has written a column on scientific software, as well as a column on writing Python code for the Raspberry Pi. In his day job, he helps researchers and students at the university level in designing and running HPC projects on supercomputing clusters.
+
+
+
+@ Resources
+http://pypy.org/
+http://pypy.readthedocs.io/en/latest/index.html
+https://numba.pydata.org/
+
+
+
+@ Lead image  -  main.png
+This is a possible layout for a lead image. I have included the logos used as an attachment on the freelancer hub.
+
+
+
+@ Intro text  -  197 words
+
+One issue that many people complain about when writing Python code is the possibility of poor performance. Many times, this is due to using programming techniques learned from other languages that simply do not transfer well when writing Python code. But sometimes, even after writing your program in as Pythonic a way as possible, it still doesn't run quite fast enough. In these cases, one of the options available to you is to try a different Python interpreter. The standard interpreter, CPython, is the one that you are probably using today. It is the standard, but its focus is to run your code strictly according to the language specification. Other interpreters instead focus on getting the most performance possible out of a given program. This month, we will look at a few possibilities available to you.
+
+The first is pypy. Pypy is a JIT (Just In Time) compiler that generates an optimized version of the generated binary of your code. The second is numba. Numba is also a JIT compiler, using the LLVM compiler to generate optimized binary code. We will take a look at how much of a performance boost you might be able to get.
+
+
+
+@ Body text
+2,752 words (rouhgly 15,800 chars)
+Use 8 subheadings (or crossheads) to break this text up.
+
+@ Heading1
+Installing Pypy
+
+There are many ways to get pypy for your system. Most Linux distributions include a package for pypy within their repositories, so this might be a good place to start. For example, on Debian-based distributions you would install pypy with the following command.
+/c/
+sudo apt-get install pypy
+/c/
+If your particular distribution doesn't include pypy, or if the version available there is not a new enough version, you can always download tarballs, or zip files, of the binary executables. Installation is simply a matter of unpacking the tarball or zip file into a directory, and then adding that directory to your path environment variable. If you have need of the absolute latest version, the main pypy web site hosts nightly builds that allow you to download and install a build based on that day's source code. If you want to have a complete Python environment with your installation of pypy, you may want to look at Anaconda. Anaconda includes pypy as part of the standard installation.
+
+@ Heading2
+Using Pypy
+
+The simplest way to use pypy is as a drop-in replacement to your standard Python interpreter. In these cases, you can run your program with the command
+/c/
+pypy my_prog.py
+/c/
+In most cases, this will be all you need or want to do to get better performance out of your program. But, sometimes you will want to dig in further and be able to do even more with pypy. To begin with, you can import the module 'pypyjit' to see what the pypy JIT compiler is doing with your code. You call the function 'enable_debug()' to start the recording of debug information within the interpreter. You can then call the function 'get_stats_snapshot()' to get a JitInfoSnapshot object. This object gives you some details on the state of the JIT system at one particular instant in time.
+
+To dig in even more, you can import the module '__pypy__' to see even more details about the JIT compiler. For example, the following code attaches a debugger at the interpreter level so that you can poke into every bit of the code space.
+/c/
+>> import __pypy__
+>> __pypy__.attachgdb()
+/c/
+There are several other functions available to dig into individual elements of the interpreter. You can get the internal representation of an object with the function 'internal_repr(obj)'. You can even create objects. For example, you can create a new read/write memory buffer with the function 'bytebuffer(length)' that you can use in other parts of your code.
+
+In the search for more speed, pypy has also simplified the interface to C. This way, you can write Python code that can access C libraries in a relatively easy way. This, however, is also one of the biggest problems with pypy. Python modules that use the standard C interface to call external code need to be rewritten before you can use them within pypy. Luckily, the 500 pound gorilla of external modules, numpy, has already been converted over. This means that you can use pypy in order to speed up your number crunching algorithms with minimal changes.
+
+@ Heading3
+Going Stackless
+
+Pypy includes some of the functionality that is available in Stackless Python (yet another implementation of Python). In many programming languages, the current state of execution is maintained within a data structure called a stack frame. When your code calls a subroutine, a new stack frame is created to manage the state of execution within the subroutine. This adds a time cost, since the computer needs to create all of these structures. It also adds a memory cost, since you need space to store all of these extra stack frames that are being created. These costs are heaviest in two cases: massively multi-threaded programs and massively recursive algorithms. Pypy includes some functionality to help address these cases. The core part of the stackless functionality is provided by the 'continulet' object.
+
+All of this functionality is available within the module '_continuation'. Once you import this module, you can use the constructor 'continulet()' to create a new continulet object that can be fired later in your code. You need to hand in a callable object that will contain the actual code that will be executed. This callable function will be handed a reference to the continulet object itself as the first parameter, so that it can interact with it from within the function code itself. You can then start the new continulet object with the method 'switch()'. This switches to the continulet object and starts it running.
+
+Built on top of these continulets are greenlets. Greenlets use the stackless functionality to make micro-threads easier to use for massively parallel programs. The following is a simple example.
+/c/
+from greenlet import greenlet
+def test1():
+    print(12)
+    gr2.switch()
+    print(34)
+def test2():
+    print(56)
+    gr1.switch()
+    print(78)
+gr1 = greenlet(test1)
+gr2 = greenlet(test2)
+gr1.switch()
+/c/
+In the above example, the output you would get is:
+/o/
+12
+56
+34
+/o/
+As you can see, the last number doesn't actually get printed. You can check to see which greenlet is done by checking the 'dead' attribute of each greenlet. It is 'True' if the greenlet has finished and exited.
+
+If you have a more complicated parallel algorithm, you can combine greenlets and regular Python threads. Any single thread can have as many greenlets as required, and they will behave as expected within a given thread. The one restriction is that greenlets from one thread will not be able to communicate with greenlets from another thread.
+
+@ Heading4
+Installing Numba
+
+Installing numba is not quite as easy as for pypy. Not too many Linux distributions include it within their repositories of packages. You can download tarballs of the source code and build it yourself. This is likely to be more trouble than most people want to deal with. The second way you can get numba is by installing Anaconda. It should be there automatically, but if it isn't, you can install it with the command
+/c/
+conda install numba
+/c/
+This will install both a suite of Python modules and the executable 'numba' to your system.
+
+@ Heading5
+Using Numba Dynamically
+
+Numba includes a function decorator that you can use to selectively compile and speed up sections of your code from within a regular Python program. This lets you compile sections of code, essentially on the fly, from within your running program. A very simple example would look like the following.
+/c/
+from numba import jit
+@jit
+def my_func(x, y):
+    return x+y
+/c/
+When this code is run, numba looks at the decorated function and compiles an optimized binary version of this code. Then, whenever this function is called throughout the rest of your program, the compiled version is what is actually run. You can add keywords to the jit decorator to further tune the effect that you are looking for. For example, you can add 'nogil=True' to tell the compiler that you are not working on any Python objects and so the GIL can be handed back to the main Python interpreter. This works when your code is working with only primitive data types, like integers or floats. If your program gets run over and over again, you can add the option 'cache=True'. This tells numba to store a copy of the compiled binary code into a file store so that you can avoid the compilation overhead the next time you run it. There is even a 'parallel' option that tries to do some automatic parallelization of the function steps, if it is something that can be determined by the compiler. So you have some control over how your code gets compiled.
+
+@ Heading6
+Using Numba Statically
+
+With numba, you can also compile your code ahead of time (AOT) to avoid the compilation overhead when used in JIT mode. There are actually two different ways to get numba to compile your code. The first is to simply use the included executable, 'numba', to take a given Python file and generate a compiled version. This compiled version is stored in the subdirectory '__pycache__'. When you next import the file in question, the compiled version is what actually gets loaded. The second way to generate a compiled version ahead of time is to import the CC portion of the numba module and use it within a script to compile your code. You would start with the following piece of Python.
+/c/
+from numba.pycc import CC
+cc = CC('my_module')
+/c/
+This initializes a new module, named 'my_module'. You can then add decorators to tell numba how to compile said piece of code. For example, the following code creates a compiled function to generate squared values.
+/c/
+@cc.export('square', 'f8(f8)')
+def square(a):
+    return a ** 2
+/c/ 
+You can then use the 'compile()' method of the 'cc' object to start the compilation step and actually generate the compiled module. This compiled module can then be imported into other Python scripts, just like any other module that you may have installed on your system.
+
+@ Heading7
+How Much Faster is it?
+
+Having seen two of the options available, are they worth the trouble? How can you check the relative performances of your options, for various types of algorithms? The only way to know is to actually do the tests and see what happens with various types of algorithms. This is a truism that exists in computing. There are so many subsystems involved that it is essentially impossible to be able to tell a priori how any particular piece of code will run in the real world. Also, on any practical system, it is nearly impossible to create the exact same environment from one test to another. Even on a standard desktop, you could have several hundred processes all running concurrently. This means that the overall state of a given machine is always changing. In order to get some kind of consistency from one test to another, we will run each test several times to get an average runtime.
+
+As a basic test, we will try and calculate pi. The source file for this test is available online. In order to test the time, we will use the timeit module to manage timers. If you wanted to do a similar thing for your own program, you would need to add something like the following to your own script file.
+/c/
+if __name__ == '__main__':
+    import timeit
+    print(timeit.timeit("calc()", setup="from __main__ import calc", number=10))
+/c/
+This will run the 'calc()' function 10 times and report back the amount of time it took. You can always change the value assigned to 'number' to change how many runs are done. Just don't forget to use the same number for each of the various tests.
+
+The test was run 5 times using the standard CPython interpreter. The average run time ended up as 4.71437496 seconds. Taking the exact same code and running it with the pypy interpreter 5 times gave an average of 1.7316734 seconds. So, by doing almost nothing, you can see a speed up of 2.72 times. In order to test numba, we need to edit the test file and add the decorators for the JIT compiler. When we do, the average time for 5 runs is 5.2052748 seconds. So, in this case, we actually see a slow down. Does this make sense? Actually, yes it does. And this is where you need to be very aware of what your code is doing at the most fundamental level. When I dug into the test program, I saw that the I had used Decimal objects as the datatypes in all of the calculations. Numba was not able to speed this up by much since it still had to deal with each number as a Python object. Changing these out for native floats did speed up the code some, but not by much. Numba has two modes when compiling, nopython mode and code mode. Numba will try and compile in nopython mode, but if that fails it will silently failover to code mode. You can use the 'nopython=True' option to the jit decorator to force numba to use the nopython mode and actually throw an exception if it fails. Doing this shows that numba can't deal with the factorial function from the math module. So, improving the performance in this case would involve actually coming up with a new algorithm, in order to take full advantage of what numba can give you.
+
+
+
+@ Heading8
+Where to now?
+
+Hopefully this article has planted the seed of thinking of Python as a programming language, separated from its implementation. This is natural with compiled languages, like C or FORTRAN, where you think of the language as separate from the compiler suite. With the possibility of other Python implementations, you can make a choice as to which implementation fits your requirements best. Also, you should have realized that there are no magic bullets when you start the process of optimizing your program. While implementations like pypy can give you a boost, getting really stellar performance will likely need more in depth exploration. But, keep in mind that this is definitely possible if you are willing to put some work into this optimization. While we focused on implementations that prioritize fast code, there are others that prioritize size or which embed Python within another language, such as Jython. You should be able to find one that is a perfect fit for your particular project.
+
+
+
+@ Supporting images
+Figure 1  -  Figure1.png
+Figure 2  -  Figure2.png
+Figure 3  -  Figure3.png
+
+
+
+@ Captions
+Figure1  -  As an example, we will try and calculate pi by doing a number of iterations through factorial functions.
+Figure2  -  While using pypy requires no changes, the changes needed to use numba is pretty minimal, too.
+Figure3  -  As you can see, the speed up you can get depends not only on your code but also on the size of your problem.
+
+
+
+@ Boxout1  -  73 words
+
+While we are focused on speed in this article, you could have other requirements that need to be met. A growing computing space is that populated by microcontrollers. These tiny machines have very limited resources available to manage their processing steps. In these cases, you will probably want to take a look at micropython. It gives you a Python 3 implementation that can fit into 256k of code space and 16k of RAM.
+
+
+
+@ Boxout2  -  59 words
+
+Sometimes, you actually need to incorporate Python within some other language. In these cases, there are several other implementations that are available to you. For example, Jython allows you to have your Python code interact with Java, while IronPython does the same for C# and .NET. There is even an implementation that will run in a browser, named Brython.
+
+
+
+@ Pullquote1
+
+The simplest way to use pypy is as a drop-in replacement to your standard Python interpreter.
+
+
+
+@ Pullquote2
+
+With numba, you can also compile your code ahead of time (AOT) to avoid the compilation overhead when used in JIT mode.

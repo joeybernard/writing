@@ -1,0 +1,23 @@
+
+@ Title (2-4 words)
+xxxx
+
+@ Standfirst (20 words approx)
+xxxx
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)
+xxxx
+
+@ Boxout title (2-4 words)
+xxxx
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )
+xxxx
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

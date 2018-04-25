@@ -1,0 +1,169 @@
+Pi code-based tutorial, 4 pages
+-feel free to include commands and small segments of code in-line with the body text, but for larger chunks of code please use figure references or refer people to the coverdisc as we can supply them with code, if you send it in with your commission.
+Note: please indicate where code starts and ends with /c/ and any output with /o/, as it enables a non-tech savvy art person to layout the pages e.g.
+/c/
+$ telnet 192.168.1.200 8000
+/c/
+/o/
+Trying 192.168.1.200...
+/o/
+
+Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
+One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
+
+Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
+
+@ Title  -  9 words
+
+Dask - How to do parallel programming the easy way
+
+
+
+@ Standfirst  -  22 words
+
+Parallel computing can be difficult to do well, especially with large amounts of data. Dask wraps this in a nice cozy blanket.
+
+
+
+@ Profile
+[Joey Bernard]
+30 words (roughly 123 chars); sell your strengths as an expert, but keep the profile concise to avoid a long profile taking up too much space on the left. See example PDF for an idea of what the profile space.
+
+
+
+@ Resources
+List everything required for this tutorial and provide URLs if applicable.
+If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+
+@ Lead image
+Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+
+NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
+
+Total word count is 2,952 (roughly 16,940 char).
+
+@ Intro text  -  208 words
+
+Parallel programming can be one of the messiest techniques out there. The whole point is to try and run multiple processes concurrently and therefore speed up your computations. Once you start having more than one thing at a time happening, it can get confusing as to what process caused the result that you may be seeing. Debugging reaches a whole new level of difficulty at this point. Also, in many data analysis tasks, you may have very large sets of data that need to be coordinated across all of these parallel processes. You need to be aware of the possibility of corruption of results or repetition of calculations. This can happen if the multiple threads are not properly synchronized when they read or write the data involved.
+
+All of this can be done by using lower level functions available within the Python standard library, but there is no reason to do all of this work yourself. The dask library has been writen to help manage all of the complexities involved when you move to using more than one CPU core. It provides both the functionality to create and schedule tasks, as well as several classes to manage data in a way that is aware of parallel task execution.
+
+
+
+@ Body text
+2,752 words (rouhgly 15,800 chars)
+Use 8 subheadings (or crossheads) to break this text up.
+@ Subheading
+Installation
+
+Before you can get started, you need to have dask installed. Because there are so many parts to dask, the development team have broken up the installation into several options. This way, you can only install the parts you need. As with most Python modules, you can install dask with the pip command. The available options are shown below.
+/c/
+pip install dask[complete]: Install everything
+pip install dask[array]: Install dask and numpy
+pip install dask[bag]: Install dask and cloudpickle
+pip install dask[dataframe]: Install dask, numpy, and pandas
+pip install dask: Install only dask, giving you the task schedulers.
+/c/
+If you want to avoid all of the hastle, you can always use Anaconda as your installation of Python. Anaconda includes all of the installation options for dask. If you are using Raspberry Pis, you can use berryconda. If you need the absolute latest and greatest feature that has been developed within dask, you can always download and install from source. I will leave that as an exercise to the reader to find all of the requirements if you tread down the path of compiling your own personalized version of dask.
+
+@ Subheading
+Setup
+
+Setting up is pretty easy if you are just setting up a development environment. Out of the box, dask is already configured to be run on a single machine. This allows you to start developing and running code right away. Dask uses schedulers to manage multiple tasks and make they sure they behave as intended. The default scheduler when you install dask on a single machine is to use threads and processes on the system. This scheduler requires no additional code at all and is used by the new objects introduced by dask, like Bag or DataFrame. This means you can get better performance with your code right away. You will need to get a handle to your scheduler of choice in order to give it work to do. You can do this with the following commands.
+/c/
+thread_sched = dask.threaded.get()
+proc_sched = dask.multiprocessing.get()
+/c/
+
+Once you have some code developed, you will likely want to move to an environment where you can take advantage of even higher levels of parallelism. Maybe you built yourself a Raspberry Pi cluster, or your are working in  an HPC environment at your university. In these cases, you will want to move on to the distributed scheduler. You can use this scheduler on a single machine, which means that you can do all of your development work locally before moving on to a larger production system. In this case, you just need to create a new Client object with no options, as shown below.
+/c/
+from dask.distributed import Client
+client = Client()
+/c/
+This sets up a local cluster of a scheduler and workers. When you move to multiple machines, you will need to set up this same infrastructure across your network of machines. The first step is to start a scheduler on the main machine. You can do this with the command line utility 'dask-scheduler'. 
+/c/
+$ dask-scheduler
+/c/
+/o/
+Scheduler at:   tcp://192.0.0.100:8786
+/o/
+This will start the scheduler process on this machine, listening for incoming connection requests from worker processes. You do this with the command 'dask-worker', where you give it the IP address for the machine hosting the scheduler process.
+/c/
+$ dask-worker tcp://192.0.0.100:8786
+/c/
+/o/
+Start worker at:  tcp://192.0.0.1:12345
+Registered to:    tcp://192.0.0.100:8786
+/o/
+If you want to be able to manage the worker processes from your scheduler machine, you can use the 'dask-ssh' command to start up worker processes on the remote machines over SSH. If you want to use this command, however, you will need to make sure that the Python module paramiko is installed. This will allow for SSH connectivity within Python.
+
+@ Subheading
+First Run
+
+Once you have a network of threads and/or processes setup, how do you use them? The most direct way is to create a new Client object that uses this network of workers. In order to do this, you need to hand in the location of the scheduler process. In the above example, you would use '192.0.0.100:8786' as the parameter to Client(). You can then call map functions to distribute work out across the cluster, and the gather function to pull the results back again. As an example, say you wanted to get the square of the first 100 numbers. The following code would spread that work out on your cluster.
+/c/
+def square(x):
+    return x**2
+
+answer = client.map(square, range(100))
+client.gather(answer)
+/c/
+This gets you running code out on the cluster.
+
+@ Subheading
+Scheduling
+
+Once you start introducing more machines and spreading the work out across them, this opens up a huge number of options in terms of how to configure the system to try and optimize it for your own particular needs. The first step is to find out what you have to work with. You can use the 'scheduler_info()' method of the Client object to get the details of the current configuration. You may need to collect even more information. If so, you can get access to the scheduler logs by executing the 'get_scheduler_logs()' method and the worker logs with the 'get_worker_logs()' method. This will give you details on how the scheduling has been handled in the past. But, what if you need to know what is happening right now, in terms of how your computations are being distributed? You can use the 'processing()' method to see which task is running on which worker. From this information, you may find that some workers are being overloaded. In these cases, you can use the 'rebalance()' method to redistribute the data being worked on to workers that are more lightly loaded. When all else fails, you can stop everything and get back to an original state with the 'restart()' method.
+
+@ Subheading
+Data Objects
+
+So far, we have looked at setting up our cluster and then send work to be done explicitly out to the network. This is not the way most people use dask, however. Many use-cases take advantage of the new data objects provided by dask in order to simplify the parallelization of data-processing tasks. The three main objects introduced are the Array, the Bag and the DataFrame. They each provide functionality that is optimized for a particular workflow.
+
+Arrays are modelled on numpy arrays, and simplify the task of distributing the processing of this type of data across the network. The actual structure is that a dask array is made up of a grid of smaller numpy arrays. By default, dask arrays use the threaded scheduler. They can use the distributed scheduler, however, with no loss in performance. Because dask arrays are so closely associated to numpy arrays, there are actually helper functions to translate back and forth between these data types.
+
+@ Subheading
+Graphs
+
+All of this work being done by dask is actually implemented by modelling your code as a graph and executing this graph. Dask takes each task that needs to be executed in your code and treats them as a set of nodes, and the edges connect two nodes together if one node depends on the output of a previous node. Once the graph has been generated, the job of the schedulers is to execute this graph and do the actual work. Dask actually defines a full specification on how to describe these graphs, using standard Python objects like dictionaries, tuples and functions. This means that custom schedulers can be written if you need dask to manage your task flow in a very particular way.
+
+This also works in the other direction. The new data objects introduced by dask (array, bag and dataframe) generate graphs based on their properties that can be handed to a scheduler. Your project may require a very particular data structure in order to map to tasks in an optimized way. This is where your intimate knowledge of your particular problem can find a solution that the automatic processes in dask may miss. If this is the case, you can create a new data object of your own that outputs a dask graph that can be handed in to scheduler to be executed.
+
+Because of this intermediate layer between your code and the scheduler, you have an opportunity to look at and potentially optimize things before your code executes. There are a set of of functions provided under 'dask.optimize' to provide a starting set of optimization steps that you can use. For example, you could call 'dask.optimize.cull()' to remove any unnecessary tasks from the dask graph. You can even do optimizations that are common when compiling code, such as inlining. The function 'dask.optimize.inline()' can inline common variables to avoid access bottlenecks, while the function 'dask.optimize.inline_functions()' takes expensive function calls and inlines them to the dependent tasks. In the more general case, you can use your knowledge of the problem to provide changes to the functions being executed to try and optimize the computations being done. There are two functions, 'RewriteRule()' and 'RuleSet()', which allows you to provide a set of translations from one function to a more efficient one and then apply these translations to a dask graph before handing it to a scheduler. If none of these built in functions provide enough control, you can define your own optimization functions for various data objects. You can then use the function 'dask.set_options()' to define what optimizations are to be applied for various data objects.
+
+@ Subheading
+Diagnostics
+
+
+@ Subheading
+Where to next?
+
+Hopefully, this article has provided enough of a starting point that you might look at adding parallel computations to your own work. Dask is particularly well suited for parallelizing data analysis tasks, since it has several new data objects that wrap the complexity of spreading data and its analysis across many different machines to get better throughput. However, keep in mind that there are several other modules available to do parallel tasks, with each one tailored to a particular class of problems. If dask doesn't fit your particular problem, you should be able to find a better fit with a quick Google search.
+
+
+
+
+@ Supporting images
+3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+
+If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
+
+If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
+
+@ Captions
+Images need captions, which need to be around 15 words each.
+
+A note on captions:
+These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+
+@ 2x boxouts
+60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
+
+A note on boxouts:
+Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+
+@ 2x Pullquotes
+Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+
+
+[IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]

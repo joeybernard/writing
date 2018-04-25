@@ -1,0 +1,75 @@
+@ Title (2-4 words)  -  6 words
+Sending Your Raspberry Pi to Jupyter
+
+
+
+@ Standfirst (20 words approx)  -  17 words
+Jupyter provides a great interface in order to use your Raspberry Pi for computational or data science.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1621 words
+
+The Raspberry Pi has found a niche in several compute projects where it gets used as the computational core for the project. This has occurred enough that the Raspberry Pi group has released the Compute Module, which has been designed specifically for this use case. This month, we will build on this idea by looking at the Python project named jupyter. Jupyter, through its web-based interface, provides a great front-end to the computational resources that you have available through your Raspberry Pi. To begin with, you will want to have Python and jupyter installed on your Raspberry Pi. Because jupyter is under such active development, you will likely always want to have the latest and greatest version. If you are using the stock Python installation, you can install jupyter with the following commands.
+   sudo apt-get install python-dev
+   sudo pip install --upgrade pip
+   sudo pip install jupyter
+If you installed berryconda, the Anaconda port for the Raspberry Pi, you can install it from there as well.
+
+Once you have it installed on your system, you will need to start it up. The assumption I will be making is that your Raspberry Pi is headless, somewhere on the network, and that you are working on it over SSH. In this case, I will also assume that you are using some form a terminal virtualization, such as screen or tmux. I will be using tmux. You can install it with the command
+   sudo apt-get install tmux
+and then starting it with the command 'tmux'. The advantage here is that you can easily log back into the Raspberry Pi and reattach to the tmux instance in order to see what is happening with your jupyter process. There are a large number of options available when starting up jupyter, which can be expressed as command line options. That means that you need to remember what options are being used, which can be difficult, so instead you can put all of these options in a configuration file that jupyter can use. In order to create a configuration file with the default options, you can use the following command.
+   jupyter notebook --generate-config
+This will create a new file located at '~/.jupyter/jupyter_notebook_config.py'. All of the available options should be included, commented out, with their default values listed. Going down the list, the first option you will want to edit is 'c.NotebookApp.ip'. The default value has the jupyter notebook only listening to incoming connections from the same machine. In order to allow connections from other machines, you will want to uncomment this line and change the value to be '*'. This tells jupyter to allow connections coming in on any of the network interfaces. This means that you are going to be open to potential intrusions, so you will need to be more aware of security issues. The next option is 'c.NotebookApp.notebook_dir'. This is the directory where jupyter defaults to reading and writing notebook files. For this article, I will assume that you have created a subdirectory named 'notebooks' in your home directory. This option line will then look like the following:
+   c.NotebookApp.notebook_dir = 'notebooks'
+By default, jupyter wants to open a browser immediately upon starting up, but this is not what you will want to have happen on a remote machine. You will want to uncomment the option 'c.NotebookApp.open_browser' and set its value to 'False'. The last most common option that will need to be changed is the listening port. The option is labelled as 'c.NotebookApp.port', and defaults to 8888. If you have other services running on your Raspberry Pi, this port may already be in use. Once all of this is done, you can start up jupyter with the command
+   jupyter notebook
+Depending on the version of jupyter, you may see that there is a token set within the log output. This is a security measure, and you will need to include that token when you enter the URL to your Raspberry Pi in order to be allowed to connect to the server.
+
+Now that you have a jupyter server running, what can you do with it? When you first load the dashboard, you will see a list of any existing folders and notebook files. If it is your first time, it should be empty. In the top right-hand corner, there is a new button which will allow you to create a new notebook. Depending on what versions of Python you have installed, you may have an option of whether to create a notebook based on Python 2 or Python 3. There are also other engines possible, such as R or Julia, but we won't be covering them here. Creating the new notebook will create a new browser window where you can start doing your Python work. The notebook is cell based. Each cell can be thought of as a separate block of code, which is executed as a single unit. This means you can edit an entire cell's worth of code before executing it. Execution happens when you either type SHIFT-ENTER, or you can click on the execute cell icon at the top of the notebook. You can also back to a previous cell, edit it and rerun it. But this brings up an idea that needs to be kept in mind. The jupyter notebook engine has a chronologically based state. This is similar to commercial mathematical software, such as Maple or Mathematica. This means that if your cell sets a value to a variable, and then gets rerun, it may change the value within that variable the next time it accessed. The input and output is managed in the same way as in IPython, with 'In' and 'Out' labels. Actually, the default engine is IPython, so you have access to all of the familiar tools available in IPython. For example, you can access the last three values returned with the special variables '_', '__' and '___'. You can also use the IPython magics to interact with the engine. For example, if you have a function named do_work(), you could time it using the following code.
+   %timeit do_work()
+You will get output that resembles the following:
+   7.82 ms ± 33.6 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+If, instead of a single of line code, you can time an entire cell of code by starting it with the line '%%timeit'. When the notebook reaches a certain size, you may not be entirely sure just what state the IPython engine is in. In these cases, you can click on the menu item 'Kernel->Restart & Run All'. This clears all output and recalculates all of the cells in the notebook in the order that they are written in. This is a good way to ensure that you are in the state that you think you are in. 
+
+Jupyter is also very well situated for literate coding, allowing your documentation to live embedded with the computations being run. You can change the type of cell to be Markdown text by clicking the menu item 'Cell->Cell Type->Markdown'. You can then write documentation, using Markdown to handle the formatting. Just as with computational cells, you need to run it in order to have the formatting processed. This embedded documentation means that you can easily export an entire document that contains both theory, calculation, analysis and results as a single object. To make this easier, there are several formats that you can download your notebook as. They are all located under the menu item 'File->Download as'. You can get a fully rendered HTML page of your notebook, suitable for blogs or websites. If you wanted to generate a scientific document, you can download the notebook as a LaTeX file which can be included within your submission. If you have the software needed on your Raspberry Pi, you can also download a PDF version generated from the LaTeX version. Before you do, don't forget to retitle your notebook by clicking the menu item 'File->Rename...', otherwise you will end up with a large number of notebooks titled as 'Untitled'. If you are using jupyter to build more educational documents, you may want to reset your notebook. Clicking the menu item 'Kernel->Restart & Clear Output' will give you a fresh notebook with all of the output removed.
+
+When you need to shutdown the jupyter server, you can SSH in to your Raspberry Pi and reattach to the tmux instance. From here, you can type CTRL-C to tell jupyter to shutdown all of the kernels cleanly. It will only give you 5 seconds to confirm, so don't go away too quickly. Now you have a tool to put those loose Raspberry Pis on your network to work crunching numbers or processing data.
+
+
+
+@ Boxout title (2-4 words)  -  6 words
+
+Do you have Raspberry Pi Cluster?
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  436 words
+
+If you have a whole mini-cluster of Raspberry Pis, you can tie them all into jupyter so that you can run work on them from a single interface. The first step is to install ipyparallel with the following command.
+   sudo pip install ipyparallel
+If you are using berryconda, you will instead need to use
+   conda install ipyparallel
+You will need to do this on each Raspberry Pi that is going to take part in the cluster. On the one Raspberry Pi that will be hosting the jupyter server, you will also need to run the following command.
+   sudo ipcluster nbextension enable
+This will enable the 'Cluster' tab in the jupyter dashboard, where you can see any available clusters. You can start a new cluster on the the main Raspberry Pi, start another tab in tmux and enter the following command.
+   ipcluster start
+This will create a default cluster on this Raspberry Pi of four engines, which will allow you to test your parallel code and ensure that it is using the cluster correctly. Once you are comfortable with your parallel code, you can use the rest of your Raspberry Pis. There are several different ways they can communicate, but for this article I will assume that you have set up SSH keys on all of the participating Pis and can log in without a password. If this is the case, you can change the ipcluster command to the following
+   ipcluster start --engines=SSH --SSHEngineSetLauncher.engines={...}
+where the engines option is a dictionary of the form
+   {'host1':2,'host2':2,'host3':3}
+In the above example, ipcluster will start 2 engines each on host1 and host2, and 3 engines on host3. This gives you 7 engines that can be used in your code. Once you have the cluster details figured out, you can set all of these options in configuration files so that they are permanently recorded.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.
+
+python_48.png

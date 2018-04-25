@@ -1,0 +1,110 @@
+
+@ Title (2-4 words)  -  3 words
+Handling Multiple Tasks
+
+
+
+@ Standfirst (20 words approx)  -  27 words
+Sometimes, your Raspberry Pi project may need to deal with more than one thing at a time. This month, learn how to handle multiple tasks in Python.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1615 words
+
+Several of the articles in this column have covered different techniques to accomplish specific tasks. What we haven't covered, so far, is how best to deal with the case when your Raspberry Pi project needs to manage several different tasks concurrently. This month, we will look at how to use the multi-tasking capabilities within Python to manage multiple tasks. In the standard library, there are three main modules available. They are threading, multiprocessing and concurrent. They each have their own strengths and weaknesses. Since these are all part of the standard library, there should not be anything extra that you will need to install.
+
+First, we will look at the threading module. There are two ways that you can use this module. The first is to use it to create new thread objects that can be told to run some target function within your program. The following is a simple example.
+   import threading
+   def my_func():
+       print("Hello World")
+   my_thread = threading.Thread(target=my_func)
+   my_thread.start()
+Assuming that your tasks can be partitioned into separate functions, you can create a thread for each of these functions. One thing to be aware of is that these new threads will not start executing the function code until you call the start method. At that point, the target function will start running asynchronously in the background. You can check to see whether or not a given thread is done by using code like that below.
+   if my_thread.is_alive():
+       print('This thread is still running')
+At some point in the main body of your program, you are going to want to use the results from the functions running in these threads. When this happens you can use the 'join()' method of the thread object. This halts the main core of your program and forces it to wait until the thread exits. The thread exits by default when the running function exits.
+
+But, how do you write code that uses threads well? The first item to consider is whether you will be using data that is globally available or whether you are using data that should only be visible within the current thread. If you do need local only data, you can create a local object that can store these values. The following code stores a string with my name in it.
+   mydata = threading.local()
+   mydata.myname = 'Joey Bernard'
+This would be code used within the function being run by a thread. If you need to use global data, you need to consider how different threads may try and use this global data. If everyone is reading from a given variable, you won't run into any issues. The problem arises when you have multiple threads who may try and write a given variable. In this case, you will end up with a situation known as a race condition, where one thread may overwrite the data from another thread. In these cases, you will need to use lock objects to manage access to these global variables. A basic example would look like
+   mylock = threading.Lock()
+   counter = 0
+   def func1():
+       mylock.acquire()
+       counter = counter + 1
+       mylock.release()
+As you can see, you create the lock object in the main body of your program. Then, within the function code, you try and acquire the lock. If it is free, you get access to it and it is locked. If the lock object has already been locked by another thread, then this call to acquire blocks and waits until the lock has been released. This is why you need to be extremely careful to always have a release statement for every acquire statement. Otherwise, you will have a bug that will be almost impossible to find after the fact. This also introduces a bottleneck to your program, so you want to make sure that whatever code exists between the acquire and lock is the bare minimum required to do the necessary work. This is the simplest form of locking mechanism available in Python. If your needs are greater, you can look at some of the other options to see if they might better control access.
+
+Along with controlling access to global data, you may need to communicate directly between threads. This can be handled through an event object. An event object can be used to set a flag to true or false and make that visible to other threads. As an example, the code below shows how to set and use such a flag.
+   event1 = threading.Event()
+   def func1():
+       ....
+       event1.set()
+       ....
+   def func2():
+       ....
+       if event1.set():
+           print('I got a flag from func1')
+       ....
+Sometimes, the only communication you need is to know when all of the threads have completed some stage of their work. Say, you multiple threads loading data files and you need to wait until everyone is done before moving on to the next stage. In this case, you can do so with barrier objects. Below, you can see how you could add a barrier to the two threads from above.
+   barrier1 = threading.Barrier(2)
+   def func1():
+       ....
+       barrier1.wait()
+       ....
+   def func2():
+       ....
+       barrier1.wait()
+       ....
+In the above code, you need to set how many threads will take part in the barrier object when you create it. Then, when threads use it and call the wait method, they will block until all of the threads call the wait method.
+
+The threading module is a light, fast and easy method to add the ability divide up the processing within your code, but it does suffer from one major issue. Within the Python core engine, there is a structure called the GIL (Global Interpreter Lock). The GIL is used to control access to certain core functions and data within the Python interpreter. This means that at certain points, your threads will run only one at a time. This can introduce a serious bottleneck in some situations. If you are in this boat, then you may need to use the multiprocessing module. This module uses subprocesses to bypass the GIL completely in order to get true parallel operation. In its most basic use case, you could use something the code below to get behaviour similar to what you get with threads.
+   import multiprocessing
+   def f(name):
+       print('hello', name)
+
+   p = multiprocessing.Process(target=f, args=('bob',))
+   p.start()
+   p.join()
+This appears to be the same on the surface, but what is happening in the back-end is radically different. The process object starts up a new Python engine in one of a number of ways. The default on Unix systems, like the Raspberry Pi, is to fork a new process. The fork method essentially makes a complete copy of the current Python engine and executes the given function. Another method is to spawn a new Python engine. In the spawn method, only the parts of the current Python engine that is needed for the new Python engine. If you do need to change it, you can use the following code.
+   multiprocessing.set_start_method('spawn')
+If you need to start many subprocesses, this may help speed your code up. The 'set_start_method' should only ever be called once in a given program.
+
+Hopefully, this article has given you some ideas on how to include the ability to manage multiple tasks in parallel. This can be a powerful tool to make the software design of your project more flexible and capable. Be aware that we have only been able to cover the most basic topics in such a short article.
+
+
+
+@ Boxout title (2-4 words)  -  5 words
+Other ways to do parallelization
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  478 words
+
+In the main article, we looked at how to handle parallel tasks strictly within your Python program. But sometimes, you need the ability to run other pieces of code asynchronously. In these cases, you can use the subprocess module in order to execute external code and interact with it. As an example, we will look at how you could run the 'ls' program and use its output. The following code gives a simple example on how to run the external program.
+   import subprocess
+   subprocess.run(["ls", "-l"], stdout=subprocess.PIPE)
+The 'run' method accepts as input the external program to be run, along with any parameters that it needs. By default, the 'run' method doesn't send the output from the external program back in to the main Python code. In the above example, we set the input parameter 'stdout' to be the PIPE value, which means the output from the external program is sent back to the calling Python code. Sometimes, you may want to run this external program through a shell. You may want to do this in order to take advantage of shell functionality. In order to do this, you will need to use the input parameter 'shell=True'.
+
+The run method is a simplified interface for running external programs. When you need more control over how the external programs execute, you can use the Popen method. The equivalent of the above would look like the following.
+   proc1 = subprocess.Popen(['/bin/ls', '-l'])
+When you want to communicate with this external process, you can actually use the communicate method. You can get both the stdout and stderr streams with the following code.
+   outstream, errstream = proc1.communicate()
+If you want to also send input to the external process, you can include a parameter named 'input' with the data to send in. This function blocks until the external process finishes and exits. If you need to read from these streams without waiting for the external program to finish, you can get access to pipes for stdout and stderr streams. For example, the following code reads from the standard output stream.
+   proc2 = subprocess.Popen(['ls', '-l'], stdout=subprocess.PIPE)
+   proc2_output = proc2.stdout
+   print(proc2_output.read())
+If you need to, you can explicitly stop the external process. The 'terminate()' method sends the SIGTERM signal to the process. This is a kill signal that the external program needs to process and deal with. If you really need to kill the program, you can use the 'kill()' method that the operating system responds to and forces the termination of your program. This may allow you to reuse other programs, rather than having to recreate the wheel.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

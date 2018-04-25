@@ -1,0 +1,96 @@
+
+@ Title (2-4 words)
+Building with Minecraft on your Raspberry Pi
+
+
+
+@ Standfirst (20 words approx)  -  21 words
+This issue, we will look at how to use Python to do really cool things within Minecraft on your Raspberry Pi.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1619 words
+
+Minecraft has been a huge gaming environment for some time now. This includes my own two sons. What many minecrafters may not know is that there is a version of the Minecraft server that runs on Raspberry Pis. Even fewer may know that there is a Python engine buried down in there that you can write code for and get it doing some really weird and wonderful things. This issue, we will look at how to get Minecraft installed and how to get started writing Python code and interacting with your world.
+
+The first step is to get Minecraft installed on your Raspberry Pi. Some people have had issues with earlier versions of the Raspberry Pi, so I will be assuming that you will have a Raspberry Pi 3 to work on for the rest of this article. To install Minecraft, you can just use the command
+   sudo apt-get install minecraft-pi
+This installs the Raspberry Pi version of the Minecraft server, and lets you start is up from either a menu entry in your desktop environment or from a terminal window with the command 'minecraft-pi'. You can then click on 'Start Game' and then 'Create New' to get a new world up and ready. If you wanted to use Minecraft in the usual way, you can stop here and go start building in this new world. But that is not enough fun for the type of person who is a dyed-in-the-wool programmer.
+
+In order to write Python code within this new world you created, you will need to open a Python console.
+The piece of code, of course, is a hello world program. In Minecraft, this would look like the following.
+   from mcpi.minecraft import Minecraft
+   mc = Minecraft.create()
+   mc.postToChat("Hello World")
+The first step is to import the Minecraft class, and then instantiating a new object connected to the current game. The last line displays the text 'Hello World" in the chat window. If you are using the console, each line of Python code gets executed as soon as you hit enter. If you have longer chunk of code you want to write, you can actually open a file to write your code into. Then, you can have the entire block executed when you save the file and then hit F5 to run it.
+
+The first thing you will likely want to do is to interact with your player character within the game. You can get your character's position with code like the following.
+   curr_pos = mc.player.getPos()
+The returned position object contains values for x, y and z. You could also do simultaneous assignment to three variables so that you get the three separate values immediately. Along with getting the current position, you can set the current position of your character with the following command.
+   x,y,z = mc.player.getPos()
+   mc.player.setPos(x+100, y, z)
+This jumps the player character 100 spaces to the side. In the Minecraft world, the directions along the ground are labelled by x and z, whereas the y coordinate gives you a location up and down into the air. Be careful with that y coordinate. You may end up teleporting far up into the sky and then plummeting back down to the ground. Don't forget about gravity.
+
+Along with the ability to move your character, you can interact with blocks which are what make up the world you are inhabiting. The most basic method available is the 'setBlock()' method. For example, the following code would place a stone block beside you.
+   x,y,z = mc.getPos()
+   mc.setBlock(x+1, y, z+1, 1)
+The parameters are the x, y and z locations values, along with an ID indicating what kind of block is to be created. The most common blocks are
+   0  air
+   1  stone
+   2  grass
+   3  dirt
+While you could use these raw ID numbers, there is a block class that provides an easier way to work with Minecraft blocks. You could do the same 'setBlock()' command from above with the following code.
+   from mcpi import block
+   mc.setBlock(x+1, y, z+1, block.STONE.id)
+There are equivalent parameters for the other types of blocks available. There are also other options available for certain types of blocks. For example, for the wood block, you can set the type of wood from varieties like oak, spruce or birch, among others. You can set this with a fifth parameter to the 'setBlock()' method. Sometimes, you may need to check to see what type of block is in some particular location. For example, you may need to check whether some piece of land will support flowers before trying to plant them, you could do it with the following code.
+   curr_block = mc.getBlock(x, y, z)
+   if curr_block == block.GRASS.id:
+      mc.setBlock(x, y, z, block.FLOWER_CYAN)
+Along with working with blocks one at a time, you can also work with a whole group of blocks together as one unit. For example, you can create an entire wall of ten stone blocks with the following code.
+   mc.setBlocks(x, y, z, x+10, y, z, block.STONE.id)
+You can do the reverse and use the method 'getBlocks()', with a starting point and and end point, to get a list of block IDs for the blocks within that region. You can then go through each one and do whatever action you want to program.
+
+Along with creating and placing blocks, you can also interact with them in a more direct manner. This is handled through events. An event occurs when a block is hit by one of the players within a given world. You can get the details for a given event through the following code.
+   curr_event = mc.events.pollBlockHits()
+This event object contains several properties that you can access to see what is happening. The first property is the type of event. Currently, the only event implemented is 'BlockEvent.HIT'. The location of the block affected by the event is available from the '.pos' property. If it is important for the kind of interactivity that you want to code, you can even find out which face of the block was hit from the '.face' property. If you are in a multi-player game, you can find out which player caused the event with the '.entityId' property. You can have a block only act if a particular player hits a particular block on a particular face. This can be put to great use in puzzle type games.
+
+In order to get a better look at all of the work you have been doing, you can play with the camera settings in order to change your viewport into your Minecraft world. You can use the following code to set the camera to a given location.
+   mc.camera.setPos(x, y, z)
+If you happen to be in a multi-player game and you want to have the camera follow one particular player, you can use the following command to do just that.
+   mc.camera.setFollow(playerID)
+You will, of course, have to find the ID of the player in question first. Once the camera is set, you can change the mode with the method 'mc.camera.setFixed()'. You can reset it to the usual mode with the method 'mc.camera.setNormal(playerID)'.
+
+Two final methods that will be very useful allow you to save and restart sessions. Before embarking on some extravagant test, you can use the following code to save a checkpoint.
+   mc.saveCheckpoint()
+You can then reset your world to this checkpoint with the following command.
+   mc.restoreCheckpoint()
+This way, you can really go wild with the ability to instantly undo any damage that you caused. Hopefully this article has whetted your appetite enough to take your Minecrafting to the next level.
+
+
+
+@ Boxout title (2-4 words)
+What else can you do?
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  467 words
+
+What we have covered here is a subset of the full API available within the Minecraft world. If you want to immediately use code you developed within the Raspberry Pi version, there are two projects that you should investigate. The projects Canarymod and RaspberryJuice are addons that you can install in your Minecraft server. You can then run your Python code directly, using the same API. To move beyond this, you will need to install a couple of items. You need to install a server that will host the worlds that you wish to work with. Along with this, you need to also install a separate API in order to allow your server to be affected by your Python code. Once these are installed, you can start to work with the API. For example, the following code will teleport your player character.
+   from mcpi.minecraft import Minecraft
+   mc = Minecraft.create()
+   mc.player.setTilePos(x, y, z)
+As you can see, the actual methods used may vary a bit from those used in the Raspberry Pi version. Of course, other methods, such as 'setBlock()' or 'getBlock()' operate the same way they do in the Raspberry Pi version. There are many different Minecraft servers available for you to work with. Two that you may have heard of are bukkit and spigot. In order to use Python as a scripting language, in both cases, you would also need to install a plugin in order to have your Python code to run and use the Python API. With all of this extra capability, you also have lots of extra scripting language options. For example, because the core of the Minecraft server is written in Java, you can use a Jython plugin to allow you to write scripts that can interact directly with the Java objects within the server. If you wanted to use both your Raspberry Pi and a PC-based server, you can have your Raspberry Pi connect to the server. The Python console can connect with code like the following.
+   mc = Minecraft.create('192.168.1.1', 4711)
+Then, your Python code will run within the world on the PC-based server. This really becomes fun when you have a whole team of people working together (or against each other) in a large single world. This is actually something to keep in mind. On a PC-based server, the world is physically larger, meaning that your position values can range to much larger values than those available if you are on a Pi-based server.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

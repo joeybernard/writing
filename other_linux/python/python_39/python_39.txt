@@ -1,0 +1,84 @@
+@ Title (2-4 words)
+Anaconda for the Pi
+
+
+
+@ Standfirst (20 words approx)  -  29 words
+Python is the language of choice on the Raspberry Pi, and there are many packages available within the Raspbian package system. Berryconda helps you move out beyond these modules.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9433 characters
+
+Python has always been the language of choice for projects on the Raspberry Pi. There are several reasons for this, but we won't dive into the history here. As a consequence of this decision, there are many Python modules available as packages within the Raspbian package repository. You can trust that these have been compiled to run on the ARM processor and that they have been tested and are therefore safe to use. But, not all Python modules are available this way. For the missing modules, the intention is that you could use pip to install them yourself on your Raspberry Pi. While this works fine for some modules, you will eventually start running into those modules that require debugging to figure out why they aren't working correctly on the ARM processor. The amount of work involved in debugging these types of issues really should be distributed across many people, and luckily it is. For Python coders, a very good distribution of Python modules is available as the Anaconda project. There is also a community port of the Anaconda project, called Berryconda, that has been ported to the Raspberry Pi. The main website for the project is located at https://github.com/jjhelmus/berryconda. This article will cover the steps of getting it installed and ready to use on your Raspberry Pi so that we can go on and look in future articles at some of the functionality that becomes available to you for Python coding.
+
+The very first step is to download and install the core of the Berryconda system. On the download page, there are installation files for both armv6l (Raspberry Pi 1 or Zero) and armv7l (Raspberry Pi 2 or 3). There are also different versions of the installer for Python 2.X or Python 3.X. This covers all of the options that you might need for your particular project. The installer is actually a shell script, so all you need to do is to make the script executable, and then run it. For example, I can install the Python 3.x version on my Raspberry Pi 1 with the following commands.
+   wget https://github.com/jjhelmus/berryconda/releases/download/v1.0.0/Berryconda3-1.0.0-Linux-armv6l.sh
+   chmod +x Berryconda3-1.0.0-Linux-armv6l.sh
+   ./Berryconda3-1.0.0-Linux-armv6l.sh
+This will install the base of an Anaconda environment into the directory 'berryconda3' in your home directory, by default. You can change this installation directory during installation in case you wanted to put it somewhere else. The installer also asks you whether you want to add the path to the binaries to your PATH environment variable. This is generally a good idea. Just remember to exit from the current shell and log back in so that the new path is picked up. Either that, or manually source the initialization file to get it set.
+
+The main utility within Anaconda is the conda packaging system. Conda provides a very full-featured package management system to handle Python modules and all of the various dependencies that may be required. There is a very good set of documentation available at the web site https://conda.io/docs/, covering all of the options and functionality available. The very first thing you will want to do is to keep your current system up to date. You can update individual packages with the command
+   conda update package-name
+This command will go out to the Internet and figure out what new versions of the given package exist, and if it finds one, it will ask you whether you really want to perform the update. If you want to just see what will be done, you can use the command line option '--dry-run' to get a display of what commands would be run. If you just want to keep the entire system updated, you can use the following command to handle updating everything.
+   conda update --all
+To install new packages, you need to first find out what has already been packaged and is available. Because this is a community effort, the selection will vary over time. So you should check before trying to install some package. You can do that search with the command
+   conda search some_text
+This will do a regular expression search of package titles, looking for the given text, and return a list of any available. Sometimes, however, you may get a rather large list returned. If this happens, you can do a more refined search using the usual regex options used in many other Unix utilities. If you already know the package name, you could use the '-f' option to force the search to only return exact matches to the text you give it. If the package in question is already installed on your Raspberry Pi, it will have an asterisk beside it for the version installed. When you are ready to install the package you were searching for, you can do so with the following command.
+   conda install ipython
+This will, by default, install the latest version of the ipython package within the berryconda environment. It will also install any missing dependencies, as well as updating any out of date dependencies. 
+
+While the online documentation is great, there are also help pages available within conda. If you want general help, you can get it with the 'help' command. For help with some specific conda command, you can use something like the following command.
+   conda install --help
+This is handy for all of the details that nobody can seem to remember. Over time, you may find that not all of the installed packages are needed anymore. This could be an issue on a small machine like the Raspberry Pi. The first step is to cleanup the berryconda environment. You can remove unused versions of packages, cached installation tarballs of the packages in the environment and index caches. Assuming that you simply want as lean a system as possible, you can clean up the entire environment with the following command.
+   conda clean --all
+If there are installed packages that are no longer needed, you can remove them with the 'uninstall' command. For example, the following command would remove the 'scipy' Python module.
+   conda uninstall scipy
+If you have some drastic need to restart, you could remove everything from the environment with the '--all' command option.
+
+One of the great strengths of Python is the large set of third-party modules available for extending functionality. Unfortunately, this is also one of its weaknesses, leading to a large amount cruft building up over time. The Python module python-env was written to try and deal with this issue. The conda packaging system also understands creating isolated Python environments. This way, you can have the best of both worlds; easier Python module management combined with easier Python environment management. You can get a list of all of the environments conda knows about with the following command.
+   conda env list
+If you have just installed berryconda, the only environment listed is the root environment. Now, let's say that you needed to start a new code base, developing the software for a big new project. You could create a new empty environment with the following command.
+   conda create --name deathstar
+This command creates a new subdirectory within the 'envs' subdirectory inside the berryconda environment. If you rerun the environment list command, you will now see both the root environment and the deathstar environment with the deathstar environment tagged by an asterisk as the currently active one. You can now install only the modules you require for this specific software project by activating it and running the usual conda commands. For example, the following commands would install ipython, along with all of its dependencies, within the deathstar environment.
+   source activate deathstar
+   conda install ipython
+You can leave a given environment by running the deactivate script to reset all of the environment variables. If you have already put together a basic environment that you want to use as a starting point for a new environment, you can clone it as your boilerplate. The clone option to the create command comes in handy for such a task.
+   conda create --name deathstar2 --clone deathstar
+If the reason for your software project goes away, you can always cleanup old environments with the remove command in conda.
+   conda --remove deathstar --all
+The command option '--all' ensures that all portions of the environment are deleted during the removal process.
+
+Now, you should have all of the information you need to be able to have isolated environments for your Raspberry Pi projects. This is especially useful in the development stages of a new project. You can get only the modules you need for a given project.
+
+
+
+@ Boxout title (2-4 words)
+Raw Python-env
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2319 characters
+
+While the conda system is a very powerful tool in simplifying the management of environments and Python modules, it isn't the only one available. As mentioned in the main article, there is the python-env module available to do the same basic task. You can install it with the command
+   sudo apt-get install virtualenv
+It will also install a number of dependencies. The main command is called 'virtualenv'. With it, you can create new environments, manage them, and even delete unneeded ones. To create a new environment, you can use the following command.
+   virtualenv deathstar
+This will create a new subdirectory, named 'deathstar', within the current directory. It then makes a copy of the core of a Python environment, including Python itself and setup tools like pip. There are also a set of management scripts available within the newly created environment. In a similar fashion to conda environments, you can activate the 'deathstar' environment with the following command.
+   source ./deathstar/bin/activate
+Once you activate the new environment, any Python modules you install will be installed within this environment's directory structure. For example, if you install 'scipy' with the command
+   pip install scipy
+all of the files associated with the 'scipy' module will be installed within the 'lib' subdirectory of the environment. Depending on what versions of 'pip' and 'setuptools' are initially available when you created your new environment, you may need to update them before installing any new modules. If you run into any issues, start with the following two commands before diving too deeply into debugging it.
+   pip install -U pip
+   pip install -U setuptools
+This gives you another option if you don't want to deal with the full conda system.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

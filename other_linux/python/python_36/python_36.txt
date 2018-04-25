@@ -1,0 +1,102 @@
+@ Title (2-4 words)  -  5 words
+Graphics for the Raspberry Pi
+
+
+
+@ Standfirst (20 words approx)  -  25 words
+This month we will look at Kivy, a multiplatform graphics framework. With it, you will be able to add advanced graphics to your Python code.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9412 characters
+
+Most of the articles in this column have looked at various methods and techniques that you can use within your own Python programs. This way, you can create rather sophisticated projects centered around the Raspberry Pi. Most of these have assumed that the Raspberry Pi will either be running headless, that is with no display device at all, or only running with a text-based display. This article, we will look at how we can add graphical display elements to your Python program. This way, you can have your Raspberry Pi actual driving some kind of GUI for your your project. There are several graphical frameworks available to add GUI elements to your code. We will be specifically looking at Kivy in this article. It is a cross-platform graphical framework that is available for Windows, Android, iOS and Linux (including the Raspberry Pi). Since it is a Python module, it needs to be installed. If you are running a Debian-based distribution on your Raspberry Pi, such as Raspbian, you can install it with the command
+   sudo apt-get install python-kivy python-kivy-examples
+For other distributions, or if you want the latest version, you could install it with pip by using the command
+   sudo pip install kivy
+Doing it this way may take you down a dependency rabbit hole, though. The third option available is to install a specially prepared distribution called KivyPie, available at http://kivypie.mitako.eu/kivy-download.html. In this way, you will be sure to have all of the dependencies installed in order to use kivy. Like other distributions for the Raspberry Pi, you simply need to copy it to an SD card and boot it up.
+
+Once you have kivy and its dependencies installed, you are ready to start building your project. Since kivy is a complete framework for GUI's, it can be a bit complicated to get started with. The starting point is the concept of the kivy app. This is the main class, which you inherit from, which creates the core objects for your project. The 'hello world' equivalent for a kivy application is shown below.
+   import kivy
+   from kivy.app import App
+   from kivy.uix.label import Label
+   class MyApp(App):
+      def build(self):
+         return Label(text='Hello world')
+   if __name__ == '__main__':
+      MyApp().run()
+Traditionally, this core piece of code is saved in the file 'main.py'. From the import statements at the top of the code, you can see that kivy is actually organized into a set of sub-sections. The main class, named 'App', is the one that you extend to create your own application code. The third line shows that the actual user interface elements are organized in the sub-section 'kivy.uix'. In this case, we are using a 'Label' widget to display the text. The next piece of code where you define the main class for your application. Since it inherits from the 'App' class, you get all of the core functionality for free. You only need to override those methods and attributes that are specific to your application. The 'build()' method is the one that actually constructs your application, creating and laying out the main window and its constituent parts. The widget that is returned, 'Label' in this case, is the root widget for your application. All of the graphical elements are organized into a tree structure off of this root widget. All of this activity doesn't actually start until you call the 'run()' method of the 'App' class. This is the method that actually draws your application and gets it ready to interact with the user. In order to actually run your program, you would use the command
+   python main.py
+Obviously, you would do this from a terminal window within the desktop environment of your choice.
+
+Now that we've seen how to do a "Hello World" kivy application, let's take a look at what is involved in a more realistic application. The first step is the creation of the root widget. This widget will need to be a layout widget of some type, in order to contain the other widgets that provide the actual user interface. Luckily, there are several basic layouts available that can be used as building blocks for your own user interface design. These are anchor layout, box layout, float layout, grid layout, page layout, relative layout, scatter layout and stack layout. They are all located in the sub-section 'kivy.uix'. You can extend these in order to actually display other widgets. The code snippet below shows how you could extend the grid layout to build an input box for a user's name.
+   from kivy.uix.gridlayout import GridLayout
+   class NameInput(GridLayout):
+      def __init__(self, **kwargs):
+         super(NameInput, self).__init__(**kwargs)
+         self.cols = 2
+         self.add_widget(Label(text='First Name'))
+         self.firstname = TextInput(multiline=False)
+         self.add_widget(self.firstname)
+         self.add_widget(Label(text='Last Name'))
+         self.lastname = TextInput(multiline=False)
+         self.add_widget(self.lastname)
+During the initialization, the first step is to call the initialization method from the 'GridLayout' superclass. Then, you can set its attributes and start adding widgets to the layout. In this case, we set the grid to have 2 columns. Any added widgets get laid out one row at a time, from left to right, as the widgets are created. This means that the first column will contain the labels, while the second column will contain the text input widgets. In order to use this new layout, you would need to change the application class to be something like
+   class MyApp(App):
+      def build(self):
+         return NameInput()
+Calling the 'run()' method will then create the new input window where the user can enter their first and last name.
+
+One of the great things about kivy is that it is such a flexible framework. This allows you to have your code run on a wide variety of hardware/software configurations, but this comes with the cost of having to learn how to configure it. One of these configuration options is the large set of environment variables that kivy will look at for configuration options. For example, the environment variable KIVY_HOME sets the configuration directory that kivy can use. By default, it is located at '~/.kivy'. You can also control how kivy behaves. For example, the environment variable setting 'KIVY_WINDOW=x11' forces kivy to use the X11 protocol to do its window drawing rather than an accelerated protocol, such as OpenGL. There are a large number of environment variables available, and it is worth some time to review the documentation on them (at https://kivy.org/docs/guide/environment.html) to see how to get the best behavior for your own application. There is also a configuration file (located at $KIVY_HOME/config.ini) where you can store even more configuration options to help you tweak the way kivy behaves.
+
+While being able to display information to an end user is very important, that is not the only part of a user interface. The user needs to be able to interact with the Python program. There are several widgets, such as buttons, checkboxes or sliders, that allow the user to send information in to the code. The way this is done with user interface frameworks is to have a function, called a callback function, that gets executed whenever the appropriate change happens within the user interface. For example, you could have a callback function bound to the action of clicking a button, or moving a slider. An example of how to handle button presses is shown below.
+   from kivy.uix.button import Button
+   def my_callback(instance):
+      print('The button %s is being pressed', instance.text)
+   my_button = Button(text='Hello World')
+   my_button.bind(on_press=my_callback)
+The function 'my_callback()' takes a widget object as an input parameter and prints out the associated text attribute. After the new button object is created, you can use the 'bind()' method to bind it to some interaction. In this case, it was bound specifically to the 'on_press' action. Buttons also have an 'on_release' action. Other widgets have other actions available for your use. For example, if you have a touch interface for your Raspberry Pi, you could use the following code to track touches.
+   def on_touch_down(self, touch):
+      if 'pos' in touch.profile:
+         print('The screen was touched at ', touch.pos)
+You could then bind this to the 'on_touch_down' action for a given widget. If you were interested in catching all touches and deciding what to do with them within your own code, you could bind this callback to the relevant action at the window level to catch them as soon as they are delivered.
+
+With this short introduction to kivy, you should have some ideas of how you can use your Raspberry Pi as some type of display station for data, or a user interface for some larger system. There are lots of other elements available within the framework to handle more complicated GUI displays.
+
+
+
+@ Boxout title (2-4 words)  -  3 words
+Other GUI Frameworks
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2338 characters
+
+While this article covers kivy as one possible framework for building GUI applications in Python, it isn't the only option available. The Python wiki site maintains a partial list of the frameworks available, located at https://wiki.python.org/moin/GuiProgramming.  If you want to have code that is portable from the Raspberry Pi to other platforms, you could use a multiplatform framework such as wxPython. This framework is built on top of the C++ framework, wxWidgets. On Raspbian, you can install it with the command
+   sudo apt-get install python-wxgtk2.8
+As with most frameworks, you need to create the tree of widgets for the user interface, and then executing some kind of run or loop method to activate the user interface. A 'Hello World' application would look like
+   import wx
+   my_app = wx.App(False)
+   my_frame = wx.Frame(None, wx.ID_ANY, "Hello World")
+   my_frame.Show(True)
+   my_app.MainLoop()
+Another, simpler, framework that is commonly used is that provided by pygame. On Raspbian, you can install it with the command
+   sudo apt-get install python-pygame
+While pygame is aimed at developing games, the core functions are similar to many other GUI frameworks. So, you can use it to build basic applications, with some limitations to what you can do. The largest limitation is that your application can only have one window. However, this might be fine if it is simply a data display application.  A similar 'Hello World'  application would look like
+   import pygame
+   pygame.init()
+   font = pygame.font.SysFont('Arial', 25)
+   screen = pygame.display.set_mode((600,400), 0, 32)
+   screen.fill((white))
+   screen.blit(font.render('Hello!', True, (255,0,0)), (200, 100))
+   pygame.display.update()
+Keep your options open so that you can select the best framework for your specific application.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)

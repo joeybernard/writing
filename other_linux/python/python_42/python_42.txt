@@ -1,0 +1,82 @@
+@ Title (2-4 words)  -  7 words
+Plotting your data on a Raspberry Pi
+
+
+
+@ Standfirst (20 words approx)  -  26 words
+Plotly is a great framework that you can use when you need to see what is happening to the data being collected by your Raspberry Pi.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1618 words
+
+In several past articles, we looked at ways that your Raspberry Pi could be used to do data collection. This might be a scientific experiment, or you may be running a weather station, or some other monitoring system. In any case, we had focused on how to do the actual data collection and had not really looked at how to make it useful or interesting for any humans who might be checking in on the system. This month, we will look at one option available to handle the visualization of all of this incoming data, namely the module plotly. Plotly provides a very robust set of functions and classes to generate visualizations of data. I will be assuming that you have some type of display or monitor attached to your Raspberry Pi, and that you have an X11 desktop set up. This way, we can focus on how to actually generate the data displays for your project. You also need the plotly module installed. Assuming that you are using Raspbian, or a variant, you can install plotly with the command
+   sudo apt-get install python-plotly
+If you are coding for Python 3, you can install the python3-plotly package instead. If you absolutely need the latest and greatest version, you can use the following command instead.
+   sudo pip install plotly
+This will install plotly into the system Python library location.
+
+So now that you are ready, how do you get started with plotly? Plotly comes in two flavors, online and offline. Since we are going to use plotly as part of a monitoring project, we will focus on using plotly in offline mode. To use it in this fashion, you need to be sure that you are using version 1.9.x or later. You can check this in an interactive Python session with the following code.
+   from plotly import __version__
+   print(__version__)
+Since we will be using plotly in an offline mode, we will need to use the offline versions of the main functions. You can import them with the following code.
+   from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
+This import statement loads the core functions that you will need. Plots are all handled by the main function, named 'plot'. All graphs are created using this function, where the details are handled by parameters within the call. But, what can you hand in as parameters? There are several other classes that are used to create specific types of graphs. For example, if you wanted to create a scatter plot you would need to import the relevant class, as shown below.
+   from plotly.graph_objs import Scatter
+As a test, you can directly create and display a graph with the following code.
+   plot([Scatter(x=[1,2,3], y=[4,5,6])])
+As you can see, the plot function takes a list of objects to graph out. In this case, we are handing in a Scatter object. The Scatter object is instantiated with a list of values for the x-coordinate and a list of values for the y-coordinate. Once the plot function is done, it will try and display the generated graph as a web page, using the default web browser as the displaying program. Assuming everything is installed correctly, you should see a fresh plot in your browser. This plot is an interactive one, allowing you to do things like zoom in on the plot, select individual data points, and also either save off a static image file of your data.
+
+This is not likely the way you will use plotly, however. Assuming that you are using your Raspberry Pi to collect data, you will likely have large amounts that you will be wanting to plot. This means that we need another method of loading data. You can load the data using several different options. If you are doing data analysis anyway, you could load the data using pandas and creating a data object that can get handed in to one of the graph objects. For example, if you had your data in a comma-separated-values (CSV) file, the following code would load your data and generate a scatter plot.
+   import pandas as pd
+   df = pd.read_csv('my_data.csv')
+   plot([Scatter(x=df['x'],y=['y'])])
+This assumes that the columns in the CSV file are actually labelled as 'x' and 'y'. You can even connect to a database to pull your data for generating your graphs.
+
+You will likely also want to do updates to your plots over time as new data comes in. You can do this through either IPython or Jupyter worksheets. In this case, you first need to initialize the system so that the appropriate JavaScript code is imported into your worksheet. This is handled with the boilerplate code below.
+   init_notebook_mode()
+Once this call is finished, you can use the function 'iplot()', rather than 'plot()', to generate and display your plots within your worksheet. If you want to be able to update this plot, you will need to include the parameter 'filename', and hand in a unique filename to store the graph image for display. This way, when you want to update the graph, you can regenerate the plot with the updated data, using the same filename. then, this new graph is refreshed within the worksheet. These plot are also interactive, similar to the interactivity you get in the browser-based display. The default display gives you a set of axes, labelled with the value ranges for each axis. There are several other options available to add more information to your plots. These are handled as parameters to the graphics objects, such as title, mode, markers , hover text, and several others. It is well worth taking a look at the full list of parameters available when you start adding details to your plots. When you start looking at the options available, you will also see that there are a huge number of plots available. There are a series of basic plots, statistical plots, scientific charts, financial charts, maps, and 3D charts. There are also custom controls that can add more interactivity to your plots.
+
+Plotly also interacts with other Python modules rather well. In this way, you could actually have some type of numerical analysis happening within your monitoring project. As a longer example, say you had data for a pendulum. You could do a numerical integration of that data, where the time index is your x variable and y is the distance from the center. That code would look like.
+   import numpy as np
+   import plotly.graphics_objs as go
+   trace1 = go.Scatter(x=x, y=y, mode='lines', )
+   dy = np.trapz(y, x)
+   annotation = go.Annotation(x=4.5, y=1.25, 
+      text='Numerical Integration of sin(x) is approximately %s' % (dy), showarrow=False)
+   layout = go.Layout(annotations=[annotation] )
+   trace_data = [trace1]
+   fig = Figure(data=trace_data, layout=layout)
+   iplot(fig, filename='1d-numerical-integration')
+There are a few new items in this example. We are using an Annotation object that contains the results of the numerical integration. There is also a Layout object, which is used to put together multiple graphics objects to get a more complicated plot image. These other graphics objects could be annotations, images, labels and even rendered LaTeX code, which would allow you to include pretty-printed equations.
+
+The last item we will introduce is the ability to do animations with plotly. In order to handle animations, you will need you use a new object, called a Frame, to store a list of images to use in the animation. You can then hand in this Frame to either plot or iplot to generate the animation display itself. By default, you get a simple play button that allows you to start the animation. But, this is a great place to use custom controls. If you use a Layout object, you can add control items, such as a slider, to give you control over the playback of the animation.
+
+As you can see, just from this very short introduction, that there is a lot you can add to any Raspberry Pi projects that manage data. If you are building a house monitoring system, for example, you could add plotly graphs to show temperature trends or power usage. Or maybe you might want to track your network usage and have a simple graphic of the average bandwidth used. With a bit of research, you will be able to find many different plots and data visualization methods that will be useful for your projects.
+
+
+@ Boxout title (2-4 words)  -  4 words
+Going online with plotly
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  454 words
+
+In this article, we focused on using plotly in the offline mode so that we could use the Raspberry Pi even when there is no Internet access. However, this is not how plotly was originally designed. It was designed as an online service that handles the plotting of data on their servers. In order to do this, you will of course need to be connected to the Internet, and you can use the plot and iplot functions from the main plotly module. In this way, you can have your monitoring project set up as a headless machine and be able to check on the status from anywhere in the world. You will need to have an account at the main plotly site (https://plot.ly). The free account lets you create plots, but they will be public. If you wish to have private plots, you will need to look into the paid options and see which one best fits your needs. You can then have your Python program authenticate with the plotly site with the following code.
+   import plotly
+   plotly.tools.set_credentials_file(username='my_name', api_key='my_key')
+Your API key can be found from the account settings page on the plotly site. Now, when you call the plot function, you get a URL back pointed at the location of the rendered plot. By default, it will try to open this URL within the default browser on your Raspberry Pi. If you are creating a headless monitoring system, you can use the parameter 'auto_open=False' to turn off that behaviour. If new data comes in, but you want to use the same plot URL, you have three options to do the update by using the 'fileopt' parameter. If it is set to 'overwrite', a completely new plot will be generated and be available at the same URL. If you use the option 'extend', then the additional data is added to the already existing data and the plot is redrawn. The final option is 'append', which generates a new data set and adds it as a separate plotted set on the same graph. If you use the iplot function, instead, then the returned URL is used within your IPython or Jupyter worksheet to embed the associated graph within the worksheet.
+
+The other option that becomes available when you go online is to be able to use streaming data sources. If your project has your Raspberry Pi serving up a stream of measurements out to the Internet, you could use the streaming functionality within plotly to be able to render visualizations of this data.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

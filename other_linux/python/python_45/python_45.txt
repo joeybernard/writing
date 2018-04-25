@@ -1,0 +1,98 @@
+
+@ Title (2-4 words)  -  5 words
+Onboard Object Recognition with OpenCV
+
+
+
+@ Standfirst (20 words approx)  -  19 words
+This month, we'll look at how to do onboard image processing when you don't have access to online services.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1643 words
+
+In a previous issue, we looked at how to do image processing using online services, like those provided by Google. While leveraging these types of services is a great option, when possible, sometimes your Raspberry Pi project simply doesn't have any way to connect to the Internet. In these cases, all of your image processing will need to happen onboard of the Raspberry Pi, and usually in realtime. Luckily, the Raspberry Pi provides more than enough horsepower to handle these types of tasks with ease. This issue, we will look at using OpenCV in order to add image processing and object recognition to your project.
+
+The first step is to get the required tools installed on your Raspberry Pi. I will be assuming that your are using Raspbian as your operating system. The following commands will likely also work on any other Debian-based distribution. To install OpenCV, you will need to use the following command:
+   sudo apt-get install python-opencv
+This will install the Python wrappers for OpenCV. You will, of course, also need some sort of camera in order to capture the imagery for processing. If you want to use the official Raspberry Pi camera, you will need to execute the following command first.
+   sudo raspi-config
+You then need to activate the Raspberry Pi Camera. Otherwise, you can use a USB camera in order to do the image capture. For the rest of this article, we will assume that you have the Raspberry Pi Camera attached.
+
+The first step is to actually collect an image. With the Raspberry Pi Camera, you will need to import several classes to handle this part.
+   from picamera.array import PiRGBArray
+   from picamera import PiCamera
+   camera = PiCamera()
+   camera.resolution = (160,120)
+   camera.framerate = 32
+   rawImgCapture = PiRGBArray(camera, size=(160,120))
+Once you have an image loaded into an array, you can start the task of image processing and trying to identify objects within the image. Traditional algorithms would try and analyze each section of an image, testing for each of the parameters that make up the object that you are trying to identify. This approach very quickly overwhelms any processing power that you may have available. A new technique is to use something called a cascade to try and minimize the amount of computing that needs to be done before your code can make an approximate decision about whether an object probably exists within an image. The basic idea is that object identification is broken into stages, going from a coarse match to finer and finer detailed matches. The algorithm only cascades to the more detailed matching stags if the coarse ones pass first. This way, it does not waste time on regions of the image that probably do not contain the object that you are trying to identify. These cascades, within OpenCV, are just XML files that contain data that OpenCV uses to identify the object in question. You can find these cascade files at several locations online. The core cascades are available from the main repository of OpenCV. You can get it with the following command.
+   git clone https://github.com/opencv/opencv.git
+You can then find the cascades in the directory "opencv/data/haarcascades". With these cascades, you can create classifiers that can be used to do the image recognition. The following code handles the initialization steps required.
+   import cv2
+   cascadepath = '/path/to/cascade.xml'
+   currcascade = cv2.CascadeClassifier(cascadepath)
+To simplify the math involved, you need to convert the image to gray scale. The OpenCV Python module includes a number of helper functions that can manage tasks like this. The following code will do the conversion.
+   grayimage = cv2.cvtColor(rawImgCapture, cv2.COLOR_BGR2GRAY)
+Now, you can finally do some object recognition. Let's say you are trying to recognize faces. The following code will give you a list of all of the faces which exist within the given image.
+   currfaces = currcascade.detectMultiScale(
+               grayimage, scaleFactor=1.1, minNeighbors=5,
+	       minSize=(30,30), flags=cv2.cv.HAAR_SCALE_IMAGE)
+The first parameter is the image data itself. Next is a scale factor, which tries to compensate for objects that may be closer or further away from the camera. The minNeighbors parameter specifies how many nearby items are detected before the algorithm decides that the searched for object has been found. The minSize parameter defines the window size used for the actual object detection within the image. All of these parameters can be adjusted to best fit the image quality, along with the type of object that you wish to detect. Each of the returned sets of values in the list currfaces contain the locations of bounding rectangles surrounding each of the detected objects. These values are given as an x and y set defining the start of the rectangle, along with the width and height of this bounding rectangle.
+
+This code works great for the Raspberry Pi Camera, but the OpenCV Python module allows you to talk to USB connected cameras and do continuous image capture and analysis. Let's say that we only have a single camera attached. We can read images with the following code.
+   video_camera = cv2.VideoCapture(0)
+   return_status, curr_image = video_camera.read()
+The first line connects to the first available USB camera. The second line reads the next available frame from the given video stream. It not only returns the image data, but it also returns a status code. This is used to tell whether we are out of image frames, which can happen if we are reading from a video file. Since we are using a video camera, this won't happen. The returned image frame can then be processed in the same way as the earlier steps. Once you are done monitoring your video stream, you need to clean up. The following code makes sure that everything gets shutdown properly.
+   video_camera.release()
+
+All of this is great for identifying objects within an image or video stream, but what if you need to monitor this object as it moves across the area of interest? Maybe you are planning on using this to have a self-tracking Nerf gun to discourage trespassers. To do this, we need to start with an initial location within the image. It could either be the location found using the earlier code, or you may wish to use a hardcoded set of values. The first step is to create a region of interest and the histogram so that we can track the object later.
+   roi = curr_image[r:r+h, c:c+w]
+   hsv_roi =  cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+   mask = cv2.inRange(hsv_roi, np.array((0., 60.,32.)), np.array((180.,255.,255.)))
+   roi_hist = cv2.calcHist([hsv_roi],[0],mask,[180],[0,180])
+   cv2.normalize(roi_hist,roi_hist,0,255,cv2.NORM_MINMAX)
+The initial location of interest is given by the values of r, c, w and h. You also need to use numpy arrays in the third line of code, so you will need to add the following line to the top of your program.
+   import numpy as np
+You also need to set some kind of termination condition so that it stops at some point. For example, the following code sets this condition to be either 10 iterations or movement of at least 1 point.
+   term_criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1)
+Now that everything is initialized, you can start looping through the image frames in your video stream and tracking your object's movement with the following code.
+   ret, curr_image = video_camera.read()
+   hsv = cv2.cvtColor(curr_image, cv2.COLOR_BGR2HSV)
+   dst = cv2.calcBackProject([hsv],[0],roi_hist,[0,180],1)
+   ret, track_window = cv2.meanShift(dst, track_window, term_crit)
+The first line captures the next frame. The second line converts it to hues so that it can be compared to the histogram generated above. The third line does the back projection to figure out whether the object has moved, and the fourth line gives the new region of interest for the current image frame.
+
+With this code, you should be able to have your project identify a given object, and then track it as it moves around. There is no reason your turret mounted Nerf gun shouldn't be able to defend your workshop now.
+
+
+
+@ Boxout title (2-4 words)  -  4 words
+Creating Your Own Cascades
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  459 words
+
+While there are several pre-made cascades available to identify certain objects, they are limited and may not be what you are interested in working with. In these cases, you can create your own cascade which will identify some particular object that you want to find. This is a rather time-consuming process, however, so you probably should try an Internet search first. If you do decide that this is necessary work, then I would suggest going to the OpenCV documentation, located at 'http://docs.opencv.org/trunk/dc/d88/tutorial_traincascade.html', for more detailed instructions. OpenCV contains a set of utility functions that can be used to generate the cascade file. Here we will only be able to cover a basic overview.
+
+The first item you need is a collection of negative images. These images do not contain the object you want to build a cascade for. You then create a file with all of the image filenames, one per line. We will name this file 'bg.lst'. You also need a collection of positive images, which contain the object you will want to identify. These images are listed in a second file, with each line containing the image filename and the coordinates of a bounding box around the object of interest. We will name this file 'info.lst'. These positive images need to be processed to create a vector file. The following command generates this data.
+   opencv_createsamples -info info.lst -vec positives.vec -w 20 -h 20
+The results of this process get stored into the file 'positives.vec', and the w and h options give width and height for the process. There are several other options to 'opencv_createsamples' that can further tune the output from the positive image processing.
+
+The next step is to actually create the cascade based on the positive and negative images. The following command generates this file.
+   opencv_traincascade -data data -vec positives.vec -numPos 1000
+      -bg bg.lst -numNeg 500 -numStages 10 -h 20 -w 20
+You don't need to use all of the available images for this training stage. This way, you can do a faster training step and only process more images if the first attempt fails. Adding more images increases the training time exponentially. A rule of thumb is that you should have twice as many positive images as negative images. You also need to select the number of stages in your cascade. The larger the number, the longer the training time. As with 'opencv_createsamples', the utility 'opencv_traincascade' has several other options that can further tune your cascade output.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

@@ -1,0 +1,89 @@
+
+@ Title (2-4 words)
+Managing Data in Python
+
+
+
+@ Standfirst (20 words approx)  -  26 words
+When the amount of data you need to work with goes beyond easy flat files, you will need to move into using some type of database.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1621 words
+
+In previous issues, we have looked at how to use data that is stored in files using regular file IO. From here, we moved on to looking at how to use pandas to work with more structured data, especially in scientific work. But, what do you do when you have data needs that go beyond these tools, especially in non-scientific domains? This is where you likely need to start looking at using some form of database in order to manage information in a better way. This month, we will start by looking at some of the lighter options available to work with simple databases. Next month, we will dive into relational databases, like MySQL and Postgres, that can manage even more complicated problems.
+
+In terms of lightweight databases, sqlite is the defacto standard in most environments. Sqlite comes as a C library that provides access to a file-backed database that is stored on the local disk. One huge advantage is that it does not need to run a server process to manage the database. All of the code is actually part of your code. The query language used is a variant of standard SQL. This means that you can start your project using sqlite, and then be able to move to a larger database system with minimal changes to your code.
+
+There is a port to Python available in the module 'sqlite3' which supports all of the functionality. Because it is the standard for really lightweight database functionality, it is included as part of the standard Python library. So you should have it available wherever you have Python installed. The very first step is to create a connection object that starts up the sqlite infrastructure. The following code is a simple example.
+   import sqlite3
+   my_conn = sqlite3.connection('example.db')
+This gives you a Connection object that allows for interactions with the database that is stored in the file 'example.db' in the current directory. If it doesn't already exist, the sqlite3 module will create a new database file. If you only need a temporary database that needs to live for the duration of your program run, you can give the connection method the special file name ':memory:' to create a database that is stored solely in RAM.
+
+Now that you have a database, what can you do with it? The first step is to create a cursor object for the database to handle SQL statements being applied to the database. You can do so with the following code.
+   my_cursor = my_conn.cursor()
+The first database thing you will need to do is to create some tables to store your data. As an example, the following code creates a small table to store names and phone numbers.
+   my_cursor.execute('''CREATE TABLE phone
+                    (name text, phone_num text)''')
+You have to include the datatype for each column of the table. Sqlite natively supports SQL datatypes BLOB, TEXT, REAL, INTEGER and NULL. These map to the Python datatypes byte, str, float, int and None. The execute method runs any single SQL statement that you need to have run against the database. These statements are not committed to the file store for the database, however. In order to have the results actually written out, you need to run the following method:
+   my_conn.commit()
+Note that this method is part of the connection object, not the cursor object. If you have a different thread also using the same sqlite database file, it won't see any changes until a commit is called. This means that you can use the rollback() method to undo any changes, back to the last time commit() was called. This allows you to have a rudimentary form of transactions, similar to the functionality of larger relational databases.
+
+Now that we have a table, we should start populating it with data. The simplest way to do this is to use a direct INSERT statement, as shown below.
+   my_cursor.execute("INSERT INTO phone VALUES ('Joey Bernard', '555-5555')")
+While this is OK for hardcoded values, you will probably have data that is coming from the user that needs to be entered into the database. In these cases, you should always check this input and sanitize it so that there is no code that code be used for a SQL injection attack. You can do this, and then do string manipulation to create the complete SQL statement before calling the execute method. The other option available is to use a SQL statement that contains placeholders that can be replaced with the values stored in variables. This makes the validation of the input data a bit easier to handle. The above example would then look like the following.
+   my_name = 'Joey Bernard'
+   my_number = '555-5555'
+   my_cursor.execute("INSERT INTO phone VALUES (?,?)", (my_name,my_number))
+The values to be used in the SQL statement are provided within a tuple. If you have a larger amount of data that needs to be handled in one go, you can use the executemany() function, available in the cursor object. In this case, the SQL statement is structured the same as above. The second parameter is any kind of iterable object that can be used to get a sequence of values. This means that you could write a generator function if your data can be processed that way. It is another tool available to automate your data management issues.
+
+Now that we have some data in the database, how can we pull it back out and work with it? The basic SQL statement that is used is the SELECT statement. You can use the following statement to get my phone number.
+   my_cursor.execute("SELECT phone_num FROM phone WHERE name=:who", {"who":'Joey Bernard'})
+   print(my_cursor.fetchone())
+As you can see, you need to call some kind of fetching method in order to get your actual results back. The fetchone() method returns the next returned value from the list of returned values. When you reach the bottom of the list, it will return None. If you want to process returned values in blocks, you can use the cursor method fetchmany(size), where size is how many items to return bundled within a list. When this method runs out of items to return, it sends back an empty list. If you want to get the full collection of all items that matched your SELECT statement, you can use the fetchall() method to get a list of the entire collection. You do need to remember that any of the methods that return multiple values still start wherever the cursor currently is, not from the beginning of the returned collection.
+
+Sometimes, you may need to add some processing functionality to the database. In these cases, you can actually create a function that can be used from within other SQL statements. For example, you could create a database function that returns the sine of some value.
+   import math
+   my_conn.create_function("sin", 1, math.sin)
+   cursor2 = my_conn.cursor()
+   cursor2.execute("SELECT sin(?)", (42,))
+   print(cursor2.fetchone())
+There is a special class of database functions, called aggregators, that you may wish to create, as well. These types of functions take a series of values and apply some aggregation function, like summing, over all of them. You can use the create_aggregate() method to register a class to act as the new aggregator. The class needs to provide a step() method that does the actual aggregation calculation and a finalize() method that returns the final result.
+
+One last item you may want to be able to do is to have larger blocks of SQL statements run against your data. In this case, you will want to use the cursor object's executescript() method. This method takes a string object that contains an entire script and runs it as a single block. One important difference here is that a commit() call is made just before your script is run. If you need to be able to do rollbacks, this is an important caveat to keep in mind. When you start to have more complicated queries, you may need to track where your results came from. The description property of the cursor object returns the column names for the last executed query.
+
+When you are all done, you should always call the close() method of the connection object. But, be aware that a commit is not done automatically. You will need to call it yourself before closing. This ensures that all of your transactions are flushed out to disk and the database is in a correct state. Now you can add more robust data management to your code.
+
+
+
+@ Boxout title (2-4 words)  -  6 words
+
+What if sqlite isn't light enough?
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  433 words
+
+Sometimes, even sqlite may not be lightweight enough, depending on your specific requirements. In these cases, you do have another option. There is a very old file-backed database from the earliest days of Unix, called DBM. Dbm databases store data as a set of key-value pairs within a file on the filesystem. To start, you will need to open a database with code like that given below.
+   import dbm
+   db = dbm.open('example.db', 'c')
+This opens the database in the file 'example.db', or creates it if it doesn't already exist. You can insert a value to a given key, or get a value based on a key. Below is an example of storing a name/phone number pair.
+   db['Joey Bernard'] = '555-5555'
+When you do the query, you need to remember that everything is stored as byte strings, so you will need to use those to get values.
+   my_number = db.get(b'Joey Bernard')
+
+There are two more advanced variants available, gdbm and ndbm. They each add some further functionality above and beyond that provided by the basic dbm implementation. One important thing to be aware of is that the file formats for the different variants are not compatible. So if you create a database with gdbm, you will not be able to read it with ndbm. There is a function, named whichdb(), that will take a filename and try to figure out which type of dbm file it is. Gdbm has methods to easily allow you to traverse the entire database. You start by using the firstkey() method to get the first key in the database. You can then travel through the entire database by using the method nextkey(key). Gdbm also provides a method, named reorganize(), which can be used to collapse a database file after a number of of deletions.
+
+Because dbm, and its variants, store data as sets of key/value pairs, it maps quite naturally to the concepts around dictionaries. You can use the same syntax, including the 'in' keyword, from dictionaries when you work with any of the dbm variants. These modules allow you to have data stores that you can use to store simpler data structures within your own programs.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

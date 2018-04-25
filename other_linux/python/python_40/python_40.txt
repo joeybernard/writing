@@ -1,0 +1,104 @@
+@ Title (2-4 words)
+Parallel Programming with Dask
+
+
+
+@ Standfirst (20 words approx)  -  23 words
+When you need more power, you usually need to move to a parallel machine. Dask tries to simplify that for your Python programs.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9821 characters
+
+People are always trying to push their hardware past the available capability, meaning that you are always looking for a faster machine or a larger amount of RAM. When you are limited to a single machine, you have a fixed amount that you can increase these capabilities by. Once you reach the maximum limits for a single machine, your only option is to move to using multiple machines and spreading the computational work around. But, traditional parallel programming can be messy and difficult to do well. Because of this difficulty, there have been several frameworks developed to try and wrap the complexity. This month, we will look at dask and how to use it on your own Raspberry Pi cluster.
+
+Dask is a pure Python library that provides two major components. The first is a scheduling system that handles the management of all of the computing nodes of your cluster, and takes care of what portions of your work run on which individual machines. The second is a set of new collection classes that will use the parallel cluster implicitly behind the scenes. Using these new classes is likely the easiest way to introduce parallel programming to your own code. The first step is install the relevant Python module. You can do so with the command
+   sudo pip install dask
+This command only installs the scheduler portion of the dask framework. This is useful if you don't need the additional new collection classes, because they also depend on several other complex Python modules. You can additionally install each of the classes individually, too. For the purposes of this article, we will be looking at everything that dask can do, so you may want to install everything with the following command.
+   sudo pip install dask[complete]
+If you don't want to 'pollute' the system Python library directories, you can use the "--user" option to install it within the Python library owned by your user account.
+
+The usual way dask is used on traditional desktops is to use the new collections to handle large data sets. This might still be the case if you are using a Raspberry Pi to do some kind of low power offline processing, so we will start here. The three new collections are called arrays, bags and dataframes. Dask arrays are a subset of the ndarray provided by the numpy module. The basic structure is constructed out of a matrix of smaller ndarrays. These individual ndarrays can then be backed by either storage in RAM or on disk, both on a single machine or on remote machines. This way, you can efficiently manage really large data sets. To create a new array object, you can use the following code.
+   import dask.array as da
+   import h5py
+   file = h5py.File('myfile.hdf5')
+   data = file['/file/path']
+   array1 = da.from_array(data, chunks=(1000,1000))
+This loads the data from an HDF file, creates ndarrays from it and then creates a new array object from that same data.
+
+If your data either doesn't map to the standard use case for an array, or is a collection of user defined objects, you may find use of the bag collection. This class allows you to group several other lists or iterable objects into a single object and be able to iterate over the entire collection. You can then break this object over several cores and have each of them iterating over their own section of the bag. This naturally fits with operations like maps or filters. The problem is that it isn't as useful if you are using your Raspberry Pi cluster. Still, they may be useful in simplifying your code in certain cases, or if you only need the four cores available on the Raspberry Pi 3. As with arrays, you can create bags out of other Python objects. The following code creates a new bag object out of an existing iterable object.
+   import dask.bag as db
+   bag1 = db.from_sequence([1,2,3,4,5])
+The big caveats here are that you are limited to what you can handle within a single Raspberry Pi. Also, bags are immutable, so they are more useful as a way of organizing other objects within your code.
+
+The last new class provided by dask is the dataframe. Dataframes are subsets of the pandas dataframe. Just as arrays were built out of a series of smaller ndarrays, the dask dataframe is built up out of smaller pandas dataframes. While there are methods to create a new dask dataframe from other building blocks, such as dask arrays or bags, you will likely be loading new dataframes directly from files. Dataframes are meant to be used with very large datasets. The following code is an example of how to load your data from a CSV file.
+   import dask.dataframe as dd
+   dataframe1 = d.read_csv('myfile.csv')
+With all three of the new classes, there are methods to write your results in several different file formats.
+
+If you done any amount of programming, you will know that not every problem fits within any particular framework. Dask is no exception. To this end, dask has included a section named delayed. This adds a new keyword that can be used to identify chunks of code that are to be parallelized. For example, let's say that you had a collection of data that you wanted to process through a for loop. Within this for loop, you will be executing the functions 'inc', 'double' and 'add', and then summing the results from the loop. The following code shows what this would look like when you use the delayed functionality.
+   from dask import delayed
+   output = []
+   for x in data:
+      a = delayed(inc)(x)
+      b = delayed(double)(x)
+      c = delayed(add)(a, b)
+      output.append(c)
+   total = delayed(sum)(output)
+   total.compute()
+When Python goes through the for loop, nothing actually get executed. The functions are added to a task graph of the whole calculation so that it can be analyzed for possible parallelization. When you finally call the 'compute()' method of the 'total' object, those tasks get executed. This compute method also exists as part of the methods provided by the collections. This is because any functions on the collections are executed lazily. For example, the following code would find the sum of a given array collection.
+   sum_total = array1.sum()
+   sum_total.compute()
+This is because the work gets broken into chunks, and the scheduler tries to figure out the minimal amount of work that will get result you are looking for.
+
+In all of these cases, dask uses some type of scheduler to manage the computations in parallel. The four available schedulers are threaded (backed by a thread pool), multiprocessing (backed by a process pool), async (useful for debugging) and distributed (using several machines). Each of the collections provided by dask uses one of these schedulers by default. Array and dataframe use the threaded scheduler, and the bag collection uses the multiprocessor scheduler by default. Usually, these defaults are appropriate, but you can explicitly use a different scheduler. There are two different ways to use a different scheduler. The first is to explicitly set the scheduler to use with the 'get' keyword when you call the 'compute()' method of the given collection. For example, the following code uses the multiprocessing scheduler with an array rather than the default threaded scheduler.
+   sum_total = array1.sum()
+   sum_total.compute(get=dask.multiprocessing.get)
+The other way of changing the scheduler is to use the 'set_options' keyword. The following code shows how you could either set the scheduler within a given context, or how to set it globally.
+   #within context
+   with dask.set_options(get=dask.multiprocessing.get):
+      sum_total.compute()
+   #used globally
+   dask.set_options(get=dask.multiprocessing.get)
+   sum_total.compute()
+This allows you to maximize the multiple cores within a single Raspberry Pi, but that is still a small pool.
+
+The distributed scheduler is how you can really put your Raspberry Pi cluster to work. The distributed scheduler is actually a separate package, but it will get installed if you used the complete option when you installed dask. There are several binary programs that get installed as well. The main ones are 'dask-scheduler' and 'dask-worker'. The overall structure is that a single scheduler runs, and manages multiple workers. The scheduler distributes the available work amongst the available workers. When a worker starts up, you need to give it the location of the scheduler that it should communicate with. On the Raspberry Pi that will act as the central scheduler, you can run the binary executable 'dask-scheduler' on the command line. You will get output telling you what IP address and port the scheduler will be listening on. You can then use the following command on each of the worker nodes to setup the workers for the distributed scheduler.
+   dask-worker 192.168.0.1:8786
+You would of course change the IP address and the port to match your particular situation.
+
+Hopefully, this very quick introduction will help you get started on using any Raspberry Pis that you have available for heavier computational work.
+
+
+
+@ Boxout title (2-4 words)
+Using anaconda projects
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2522 characters
+
+In the previous article, we looked at how to install the port of anaconda for the Raspberry Pi in order to have a bit more control over your Python environment. This is so that we can look at doing more complex projects and still have a relatively clean environment. This means that we will want to learn how to create new projects and manage them. To create a new project, you would use the following command.
+   conda create --name project1
+This will create a new environment, named 'project1', with the core you need in order to run Python programs. If you already know that you will need certain modules, you can include them during the creation. For example, if you are doing a project on bioinformatics, you may want to have biopython available, as below.
+   conda create --name project1 biopython
+You can now switch to the new environment by sourcing the relevant scripts. For example, the following command activates the new project.
+   source activate project1
+Now, whenever you install new Python modules, they only get installed within this environment. When you are done, you can run the deactivate script to reset the environment to the original state.
+   source deactivate
+Once you get a number of projects on the go, you will need to be able to manage them effectively. You can get a list of all of the projects with the following command.
+   conda info --envs
+The currently activated environment is the one that has an asterisk beside the name. The last thing you may want to do with this project is to share it out with others. When you are ready to do so, you can use the following command to generate an environment YML file.
+   conda env export > project1.yml
+The other person can then create a copy of your project with the following command.
+   conda env create -f project1.yml
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

@@ -1,0 +1,90 @@
+@ Title (2-4 words)  -  6 words
+Building a Raspberry Pi Python Cluster
+
+
+
+@ Standfirst (20 words approx)  -  15 words
+Learn to use Python to get some serious work done on your Raspberry Pi cluster.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9652 characters
+
+In a previous article, we looked at how to combine multiple Raspberry Pis together to make a cluster of machines. But, how can you make use of this small monster that you have created? Luckily, Ipython is a great way to put all of these machines to work, getting some serious work done. Ipython started out as an enhanced interface for Python, replacing the usual interactive interface that is available. The initial design involved creating a client/server system for Ipython, which quickly allowed for some very interesting functionality. One of these extra capabilities is the ability to run multiple Ipython servers which a single Ipython client can connect to. You can then connect to these Ipython servers and run processes in parallel. This first step is to install Ipython on your Raspberry Pis. The following command will take care of that for you, and will need to be run on each node of your Pi cluster.
+   sudo apt-get install ipython ipython-notebook
+This will install the version of Ipython which uses Python 2.X. If you are planning on using Python 3.X, you will need to install the packages ipython3 and ipython3-notebook instead. Starting with version 4.0 of Ipython, the parallel functionality has been pulled out into its own package called ipyparallel. Most distributions do not have ipyparallel available within their package management systems. This means that you will need to install it with pip, as shown below.
+   sudo pip install ipyparallel
+Depending on the versions of the dependencies on your system, pip may update some of these packages. Ipyparallel is structured in 4 sections: the engine, the hub, the scheduler and the client. The engines do the actual running of the code from your program. The client is where your code runs and where the parallel calls are made. The hub and scheduler are the parts that allow the client and server to communicate with each other.
+
+Once everything is installed, you can start up the various parts of the parallel parts of Ipython. Starting a set of engines on your Raspberry Pi can be done with the command ipcluster, as shown below.
+   ipcluster start -n 4
+This will start up a controller and a set of 4 engines. An Ipython controller is made up of one hub and a series of schedulers. When you run this command, it stays attached to the starting shell process so that it can write out messages from the controller. If you want to just start up the cluster and leave again, don't forget to put an ampersand (&) at the end of the command so that it ends up being run in the background. As a first test, you can create a client object and connect to these engines with code like that seen below.
+   >>> import ipyparallel as ipp
+   >>> c = ipp.Client()
+   >>> c.ids
+   [0, 1, 2, 3]
+   >>> c[:].apply_sync(lambda : "Hello World")
+   ['Hello World', 'Hello World', 'Hello World', 'Hello World']
+When you instantiate a new Client object with 'ipp.Client()', with no input parameters, it will look in the directory '~/.ipython/profile_default/security' to see where to connect to in order to run your parallel code. The next statement gives you a list of the IDs for the available engines. The final statement uses the method 'apply_sync' to run the given lambda function on some subset of the available engines. In the above example, we actually ran the code on the entire list of available engines.
+
+This all works fine on a single Raspberry Pi, but that is not what we are interested in. How do you use that entire cluster that you have setup and waiting to work for you? There are a few options available on how to organize all of the different processes so that they can all communicate with each other. The simplest method is if you keep the controller and the engines together on the same machine and use ipcluster to run everything. By default, ipcluster sets things up so that only local connections will be accepted. In order to accept connections from external machines, you will want to use ipython to create a new profile, as shown below.
+   ipython profile create --parallel --profile=myprofile
+This will create a new profile directory in '~/.ipython/profile_myprofile' with a set of configuration files. In order to accept incoming connections, you need to tell the controller what interface to listen on. You will need to edit the file 'ipcontroller_config.py' in the profile directory and add the following line for the HubFactory.
+   c.HubFactory.ip='*'
+Now when you start your cluster, you can hand in a profile name to use the altered configuration options, as shown.
+   ipcluster start --profile=myprofile
+Within your code, you need to tell it where the controller is running. If the two machines are sharing a filesystem (maybe over NFS, for example), you can use the profile parameter when you instantiate a new client object.
+   >>> c = ipp.Client(profile='myprofile')
+If they don't share a filesystem, you need to configure the client before making a connection. On the Raspberry Pi which is hosting the controller, you will find a file named 'ipcontroller-client.json' in the directory '~/.ipython/profile_myprofile/security' which will contain all of the connection details that the client will need. If you copy it to the client machine which will run your code and place it in the directory '~/.ipython/profile_default/security', you can again instantiate new client objects without any parameters and it will read the connection details from this JSON file.
+
+We are still only using a single Raspberry Pi to run engines on. What about the rest of your cluster? In order to pull these in, you will need to use the individual ipcontroller and ipengine commands, rather than the all-in-one ipcluster command. Since the controller needs to accept connections from clients and engines that are running on remote machines, we will continue to use the IP configuration option that we set earlier. You can then just run the command 'ipcontroller' to start it up. The next step is to run the ipengine command on each of the Raspberry Pis that are going to form the pool of computational engines. In the directory '~/.ipython/profile_myprofile/security' you will find a second file named 'ipcontroller-engine.json'. This file needs to copied to each of the Raspberry Pis within your cluster so that they will have all of the connection details necessary to be able to communicate with the controller. On each of the Raspberry Pis, you can start the ipengine process, pointing it to the 'ipcontroller-engine.json' file that you just copied over.
+   ipengine --file='ipcontroller-engine.json'
+If you want each Raspberry Pi to host multiple engines, then you will need to start a separate ipengine process for each one.
+
+So, now you have Ipython engines running on a cluster of Raspberry Pis, with one of them hosting a controller. You can get your Python code to connect to this cluster to parallelize your work, but how can we use all of this power? One of the first steps is to grab a view of some, or all, of the available Ipython engines to work with. This is done using the same syntax as that used when slicing lists. Once you have a view, you can use one of the apply methods to get a function to run on the selected engines.
+   >>> v = c[0:2]
+   >>> v.apply_sync(lambda : 42)
+   [42, 42, 42]
+This is a blocking version of the apply method. If the function handed in is going to take time, you can use the method 'apply_async()', which will run your function on the engine pool asynchronously and return an AsyncResult object that you can use to retrieve the results once they are finished. If you have data that needs to be processed, you can use the map method to distribute the data to the Ipython engines and run the given function on each chunk.
+   >>> v.map_sync(lambda x : x*2, range(10))
+   [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+As with the apply methods, there is an asynchronous version of the map method, too. You can also move data around with methods from the view object. If all of the engines need a complete set of the data being used, you can use the push method to move data out to the engines, and pull to read the data off the engines again. You can use the dictionary interface to verify the data transfer, too, as seen below.
+   >>> dict1 = dict(a='foo', b='bar')
+   >>> v2 = c[2:]
+   >>> v2.push(dict1)
+   >>> v2['a']
+   ['foo', 'foo']
+You can also use scatter and gather to partition your data giving each engine a chunk.
+
+Hopefully, this article has inspired you to dig out all of those Raspberry Pis that have been sitting around and collecting dust and creating your own cluster for big time calculations. The nice thing about using Ipython is that you can easily add or remove machines to the pool that is available for running Python engines.
+
+
+
+@ Boxout title (2-4 words)  -  5 words
+Make it easier with dask
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2385 characters
+
+As people have worked with writing parallel Python code over time, the painful parts have been identified and people have written packages to try and make these a bit more comfortable to work with. One of these packages that has been gaining in popularity is dask. The real power of dask is its flexibility. It can use many different parallelization backends, and it also gives methods and objects that build on those used for scientific computations. For example, these new objects can mimic numpy arrays, or pandas data frames. Because of all of this additional functionality, you can select what you want support for when you install dask. For example, if you want everything, you can install it with the following command.
+   sudo pip install dask[complete]
+The back end parallelization method used by dask is called a scheduler in the dask documentation. While you can manually create your own scheduler instance for specific situations, there are also default ones that work well with particular data types that get automatically created when you instantiate those particular data objects. For example, the following code creates a new dask array object from an existing numpy array.
+   import numpy as np
+   import dask as da
+   array1 = np.random.randint(10, size=100)
+   array2 = da.array.from_array(array1, chunks=10)
+The final statement, the 'from_array()' method, accepts a parameter called chunk that tells dask how to partition the array for further processing. Picking a good chunk size involves looking at the total data size, the amount of physical RAM and the computational time for the processing step. Once the new dask array is created, a thread pool scheduler is also created in the background. This means that when you go to run methods on this dask array, they get run in parallel on the newly created thread pool.
+   result1 = array2.mean()
+   result1.compute()
+The second statement is because dask does calculations lazily. If you already use pandas or numpy, you should definitely give dask a look.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+

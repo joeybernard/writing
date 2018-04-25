@@ -1,0 +1,129 @@
+@ Title (2-4 words)
+Raspberry Pi Plus Arduinos
+
+
+
+@ Standfirst (20 words approx)  -  18 words
+This month, we will look at how to have your Raspberry Pi talk to and use you Arduino.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9229 characters
+
+Raspberry Pi is an amazing single board computer that gets used in lots of DIY projects. That has been the basis for this whole column and the previous several articles. While the Raspberry Pi has a GPIO and can communicate with sensors and actuators, you may have cases where you want to use your Raspberry Pi as the brains of your project and offload the interactions with the physical world to another system. This is usually handled by one of the many microcontroller boards that are available. This month, we will specifically use the Arduino board and see how to connect it to a Raspberry Pi and how to handle the communications between the two. As always, we will be using Python as the language of choice to handle all of the actual coding in the examples below.
+
+The Arduino is an open-source prototyping platform defined as a specification. This means that you can get Arduino implementations from several different manufacturers, but they should all behave in a similar fashion. For this article, the assumption will be that whatever implementation you wish to use will behave properly. The first step is to connect the two boards together. You will probably want to use a powered USB hub to connect them together since the Raspberry Pi can't provide huge amounts of power through its USB port. While they connected over USB, the Arduino will appear as a serial port to the Raspberry Pi. This means that you can communicate with the Arduino directly over the serial connection. To be sure you have all of the relevant libraries installed, you can simply install the Arduino IDE with the command
+   sudo apt-get install arduino
+This will be sure that you are starting with all of the core software that you might need. When you plug in your Arduino, you need to know what port communications will happen over. The specific port name will vary based on the exact version of Raspberry Pi and the exact version of Arduino that you are using. However, it should be something like '/dev/ttyUSB0' or '/dev/ttyACM0'. In the example code below, I will be assuming that the Arduino is visible on the port '/dev/ttyUSB0'.
+
+Once you have the two devices connected, you can start writing code to have them talk to each other. We will start with the most low-level protocols and build upwards from there. The first step is to open a serial connection to the Arduino. In order to do this, you will need to make sure that the Python serial module is installed. If you are using Raspbian, you can do this with
+   sudo apt-get install python-serial
+This is done by creating a new Serial object connected to a given serial port, along with the speed you need to use.
+   import serial
+   ser = serial.Serial('/dev/ttyUSB0', 9600)
+In the above example, the speed is 9600 baud (bits/sec). With this Serial object, you can read and write data to and from the Arduino. But you need code on the Arduino to handle its part of this communication. The Arduino has its own programming language, based on C, that you use to write the code that will run on the board. The way Arduinos work is that at boot up it will load a program that will run as long as it is powered up. As a simple example, the following code will listen on an input pin to see if it goes high. If so, it will then fire off a message on the serial port.
+   int pirPin = 7;
+   void setup() {
+      pinMode(pirPin, INPUT);
+      Serial.begin(9600);
+   }
+   void loop() {
+      if (digitalRead(pirPin) == HIGH) {
+         Serial.println("High");
+      }
+      delay(500);
+   }
+To load this program to your Arduino board, you will need to use the Arduino IDE that was installed at the beginning of this article. This is a graphical program, so you will need to connect your Raspberry Pi to a monitor if you want to do this step using it. Otherwise, you can do this programming of your Arduino using your regular desktop. If you are using the standard bootloader on most Arduinos, it will start up whatever program was last uploaded to it. This way you can use your desktop to upload your code and then connect it to your Raspberry Pi later on. Moving back to the Raspberry Pi, how can you read this message from the Arduino? You can simply do a read from the Serial object that you created earlier.
+   import time
+   while True:
+      message = ser.readline()
+      print(message)
+      if (message[0] == 'H')
+         do_something_useful()
+      time.sleep(.5)
+As you can see, we imported the time module in order to be able to sleep in the loop between attempts to read from the serial port.
+
+What about sending instructions out to the Arduino? This is also requires Arduino code to be uploaded ahead of time. For example, the following code will take an input number and flash an LED that number of times.
+   int ledPin = 13;
+   void setup() {
+      pinMode(ledPin, OUPUT);
+      Serial.begin(9600);
+   }
+   void loop() {
+      if (Serial.available()) {
+         flash(Serial.read() - '0');
+      }
+      delay(1000);
+   }
+   void flash(int n) {
+      for (int i = 0; i < n; i++) {
+         digitalWrite(ledPin, HIGH);
+         delay(100);
+         digitalWrite(ledPin, LOW);
+         delay(100);
+      }
+   }
+Then, you can send a count from your Python code with something like
+   ser.write('5')
+This will flash the LED 5 connected to pin 13 on your Arduino 5 times.
+
+One missing element on the Raspberry Pi is an analog-to-digital converter to take a given voltage and turn it into a number that can be used in some piece of control software. This is where attaching an Arduino can be extremely helpful, as it has a 10-bit analog-to-digital converter included. The following code will read the voltage on pin 3 and then send it out over the serial connection to the Raspberry Pi.
+   int analogPin = 3;
+   int val = 0;
+   void setup() {
+      Serial.begin(9600);
+   }
+   void loop() {
+      val = analogRead(analogPin);
+      Serial.println(val);
+   }
+This maps the measured voltage to an integer between 0 and 1023. The minimum voltage is zero, while the maximum voltage can be set with the function 'analogReference()'. By default, the maximum is the power supplied to the board (5 volts for 5V boards, or 3.3 volts for 3.3V boards). You can also use two internally supplied reference voltages, one at 1.1 volts and a second at 2.56 volts. For special cases, you can supply an external reference voltage to the AREF pin. You need to be sure that it is only between 0 volts and 5 volts. Going in the opposite direction, you can use the Arduino to supply an output voltage. This is done by actually using a PWM (Pulse Width Modulation) output signal. The idea here is actually send out a number of pulses with some duty cycle that is on for some percentage of the time and off for the remainder of the time. For example, if you have an LED connected to one of the pins, you can light it at half brightness with the following code.
+   int ledPin = 9;
+   void setup() {
+      pinMode(ledPin, OUTPUT);
+   }
+   void loop() {
+      analogWrite(ledPin, 127);
+   }
+The second parameter to the 'analogWrite()' function is a value between 0 and 255, which defines the duty cycle between 0% (or fully off) to 100% (or fully on). This analog output signal stays on at the given duty cycle until a new call to the 'analogWrite()' function. By having your Raspberry Pi write out values over the serial connection, it can then control the output duty cycle by sending a simple integer.
+
+Hopefully, this short article will spark some ideas on how you can start combining multiple computing platforms to expand the capabilities of your own projects. There is no reason to try to find the one silver bullet platform for your project when you can pick the sub-modules that actually do their own individual jobs best and build up the complex behaviour you need from these simpler parts.
+
+
+
+@ Boxout title (2-4 words)  -  5 words
+PyFirmata can help even more
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2589 characters
+
+While you can write your own code to run on the Arduino, there are several projects available that can be uploaded to the microcontroller to make interacting with it a bit easier. One of these is the firmata project, which include a Python module that you can use to help you talk to the Arduino. The first step will be downloading the firmata Arduino code and uploading it to your Arduino board. This is probably easiest done with a desktop computer. The code is available at https://github.com/firmata/arduino. There a re few different versions available, but for these examples you should upload the StandardFirmata sketch with the Arduino IDE. There are client libraries available for many different programming languages, including several for Python. The one we will look at using is pyFirmata. You can install it on your Raspberry Pi with
+   sudo pip install pyFirmata
+You can now use firmata to act as a sort of remote control to the Arduino port where your Python code can get almost direct access to all of the functionality available. To get started, you need to import the pyFirmata module and create a new Arduino object connected to the relevant serial port. You can do this with
+   import pyfirmata
+   board = pyfirmata.Arduino('/dev/ttyUSB0')
+You can now access digital IO pins directly. For example, the following code would write a 1 to pin 10.
+   board.digital[10].write(1)
+When you want to read from a pin, you have the possibility of overflowing input buffers. To deal with this issue, you can create an iterator object and start it before doing any reads using code like that below.
+   it = pyfirmata.util.Iterator(board)
+   it.start()
+You can now get selected pins for either input or output. The following code will get pin 4 for digital input and pin 12 for analog PWM output.
+   pin4 = board.get_pin('d:4:i')
+   pin12 = board.get_pin('a:12:p')
+You can then read and write with these new pin objects with the related methods
+   val = pin4.read()
+   pin12.write(100)
+When you are done, don't forget to reset any output pins back to 0 volts, and then you can close down the connection with
+   board.exit()
+So now you can have your Python code tell your Arduino what to do without having to write any Arduino code of your own. While firmata only gives you a subset of the available functionality, it is more than enough in many cases.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

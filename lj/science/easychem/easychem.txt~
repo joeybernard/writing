@@ -1,0 +1,9 @@
+Visualizing Molecules with EasyChem
+
+
+Chemistry is one of the heavy users in computational science. This has been true since the begiining, and is no less true today. Because of this, there are a lot of software packages targetting this user group, specifically. Most of these software packages are focussed on calculating things within chemistry, like bond energies or protein folding structures. But, once you have doen the science portion, you need to be able to communicate your results. This is usually in the form of papers published in journals. A part of the information that you are disseminating is imagery of the molecules you are working on. This is where this month's software package, EasyChem, comes into play.
+
+EasyChem is a program that helps generate publication quality images of molecular structures. It should be available in the package management repositories for most distributions. In Debian-based distributions, you can install it with the following command:
+   sudo apt-get installed easychem
+
+

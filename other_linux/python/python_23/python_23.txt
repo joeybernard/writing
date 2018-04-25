@@ -1,0 +1,113 @@
+
+@ Title (2-4 words) - 4 words
+Embedding Python in C
+
+
+
+@ Standfirst (20 words approx) - 25 words
+This month, we will learn how to use some bit of Python code within your usual C program, to get the best of both worlds.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count) - 6151 characters
+
+In a previous issue, we looked at how to call C functions from within a Python program in order to get more speed for time sensitive routines. But, there are occasions when you want to do the exact opposite. There are times, within a C program, when you may want to be able to execute some piece of Python code. This might be a case where you want to be able to run user code within your program. This means you can allow users to use plugins, to extend your program's functionality. The way we can do this is by embedding Python within your C program. We will look at how to do this embedding, how to run your Python code, and how to interact with the Python interpreter that you just set up. Luckily, this is functionality that is built into Python itself, so you don't need to install anything extra on your Raspberry Pi, aside from the development package for Python and GCC. You will need to install them with the command
+   sudo apt-get install python-dev gcc
+You should now have all of the tools you need to compile your code.
+
+The first step is to start the interpreter up. To access the functions you need, you will have to add the following line to the head of your C source code file
+   #include <Python.h>
+Once you have done this, you can start to embed Python. The first function you will need to call is "void Py_Initialize()". The only other functions that can be called, before you initialize the interpreter, are Py_SetProgramName(), Py_SetPythonHome(), PyEval_InitThreads(), PyEval_ReleaseLock() and PyEval_AcquireLock(). Once this function finishes, you can start to interact with this newly created Python interpreter. This starts up the interpreter, and loads the core modules __builtin__, __main__ and sys. But what about other modules? You can set the search path, where the interpreter will look to find modules, by using the function "void Py_SetPythonHome(char *home)". If you need the information, you can find the current module path with the function "char* Py_GetPythonHome()". It does not set "sys.argv", however. You need to use the function "void PySys_SetArgvEx(int argc, char **argv, int updatepath)". This way, you can access any command line arguments that your Python code needs. You can check to see whether the interpreter is properly initialized by using the function "int Py_IsInitialized()". It returns an integer for either true (nonzero) or false (zero). The simplest way to use your new interpreter is to use the function "int PyRun_SimpleString(const char *command)". This function takes a string that contains some arbitrary bit of Python code. If you have multiple lines of code that you want to run, you can use newline characters to separate those lines. For example, you can print out the sine of an angle with the code
+   PyRun_SimpleString("import math\na = math.sin(45)\nprint('The sine of 45 is ' + a)");
+This function is actually a simplified version of the function "int PyRun_SimpleStringFlags(const char *command, PyCompilerFlags *flags)". This function not only takes the command string, but also takes a struct of compiler flags for the Python compiler. You will need to check the development documentation online to see the details for these compiler flags.
+
+Let's say that you have a much more complicated bit of Python code you wish to execute. There are equivalent functions to the above to work with Python script files. The simplified version is "int PyRun_SimpleFile(FILE *fp, const char *filename)". As you can see, you actually hand in two references to your script. The first is a file handle that you get from using the C function "fopen()" to open your script file, and the second is the name of the script that you just opened. You will need to open your script file with the read permission. You also now need to worry about whether your program will have the correct file permissions on the file system to open this script. Proper coding means that you should check this call to "fopen()" to verify that it completed and gave you a valid file handle. This simplified version doesn't use any compiler flags, and closes the file handle after the function returns. The full version of the function is "int PyRun_SimpleFileExFlags(FILE *fp, const char *filename, int closeit, PyCompilerFlags *flags)". If "closeit" is true, then the file handle is closed. If the script is something that you will want to run several times, you can set "closeit" to false so that the file handle remains open. You can set any flags for the Python interpreter in the "flags" struct, similar to what is possible in the "PyRun_SimpleStringFlags()" function call.
+
+If this simple way of running some Python code isn't powerful enough for what you want to do, there are ways of interacting with the Python interpreter in a much more direct fashion. The first step is learning how to send data back and forth between the Python interpreter and the main body of your C program. The basic work-flow is to convert your C variables to their Python equivalents, then call the Python functions you wish to use, and finally convert the Python results back into their equivalents within C. Python is an object oriented language, so the core of communicating with the interpreter happens with the Py_Object construct. This provides the base for all of the other types of objects you can use to communicate with Python. For example, you can create a Python string object with the code
+   PyObject *pName;
+   pName = PyString_FromString("print('Hello World')");
+You can then use this new Python object when using Python functions. For example, if you stored the name of a Python module in the string pName, you could import it with the function call "PyImport_Import(pName);". You can also get access to Python functions from your C code. You store a reference to the function in a PyObject, just as with data objects. The first step is to get the dictionary of the function names for the module in question with
+   my_module = PyImport_AddModule("__main__");
+   my_dict = PyModule_GetDict(my_module);
+Once you have the dictionary, you can get a reference to specific function with
+   my_func = PyDict_GetItemString(my_dict, func_name);
+where "func_name" is a string containing the function you want access to. You can then run the function with a command like
+   PyObject_CallObject(my_func, NULL);
+With this type of access, you should be able to do just about anything you wish in Python.
+
+Up to now, we have been having code interacting with the Python interpreter. But there are occasions when you really want to allow the end user to have access to the interpreter directly. In these cases, you probably want to be able to give you user access to a full Python console. Luckily, you can do just such a thing with the function call "Py_Main(argc, argv)", where you hand in the argc and argv that you have from the C side of your program. This works fine for a console based program, but for a GUI program, you will need to create some kind of terminal window to allow the user to interact with the Python interpreter. This console will continue until the user explicitly quits from Python.
+
+The last thing you need to do when using Python within your C code is to cleanup after the interpreter. You can do this with the function "void Py_Finalize()". The major issue with this function is that it destroys objects in a random order. If they depend on other objects, they may not be able to get cleaned up correctly. If you then try and re-initialize the interpreter again, it may fail due to an unclean finalization step. Now that you have your program written, you need to compile it. You need to include some flags to tell the compiler where to find everything. Luckily, you can get these from Python itself. The flags needed for compiling are available with the command "python-config --cflags". You also need to know where to find the libraries that you need to link in, which are available with "python-config --ldflags". Now, you can have access to Python anywhere, even within another program. You can leverage all of the flexibility of the code you've written in Python.
+
+
+
+@ Boxout title (2-4 words)
+Extending your Embedded Python
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] ) - 2245 characters
+
+With the Python interpreter, you aren't just limited to what is already available. You can extend the available functionality by defining your own Python objects, with their own methods and data, within your C code. These newly created objects can then be called from within the Python interpreter. They are defined as static objects, with code like
+   static PyObject* my_func(PyObject *self, PyObject *args) {
+      ...
+   }
+The new PyObject contains the executable code for the methods to be used for your new object. You also need to create a method definition to be able to register the details with the Python interpreter. You do this by creating a PyMethodDef array
+   static PyMethodDef my_methods[] = {
+      {"my_method", my_func, METH_VARARGS, "This is my method"},
+      {NULL, NULL, 0, NULL}
+   };
+Once you have finished these two parts, you are almost ready to start using your new module code. You need to initialize it with the function
+   Py_InitModule("my_module", my_methods);
+Now, you can import this new module in your Python code, just like any other module installed on your system. Within your Python code, you can write
+   import my_module
+   my_module.my_method()
+One thing to be aware of is that this level of control also gives you a huge level of responsibility. For example, you need to start worrying about things like reference counts for objects. The garbage collector for the interpreter needs to know when an object is OK to delete. You need to increment the reference count each time something points to your newly created object. Every time a reference is removed, you need to decrement the counter.
+
+You can also create multiple sub-interpreters within a single program. You can create a new sub-interpreter with the function "Py_NewInterpreter()". This way, you can have multiple Python threads running concurrently, and mostly independently. When you are done, you can shut them down with the function "Py_EndInterpreter()". There is no limit to what you can do with all of this power.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters) - 35 lines
+
+# A simple way to run Python code
+#include <Python.h>
+
+int main(int argc, char *argv[]) {
+  Py_SetProgramName(argv[0]);
+  # Initialize the Python interpreter
+  Py_Initialize();
+  # Run your Python code
+  PyRun_SimpleString("from time import time,ctime\n"
+                     "print 'Today is',ctime(time())\n");
+  # Don't forget to clean up
+  Py_Finalize();
+  return 0;
+}
+
+-----------------------------------
+# You can create an interactive Python console
+#include <Python.h>
+
+int main(int argc, char *argv[]) {
+   Py_Initialize();
+   Py_Main(argc, argv);
+   Py_Finalize();
+}
+
+--------------------------------
+# You can even run a script file
+#include <Python.h>
+int main(int argc, char *argv[]) {
+   FILE *fp;
+   Py_Initialize();
+   fp = fopen("my_script.py", "r");
+   PyRun_SimpleFile(fp, "my_script.py");
+   Py_Finalize();
+   fclose(fp);
+}

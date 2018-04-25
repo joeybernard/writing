@@ -1,0 +1,71 @@
+@ Title (2-4 words)
+Teaching Your Raspberry Pi to Recognize Faces
+
+
+
+@ Standfirst (20 words approx) - 19 words
+Wouldn't it be nice to have your Raspberry Pi be able to keep a watch for persons of interest?
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9251 characters
+
+In a previous piece, we looked at how you could use your Raspberry Pi and some Python code to be able to look at a scene and figure out whether there was any motion there. This month, we will take it one step further and see if we can get our Raspberry Pi's to actually recognize faces within a scene. This is functionality that is even making its way into point-and-shoot cameras, so there is no reason you shouldn't include it into some project or another. Maybe you want to blend it with the code from the previous article and have some action triggered by motion, but only if it is done by a person. As in previous imaging pieces, I will be assuming that you are either using the camera module for the Raspberry Pi, or a USB web cam. In either case, you have a stream of images being handed into your code, ready to be processed. Again, as in previous articles, we will be using the OpenCV Python module to handle all of the heavy image processing involved. The first step is to be sure you have Python and the OpenCV module installed with
+   sudo apt-get install python python-opencv
+To identify a face within an image, your code needs to check each sub-region of the image for the features of a face. To successfully identify a face, you may need to check as many as 600 features, or even more. To do this for each sub-region of the image, the amount of work involved would quickly bring any machine to dead stop. OpenCV gets around this problem by using a technique called a cascade. For each sub-region, OpenCV does some simple, quick, general checks to see if this particular sub-region contains something that might be a face. If these initial tests are positive, then it will cascade down to more detailed tests to verify this initial conclusion. This also means that OpenCV can quickly decide that some sub-regions does not contain a face and can save time and skip the more detailed tests. This technique brings facial recognition to real time speeds. In order to actually do these cascades, you need to supply a Haar cascade file. This file is an XML file that contains the details from a training session where many images were processed to figure out how best to do the cascading tests. While you can generate these files yourself through a training process, there are a number of files available which will identify many common targets. You can get them with the command
+   sudo apt-get install opencv-data
+This will install a number of these cascade files within the directory '/usr/share/opencv/haarcascades'.
+
+Now that we have everything ready, we can look at how to identify faces within images. To simplify things, we will start by assuming that we have a static image in the file 'faces.jpg' and that we are going to try and process it. The first step is to create a new cascade classifier constructed around one of the Haar cascade files. Assuming that you are only interested in forward facing faces, you could use code like
+   import cv2
+   face_cascade = cv2.CascadeClassifier('/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml')
+One thing to be aware of is that 'cv2.CascadeClassifier()' will not complain if the filename handed doesn't exist. So be careful of typos. The next step is to load the image to be processed. Since OpenCV does most processing in grayscale, you will also need to convert the image if it is in color. You could use something like
+   face_img = cv2.imread('faces.jpg')
+   gray_img = cv2.cvtColor(face_img, cv2.COLOR_BGR2GRAY)
+You can now get OpenCV to start looking for faces. A good starting point could be the function below.
+   faces = face_cascade.detectMultiScale(gray_img, scaleFactor=1.1,
+                                                              minNeighbors=5, minSize=(30,30),
+                                                              flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
+This will give you a list of objects defining where OpenCV found what looks like a face. Something to keep in mind is that these algorithms are done using machine learning, so they are not 100% correct. You will get false positives, as well as missed faces. Depending on the quality of the images being processed, you will need to change the parameters of the 'detectMultiScale()' function to match your situation. There are 5 in the above example, but you could use as many as 9 parameters. In the above example, the scaleFactor tries to account for the fact that the subject in the image may be closer or farther away than those used in training the classifier. The minNeighbors defines how many nearest objects are detected around the currently analyzed one before the classifier decides that it has found a face. The minSize parameter defines the window size used in the cascade classifier. The returned objects are 4-tuples that contain the x and y coordinates of a bounding rectangle, along with the width and height of this rectangle.
+
+Now that we have the basics of detecting a face, we need to move on and see how to do this on a stream of images, such as though coming from a camera. Depending on the camera, you might be able to use the video capture functionality within OpenCV itself. For example, you could use something like
+   video_capture = cv2.VideoCapture(0)
+If you are using something else, like pygame, to read in the image stream, it should be usable with minimal preprocessing, if any. You then need to enter a loop where you are reading in successive frames from the image stream and checking each one for faces. A very simple boilerplate loop might look like
+   while True:
+      ret, frame = video_capture.read()
+      gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+      faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1,
+                                                                 minNeighbors=5, minSize(30, 30),
+                                                                 flags=cv2.cv.CV_HAAR_SCALE_IMAGE)
+This code assumes that the face_cascade object has already been instantiated using the correct Haar cascade file. This loop is not very useful however, as it doesn't do anything if any faces are found. If your program is an interactive one, you could simply have the identified frames popped up on the screen. A simple addition to this loop would be
+      for (x, y, w, h) in faces:
+         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+      cv2.imshow('Video', frame)
+This code grabs the x and y coordinates and the width and height of the bounding box around the feature that was identified as a potential face. The function 'cv2.rectangle()' then takes these values to draw a green rectangle of the given width and height at the given location on the captured frame. It will loop through all of the detected faces and draw the bounding boxes on the image frame. Once they have all been drawn on, the function 'cv2.imshow()' will pop up a window in which to display the captured frame along with the highlighted faces. This is only an example of something you could do when a face is detected within an image frame. You may decide to do something else. You may be interested in only whether a face was detected or not. In this case, you could simply check the size of the faces list, and if it is not empty you could trigger some other action. Continuing with the above example code, we need some way to get out of the infinite loop. Since you are in the middle of using OpenCV to do the image processing, you can also use the included utility functions to capture key presses using code like
+      if cv2.waitKey(1) & 0xFF == ord('q'):
+         break
+This will break out of the infinite while loop when the q key is pressed. After dropping out of the loop, there is still cleanup that must be done. Both the connection to the camera and all of the displayed image windows need to be destroyed. You can do this with the code below.
+   video_capture.release()
+   cv2.destroyAllWindows()
+
+At this point, you can add basic facial recognition to any of your Python programs that have access to a video stream. The OpenCV library is efficient enough that you should be able to do this kind of recognition in real time, as the video stream is coming in. But, this isn't all that you can do at this point. If you look at the Haar cascade files that were installed when you installed the opencv-data package, you will see that there are several others available to help you identify other features. There are cascade files to identify a generic eye, or specifically a left eye or a right eye. You can identify the entire body, or just the upper or lower portions of a body. You can even identify whether there is a smile within the image frame. If there are other objects that you are interested in keeping an eye out for, a quick Google search may bring up a cascade file for exactly what you are trying to detect. If not, check out the side box for a quick look at what is involved if you need to generate your own cascade file for some odd object.
+
+
+
+@ Boxout title (2-4 words)  -  4 words
+Generating Your Own Cascades
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2421 characters
+In the main body of this article, we have seen that the key part of object detection within an image is the cascade file. When you open one up, you will notice that it isn't very complicated looking. The complicated bit is in the encoded data that defines that features within the cascade algorithm that are used to identify the object. This data needs to be discovered through a training step where the relevant OpenCV functions look at images that both have the object in question and images that do not have the object. You need a much larger set of negative images compared to positive images. For example, the author of the blog entry at 'http://coding-robin.de/2013/07/22/train-your-own-opencv-haar-classifier.html' needed to use a set of 40 positive images and 600 negative images in order to identify bananas within an image. The positive images also need to be preprocessed so that they are cropped as closely as possible to the object of interest. Once you have all of the positive and negative images, you need to create samples that can be used for the training step. To do this, you need to install an extra package with
+   sudo apt-get install libopencv-dev
+This package installs a number of utilities, including 'opencv_createsamples'. This utility takes the training images, along with many potential parameters to produce annotated results that can then be used in the training step. The training is done by using the utility program 'opencv_traincascade'. This is the newer trainer, that can operate as a multi-threaded application. Unfortunately, the format of the cascade XML file that gets written out is different from that generated by the older utility 'opencv_haartraining'. Depending on who you may want to share this cascade file with, means that you may need to use the older slower method. As with 'opencv_createsamples', 'opencv_traincascade' takes a large number of command line options to control how the training progresses. This process can take a long time, and a huge amount of memory. A long time is on the order of days, rather than just on the order of hours. And large amounts of memory is almost literally as much as you can throw at the problem. This is why you should definitely check Google before going through the massive amounts of work needed to generate your own cascade file.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

@@ -1,0 +1,61 @@
+Recipy for Science
+
+This column has covered lots of different software packages for doing scientific computations. But more and more journals are demanding that the science being published be reproducible. Ideally, if you publish your code, this should be enough for someone else to reproduce the results that you are claiming. But, anyone who has done any actual computational science knows that this is not true. The number of times that you twiddle bits of your code to test different hypotheses, or the specific bits of data you use to test your code and then to do your actual analysis, grows exponentially as you are going through your research program. It becomes very difficult to keep track of all of these changes and variations over time. Since more and more scientific work is being done in Python, there is a new tool available to help automate the recording of your research program. Recipy is a new Python module that you can use within your code development to manage the history of said code development.
+
+Recipy exists in the Python module repository, so installation can be as easy as
+   pip install recipy
+The code resides in a github repository, so you can always get the latest and greatest version by cloning the repository and installing it manually. If you do decide to install manually, you can also install the requirements by using
+   pip install -r requirements.txt
+using the file from the recipy source code. Once you have it installed, using it is extremely easy. You can alter your scripts by adding the line
+   import recipy
+to the very top of the file. It needs to be the very first line of Python executed in order to capture everything else that happens within your program. If you don't want to even alter your files that much, you can run your code through recipy by using the command
+   python -m recipy my_script.py
+All of the reporting data gets stored within a TinyDB database, in a file named "test.npy".
+
+Once you have collected the details of your code, you can now start to play around the results stored in the file "test.npy". To play with this module, we will use the sample code from the recipy documentation. A short example is
+   import recipy
+   import numpy
+   arr = numpy.arange(10)
+   arr = arr + 500
+   numpy.save('test.npy', arr)
+saved in the file "my_script.py". The module recipy includes a script called recipy that can process the stored data. As a first look, you can use the command
+   recipy search test.npy
+will pull up details about the run. On my Cygwin machine (the power tool for Linux users forced to use a Windows machine), the results look like
+   Run ID: eb4de53f-d90c-4451-8e35-d765cb82d4f9
+   Created by berna_000 on 2015-09-07T02:18:17
+   Ran /cygdrive/c/Users/berna_000/Dropbox/writing/lj/science/recipy/my_script.py using /usr/bin/python
+   Git: commit 1149a58066ee6d2b6baa88ba00fd9effcf434689, in repo /cygdrive/c/Users/berna_000/Dropbox/writing, with origin https://github.com/joeybernard/writing.git
+   Environment: CYGWIN_NT-10.0-2.2.0-0.289-5-3-x86_64-64bit, python 2.7.10 (default, Jun  1 2015, 18:05:38)
+   Inputs: none
+
+   Outputs:
+     /cygdrive/c/Users/berna_000/Dropbox/writing/lj/science/recipy/test.npy
+Every time you run your program, a new entry gets added to the file "test.npy". When you run the search command again, you will get a message
+   ** Previous runs creating this output have been found. Run with --all to show. **
+that lets you know. If using a text interface isn't your cup of tea, there is a GUI available through the command
+   recipy gui
+that gives you a potentially nicer interface. [recipy1.png] This GUI is actually web-based, so once you are done running this command you can open it up in the browser of your choice.
+
+Recipy stores its configuration and the database files within the directory "~/.recipy". The configuration is stored in the file "recipyrc" in this folder. The default location for the database files is also located here. But, you can change this by using the configuration option
+   [database]
+   path = /path/to/file.json
+This way, you can store these database files somewhere where they will get backed up, and potentially versioned. You can change the amount of information being logged with a few different configuration options. In the "[general]" section, you can use the 'debug' option to include debugging messages or 'quiet' to not print any messages. By default, all of the metadata around git commands is included within the recorded information. You can selectively ignore some of this metadata with the configuration section "[ignored metadata]". If you use the 'diff' option, the output from a 'git diff' command won't be stored. If, instead, you wanted to ignore everything, you could use the option 'git' to skip everything related to git commands. You can ignore specific modules on either the recorded inputs or the outputs by using the configuration sections "[ignored inputs]" and "[ignored outputs]", respectively. For example, if you wanted to skip recording any outputs from the numpy module, you could use
+   [ignored outputs]
+   numpy
+If you wanted to skip everything, you could use the special option 'all' for either section. If these options are stored in the main configuration file mentioned above, it will apply to all of your recipy runs. If you wanted to use different options for different projects, you can use a file named ".recipyrc" within the current directory with the specific options for this project.
+
+The way that recipy works is that it ties into the Python system for importing modules. It does this by using wrapping classes around the modules that you want to record. Currently, the modules supported are
+   numpy           scikit-learn
+   pandas           scikit-image
+   matplotlib     pillow
+   GDAL              nibabel
+The wrapper function is extremely simple, however, so it is an easy matter to add wrappers for your favourite scientific module. All you need to do is implement the PatchSimple interface and add lists of the input and output functions that you want logged.
+
+After this article, you should never lose track of how you reached your results. You can configure recipy to record the details you find most important and be able to redo any calculation you did in the past. Techniques of reproducible research are going to be more important in the future, so this is definitely one technique to add to your toolbox. Seeing as it is only at version 0.1.0, it will be well worth following this project to see how it matures and what new functionality is added to it in the future.
+
+
+
+IMAGES
+recipy1.png  -  Recipy includes a GUI that provides a more intuitive way to work with your run data.
+
+LocalWords:  Recipy

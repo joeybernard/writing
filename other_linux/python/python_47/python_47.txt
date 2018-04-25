@@ -1,0 +1,97 @@
+
+@ Title (2-4 words)  -  3 words
+Doing Portable Geodesy
+
+
+
+@ Standfirst (20 words approx)  -  18 words
+With the availability of Raspberry Pis, you can now do fairly complex geodesy calculations in the field live.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1650 words
+
+The Raspberry Pi platform provides a decent amount of computing power in a compact package. This allows for projects where you can essentially bring along a computer with you when you go out into the field to do research. With a battery system and a ruggedized case, you can have your computational tools with you almost anywhere. One of these research areas where having portable computing at hand is geodesy and geomatics. Geodesy is the branch of applied mathematics that is concerned with measuring and understanding the Earth's geometric shape. As you may have suspected, doing three dimensional mathematics on a curved surface can be a tad messy. Hence, the need to have some robust computing handy. The traditional way to do field work is to go out and collect measurements, then go back to the office and work on your desktop. This month, we will look at a Python module which can be used to handle these types of calculations, named PyGeodesy. It isn't available in the regular package repository, so you will need to install it with the following command.
+   sudo pip install pygeodesy
+It will then be available to use in your project.
+
+One of the first things you are likely to want to do is to convert data between different coordinate systems. There are separate objects that can be used to store data points within a particular coordinate system. For example, you can use Universal Transverse Mercator (UTM) coordinates within your program. You can create an appropriate object with the following code.
+   import pygeodesy
+   utm1 = pygeodesy.utm.parseUTM('31 N 448251 5411932')
+You can enter the data point as a string made up of the zone, hemisphere, easting and northing. The UTM object has properties which allow you pull out each of the individual elements, such as the easting, the northing or the hemisphere. If, instead of a UTM string, you have a set of latitude and longitude values, you can create a LatLon object and use that to create your UTM object. The following gives an example of how you could do this.
+   import pygeodesy
+   latlon1 = pygeodesy.ellipsoidalNvector.LatLon(49.66618, 3.45063)
+   utm1 = pygeodesy.utm.toUtm(latlon1)
+This uses the usual ellipsoidal mathematics to make the calculations. There is also another set of equations, developed by Thaddeus Vincenty in 1975, that can also be used to manage points defined by latitude and longitude. The advantage to this alternative is that you can give it an earth model to define the coordinate system by, rather than accepting the default ellipsoidal model. Once you have a UTM object, it has helper methods to convert it to other supported coordinate systems. The following code gives a couple of examples.
+   # Convert to an ellipsoidal geodetic point
+   latlon2 = utm1.toLatLon(pygeodesy.ellipsoidalNvector.LatLon)
+   # Convert to an MGRS grid point
+   mgrs1 = utm1.toMgrs()
+The first example lets you convert back to a set of latitude and longitude values, but you need to provide which type of earth model you wish to use by including the class of the type you are interested in. The second example converts the point to a NATO Military Grid Reference System (MGRS) grid point.
+
+Now that you have the ability to enter points, what can you do with them? One interesting problem is finding the central point given a series of geographical points on the globe. Again, you would need to choose which ellipsoidal model that you wanted to use to do the calculations with. Using the defaults, you could do this with the code below.
+   import pygeodesy.ellipsoidalNvector as penv
+   mean_point = penv.meanOf(points=point_list, LatLon=penv.LatLon)
+The variable point_list is a list made up of LatLon objects representing each point of interest. You also need to include what kind of ellipsoidal model is being used with the LatLon input parameter. Another task you may have with a series of points is to define a path along the surface of the Earth. Very often, you will need to take a series of measurements defining these points and then simplify the path. PyGeodesy provides several different simplification routines, of varied computational times, that can provide different levels of simplification. The most basic simplification routine is shown below.
+   import pygeodesy.simplify as psimp
+   simplified_path = psimp.simplify1(latlon_list, dist)
+The first input parameter is the original list of points, given as a list of LatLon objects. The second input parameter is a tolerance distance. Any line segments below this threshold get removed, and the list of simplified LatLon points is returned. This is probably the fastest, and most inaccurate, simplification routine. Luckily, there are six other simplification routines available. For example, the code below uses the Reumann-Witkam simplification algorithm.
+   simplified_path = psimp.simplifyRW(latlon_list, pipe)
+The first parameter is the original list of points to be simplified. The second parameter is the radius, in meters, of an imaginary pipe. This imaginary pipe is passed over the points in the original path, and all of the points laying within the pipe get simplified to a single line, up to the first point that lays outside the bounds of the pipe. An even more complex algorithm is the Visvalingam-Whyatt (VW) method of simplifying a path. This method creates triangles out of nearby points and tries to remove any external points if the triangle made is below some threshold. An example is given below.
+   simplified_path = psimp.simplifyVW(latlon_list, area)
+The second parameter provides the threshold area of the triangle, given in square meters.
+
+Until now, we have looked at the ellipsoidal sub-modules, which model the Earth as some form of an ellipsoidal. There are also two sub-modules which model the Earth as a sphere, sphericalTrigonometry and sphericalNvector. Both of these sub-modules have their own versions of the LatLon class, and a whole set of module functions to aid your calculations. We will look at the trigonometric version first. Creating a new LatLon object can be done by simply giving the values for the latitude and longitude. The newly created object has several instance methods available. Below are a few examples.
+   import pygeodesy.sphericalTrigonometry as ptrig
+   latlon1 = ptrig.LatLon(45.00, 66.00)
+   # Calculate a destination point
+   latlon2 = latlon1.destination(dist, bearing)
+   # Calculate the midpoint
+   midpoint = latlon1.intermediateTo(latlon2, 0.5)
+The first example takes a given point, and using a given distance and bearing calculates what the resulting point would be. The second example takes two points and returns the point that is some ratio between the two ends. In this example, we are looking at a point halfway between the two ends. Instead of defining single points or lines, you can also define a polygon by creating a list of LatLon objects. You can find the area of such a polygon, bounded by the great circles defined by these points, with the code below.
+   area = ptrig.areaOf(latlon.list)
+This area is given in square meters. You may want to know whether one of the poles is enclosed by this polygon that you have constructed. You could find out with the following.
+   if ptrig.isPoleEnclosedBy(latlon_list):
+      print('There is a pole here')
+If there is no pole enclosed, you may be interested in finding the geometric mean of this polygon, instead. You could do so with the following line.
+   mean_point = ptrig.meanOf(latlon_list)
+All of these are also available within the Nvector version, as well. This version uses N-vectors to define points and do the calculations. These underlying calculations are much easier to do and understand, rather than the trigonometric versions. There are two additional methods available. The first takes two points and two bearings to calculate where they intersect, as shown below.
+   import pygeodesy.sphericalNvector as pnv
+   latlon1 = pnv.LatLon(0.0, 0.0)
+   latlon2 = pnv.LatLon(1.0, 1.0)
+   intersect = pnv.triangulate(latlon1, 10, latlon2, 20)
+The second method is named trilaterate. It takes three initial points, and a distance from each of them. It then returns the point that matches the given parameters.
+
+As you can see, there is plenty of capability if you have a need to create a field machine when doing geodesy research. There is lots of portable computing power that you can bring to bear.
+
+
+
+@ Boxout title (2-4 words)  -  7 words
+What if you need to do more?
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  456 words
+
+While there is already a lot of core functionality available within the PyGeodesy Python module, people doing research are always going to need to do something new. A lot of the underlying calculations are done using NumPy, in order to get appropriate speedups. You can tap into these underlying structures directly in order to add your own algorithms. You may have some complex calculation that gives you a NumPy array made up of sets of latitude and longitude points. For example, you might have a GPS unit feeding in data over a USB which is then massaged through some form of correction algorithm. You will likely want to make these calculations through NumPy. Once they are done, you can wrap them with a Numpy2LatLon class to hand them in to the PyGeodesy module. As an example, say you had a NumPy array that contains the bounding points of a polygon. You could calculate the area with the following code.
+   import pygeodesy.points as pp
+   import pygeodesy.sphericalNvector as psnv
+   area = psnv.areaOf(pp.Numpy2LatLon(point_array))
+You may need to run in the other direction, taking a list of LatLon objects and using them as if they were a list of latitude and longitude values. There is a wrapper class that gives you functionality to try and make this easier. The following example takes a list of points and counts how many time some given point appears in the list.
+   point_list = pp.LatLon2psxy(latlon_list)
+   count = point_list.count((x, y))
+In the above, x and y define a tuple. If the searched for point doesn't exist within the given list, the count method will throw an error. If you want to check first, you can use the find() method to locate the first instance of the xy point, or the findall() method to get a list of all of the instances in the list. The rfind() method will give you the last instance of the searched for point. Along with the ability to go back and forth between PyGeodesy LatLon objects and NumPy arrays, there are a number of helper functions that are available within the PyGeodesy module. For example, the following code gives you the dot product of three vectors.
+   dot_prod = pygeodesy.fdot3(a, b, c)
+You should have enough core utilities to be able to add in your own functionality when needed.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

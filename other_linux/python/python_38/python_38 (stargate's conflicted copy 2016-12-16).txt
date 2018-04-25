@@ -1,0 +1,51 @@
+@ Title (2-4 words)  -  5 words
+Travelling with a Raspberry Pi
+
+
+
+@ Standfirst (20 words approx)  -  16 words
+This month, we will look at how to use your Raspberry Pi as a mapping guide.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)
+
+In a previous article, we looked at how to connect a GPS to your Raspberry Pi and be able to find your current location on the planet from the GPS receiver. This month, we will look at how you can use this kind of location information to build your own mapping application, such as a navigation system. We will be making a few assumptions about what hardware is connected to your Raspberry Pi. The first is that you have some kind of GPS receiver attached, in order to give you your current location. Second, we will assume that you have some kind of display screen attached, so that you can have a graphical user interface available to draw maps on to. Lastly, we will assume that you have some kind of Internet access available to the Raspberry Pi. For example, you may decide to use your phone as a hotspot or you may use one of the wireless networking shields available for the Raspberry Pi. Assuming you have this hardware connected, we will look at what we can do with some Python code to visualize where we are in the world.
+
+The first step is to be sure that you have the correct Python modules installed. We will be using two main packages, googlemaps and webbrowser. You probably want the latest version of each, so you can use the command
+   sudo pip install googlemaps
+   sudo pip install webbrowser
+There are a number of dependencies also needed, that pip will install at the same time. The first module talks to the Google mapping API to be able to make data conversions, and to be able to make location-based queries. The second module is actually part of the standard Python library, and is used to talk to web browsers installed on your system. This implies that we will be using a web browser that needs to be installed on your Raspberry Pi. You can select any browser that you are comfortable using, such as Firefox or Google Chrome. This way, we can use the web API from Google to draw the actual map itself. In order to use any Google APIs, you need generated keys in order to authenticate yourself. You need to go to the web page 'https://developers.google.com/console', log in using a Google account and either select an existing project or create a new one. You can then select which APIs that this key will be valid for. The type of key you need to generate is called a server key, and will be used by the googlemaps module. You can now create a googlemaps client object which you can use to talk to the Google Maps server with the code below.
+   import googlemaps
+   gmap = googlemaps.Client(key='your key here')
+Now you can interact with the Google map services through the newly created googlemaps object. For example, you can query an address and get geographical information about it with the code below.
+   location1 = gmap.geocode('116 Tudor Ave, Charters Settlement, NB')
+This location information contains the complete address, including each political level such as municipality, county, province, country, etc. It also includes the lattitude and longitude of the location. This is handy if you have an address that you are trying to plot on your map, but we already have a GPS receiver attached to our Raspberry Pi that can give us the coordinates of the current location. You can actually do the reverse of this and find out what the nearest address is to your current location. You can use the method
+   addresses = gmap.reverse_geocode([45.836, -66.742])
+will get a list of all of the civic addresses near this location. There are several other methods available, some of which we will dig into a bit later.
+
+Now that we have some coordinates for our location, we need some way to visualize it. Google Maps provides a different API to access its map rendering functionality. These have all been designed around some kind of web browser used to actually render a visible display. The two APIs we will look at are a static one and a Javascript one. Both of these also require an API key in order to do the query. Since they are web-based interfaces, they take the form of a URL. This URL needs to be handed off to a browser to handle the map rendering. This is where we will use the webbrowser module, as in the example below.
+   import webbrowser
+   browser = webbrowser.get()
+   browser.open(url)
+The 'get()' method returns a controller object that opens the default browser on your system and allows you to interact with it through the controller. We then use the 'open()' method of the controller object to load the given URL into the newly created web browser. The URLs have the form
+   https://maps.googleapis.com/maps/api/staticmap?center=45.836,-66.742&zoom=14&size=400x400&key=YOUR_API_KEY
+The parameters included are the ones required by the API. The parameter 'center' can take either an address or a set of longitude and lattitude. The zoom level goes between 0 and 21. Level 0 allows you to see the entire world, and each increase in value zooms you in. The size parameter tells the web interface what size, in pixels, to render the map to. The last parameter is your API key that you authenticate with. There are several other parameters available to finetune the returned map. For example, the 'maptype' parameter controls the style of map that gets drawn. The default is a 'roadmap', but you could change it to 'satellite', 'terrain' or 'hybrid' to get a different type of map.
+
+In this article, we have covered enough of the basics that you could conceivably put together your own vehicle navigation system with a Raspberry Pi, a screen, a GPS receiver and an Internet connection. While we have only been able to cover the most basic elements, there is enough here to be able to build a really interesting and robust project. Just let your imagination roam.
+
+
+
+@ Boxout title (2-4 words)
+xxxx
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )
+xxxx
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

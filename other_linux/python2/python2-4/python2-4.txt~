@@ -1,0 +1,208 @@
+
+@ Title  -  7 words
+Ways of Speeding up your Jupyter Notebooks
+
+
+
+@ Standfirst  -  32 words
+The jupyter notebook provides a great interface to working on Python code. This month, learn how to use the tools available to squeeze every last bit of performance out of your code.
+
+
+
+@ Profile
+[Joey Bernard]
+
+Joey Bernard has written a column on scientific software, as well as a column on writing Python code for the Raspberry Pi. In his day job, he helps researchers and students at the university level in designing and running HPC projects on supercomputing clusters.
+
+
+
+@ Lead image
+
+Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+
+NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
+
+Total word count is 2,952 (roughly 16,940 char).
+
+
+@ Intro text  -  200 words
+As a prominent language in the open source community, Python has a number of options available when it comes to code development. These run from the earlier code editors, like idle, to very feature complete IDEs, like PyCharm. Many people actually fall somewhere in between these two extremes in terms of their coding needs. This is where jupyter notebooks have become a very popular option, falling between a simple editor and a full-fledged IDE. In many scientific disciplines, jupyter has become the defacto interface being used. But, how can you make the best use of jupyter and get the most out of it for your own code development?
+
+This issue, we will look at the tools available to find and diagnose bottlenecks in your code. Building on this, we will then look at the options available to speed up your code. Another part of speeding up your programming tasks, though, is speeding up your use of the tools. Programmer efficiency is an aspect that often gets overlooked. With this in mind, we will also look at some of the tools within jupyter that can help speed up the actual development of your code, hopefully making you even more efficient. 
+
+
+
+@ Body text  -  2756 words
+
+@ Heading 1  -  Installing Jupyter
+The first step is to be sure that you have the latest version of jupyter installed. Jupyter is under constant development, so there are always new tools available. You will need to have Python and pip installed. Assuming this, you can be sure you have the latest version of jupyter with the following command.
+/c/
+pip install --upgrade --user jupyter
+/c/
+This will install the latest version of jupyter and its dependencies into the user site library on your system.
+
+@ Heading 2  -  Starting Jupyter
+There are a lot of options available when you run jupyter. To get the most out of it, you may want to dig into the details. You can see all of the options available with the following command.
+/c/
+jupyter notebook --help-all | less
+/c/
+You will see several pages worth of options available that will give you control over almost every aspect of the jupyter server process. For the rest of this article, I will assume that you are running jupyter on the same machine that you are running your browser on. With this in mind, you can start jupyter with the following options.
+/c/
+jupyter notebook --no-browser
+/c/
+For the majority of cases, this will work fine. However, there are options that you can use to help fine tune the server if you find that you aren't getting the performance you need. For example, the option '--NotebookApp.iopub_data_rate_limit=<Float>' lets you set the maximum output stream data rate. There are also options that allow you to even change the class that is used to pickle objects in the backend. This level of tuning requires quite a bit of experimentation, however, in order to find the parameters that work best in your particular case. Once you have started jupyter up, you will be given a link in the console which includes a token. This token is one level of security to make it a bit harder for just anyone to connect to your jupyter server. You can copy and paste this URL into your browser to start using jupyter.
+
+@ Heading 3  -  Jupyter Shortcuts
+Now that jupyter is running, how can you make the best use of your time? The first shortcut to know is 'control+shift+p'. This shortcut pulls up the command palette, which includes all of the commands that are available within the jupyter notebook. This is a good place to start if you have an idea of what you want to do but don't remember the exact command relevent to that. Within the notebook, there is a command mode and an edit mode. To enter command mode, you enter the 'esc' key. Here, you can navigate your notebook with the arrow keys, as well as creating new cells, changing the cell type or deleting cells. From within edit mode, that you start by hitting the 'enter' key, you can interact with the code that you are writing. Typing 'shift+tab' will pop up a display with the docstring information for the last object you typed in the code cell. Repeating this keyboard shortcut will cycle through different displays of this documentation. You can split the code cell you are in with the shortcut 'control+shift+-', at the location of the cursor. Or, you can merge multiple cells back together again with the shortcut 'shift+m'.
+
+Along with these keyboard shortcuts, the jupyter notebook inherits the magic commands from the underlying IPython engine. These magic commands are powerful tools that allow you to develop your code even more efficiently. They are keywords that begin with a percent character. You can get a full listing of those available in your version of jupyter and IPython with the magic command '%lsmagic'. You will see that these magic commands are divided into two groups. Those that begin with a single '%' apply to a single line of Python, whereas those that begin with '%%' apply to an entire cell of Python code. We will be looking at several of these later in this article to help optimize code.
+
+@ Heading 4  -  Benchmarking
+As in all optimization tasks, the very first step needs to be some form of benchmarking. This is because humans are amazingly bad at deciding what parts of code actually need to be optimized. You should start by checking to see what objects exist within the current IPython session. The magic command '%who' gives you a list of everything that had been created. You can dive into the details of these objects by using the '%pinfo' magic command. This will pop up a new window with details about the size and type of the object in question.
+
+More on point are the magic commands around timing how long your code takes. This really is the focus of most people when we talk about optimizing code. You can use the '%time' and '%timeit' commands to time how long it takes to execute a single line of Python code. The first command gives you a very basic display of the time used, whereas '%timeit' gives you control over things like how many times to repeat the code. For example, timing the savage benchmark on my system gives the following result.
+/c/
+from math import *
+%timeit tan(atan(exp(log(sqrt(1*1)))))
+/c/
+/o/
+1.26 µs ± 3.45 ns per loop (mean ± std. dev. of 7 runs, 1000000 loops each)
+/o/
+This is pretty rare in everday usage, however. More likely, you will have a whole chunk of code that needs to be timed. In these cases, the code in question should be placed in a single cell. You can then use the '%%timeit' magic command to get an idea of how the entire chunk of code behaves.
+
+While this may be fine to get a broad idea of the time being spent in some piece of code, you may need to break this down even further. Luckily, there is a profiler available through the magic command '%prun'. Wrapping the above savage benchmark within a function definition, the following command looks at what are the most expensive parts.
+/c/
+%prun my_func(100)
+/c/
+This command returns a breakdown of howmuch time was spent in each section of the given function. The first few lines of this example looks like the following.
+/o/
+      504 function calls in 0.004 seconds
+
+Ordered by: internal time
+
+ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     1    0.001    0.001    0.004    0.004 <ipython-input-4-445fb1076d4c>:1(my_func)
+   100    0.001    0.000    0.001    0.000 {built-in method math.tan}
+   100    0.001    0.000    0.001    0.000 {built-in method math.atan}
+/o/
+If you need even more detail, you can install the line profiler module and use that in your jupyter notebook.
+
+Sometimes, though, the problem you are trying to solve is running out of memory when your code runs. To help with this, there is the memory profiler module that you can load and use in your notebook. If you don't already have it installed, you can install it directly from your notebook with the command below.
+/c/
+! pip install --user memory_profiler
+/c/
+Once it is installed, you can load it with the magic command
+/c/
+%load_ext memory_profiler
+/c/
+You can then run it on your code with the command
+/c/
+%mprun -f large_mem_func()
+/c/
+This command traces through the given function and tracks how much memory is being used after each line is executed. The output looks like the following.
+/o/
+Line #    Mem usage    Increment   Line Contents
+================================================
+     3     20.6 MiB      0.0 MiB   def append_if_not_exists(arr, x):
+/o/
+This way, you can identify which lines are the ones that are causing the largest increments and see what you can do to better handle memory usage.
+
+@ Heading 5  -  Being More Pythonic
+Now that you know what code needs to be worked on, what are the first things you should look at? Unless you learned Python as your first language, from someone who is already a great Pythonista, you will have some inherited thought processes and techniques from other languages that are not appropriate to use in Python. This includes myself, so please do not take anything I suggest without making sure it makes sense in your case. In this section, we will look at some areas where you get some benefit from making your code more Pythonic.
+
+For the first example, you may need to create some initial dataset as part of calculation. In many physiscs problems, you may need to create an initial list of zeroes as your starting point. If you come with some bagage from other languages, you may think the following is a good way to go.
+/c/
+a = []
+for i in range(10000):
+    a.append(0)
+/c/
+This certainly appears fine at first blush. But a more Pythonic way of achieving the same result is with the code below.
+/c/
+a = [0] * 10000
+/c/
+Not only is this shorter and clearer, but timing it with the '%timeit' magic command also shows that it is over 10 times faster.
+
+A second example would be concatenating strings together to make a larger string object. Assuming that you have a large list of letters, you could contenate them with the code below.
+/c/
+s = ''
+for lett in letters:
+    s += lett
+/c/
+Again, looking at the way Python interprets the concatenation operation, this is actually fairly expensive. The code below is again shorter and faster.
+/c/
+s = ''.join(letters)
+/c/
+Running '%timeit' shows that the second version is 5-6 times faster.
+
+The last example is searching to see if some value exists within a collection. If you have a list, you can search it with
+/c/
+'p' in letters
+/c/
+You could convert the list to a set and do the same thing.
+/c/
+letter_set = set(letters)
+'p' in letter_set
+/c/
+The version using the set is about 5 times faster than the list version. This is because of the underlying data types of the two options. In the list example, Python needs to actually do a comparison for each value in the list. Whereas, with the set, a hash is created and that is compared. This second method is much faster.
+
+@ Heading 6  -  Using Numpy
+While you should write your code in as Pythonic a way as possible, sometimes this is still just too slow. An artifact of having everything existing as an object, with polymorphic functions and operators, Python spends a lot of overhead time in checking objects to see what version of a function or operator to use. For repetetive tasks, this can eat up a large chunk of your time. If your code runs into this type of issue, the solution is to actually remove it completely by getting rid of some of the features of the Python language. This is what happens with the numpy module. If it isn't already installed, you will want to install the numpy module with the command below.
+/c/
+pip install --user numpy
+/c/
+You can then import it and use it. A simple example is scaling a vector of numbers. Without numpy, you may use something like the following.
+/c/
+a = range(10000000)
+r = []
+for i in a:
+    r.append(a[i]*2)
+/c/
+Using numpy simplifies this to the following.
+/c/
+b = numpy.arange(10000000)
+s = b*2
+/c/
+Again, not only is the numpy version much shorter and clearer, but it is 5-10 times faster than the pure Python version. In Python, a list could contain any data type. This means that the Python interpreter needs to check every element to be sure that the operation being applied is allowed. When you move to numpy, arrays are like lists that are only allowed to contain elements of a single data type. This way, Python only needs to check whether an operation is allowed just once. This saves a lot of overhead. Also, several complicated functions are moved out to external C libraries. This way, functions like inverting matrices or solving systems of equations can be processed by highly tuned C code.
+
+If you have some other function that needs to be applied to a series of data elements, you can use the map function to get a speedup. For example, you can calculate the tangent of an entire list of numbers with the following code.
+/c/
+result = map(tan, a)
+/c/
+This, again, is quite a bit faster than trying to do the same thing by iterating over the list.
+
+@ Heading 7  -  Where to Now?
+As you can see, the reputation that Python has of being slow is often undeserved. Many times, this is because Python is not being used in a Pythonic way. Writing your code so that it uses the best idioms for Python almost always improves the speed by quite a bit. And even when this doesn't give you enough of a speedup, you can use extra modules, like numpy, to by-pass features in Python that are too costly. But this article is only a starting point at just how much work you can get done within jupyter notebooks.
+
+
+
+@ Supporting images
+@ Image1
+@ Image2
+@ Image3
+
+@ Captions
+Images need captions, which need to be around 15 words each.
+
+
+
+@ 2x boxouts
+@ Boxout1  -  73 words
+If you need even more speed, you can use cython from within your jupyter notebook. Assuming it is installed, you can load it with the command
+/c/
+%load_ext cython
+/c/
+You then get new magic commands, '%%cython', '%%cython_inline' and '%%cython_pyximport' to help speedup your notebooks.
+
+@ Boxout2  -  58 words
+Sometimes you may need to move outside of Python. Jupyter is designed to be able to use multiple kernels in the backend. The IPython kernel is simply the default. You can also use an R kernel, or a Julia kernel, instead. This way, you can use modules and libraries from these other languages to get your work done.
+
+
+
+@ 2x Pullquotes
+@ Pullquote1
+These magic commands are powerful tools that allow you to develop your code even more efficiently.
+
+@ Pullquote2
+While you should write your code in as Pythonic a way as possible, sometimes this is still just too slow.
+
+[IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]

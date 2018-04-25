@@ -1,0 +1,97 @@
+
+@ Title (2-4 words)  -  5 words
+Setting up a family calendar
+
+
+
+@ Standfirst (20 words approx)  -  31 words
+With everyone's family being so busy these days, this month we will look at using a Raspberry Pi to display the calendar of events to keep everyone in your family organized.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9262 characters
+
+For many people today, a major issue is keeping their time organized and keeping track of scheduled events. This gets compounded exponentially for every additional person that you need to keep track of. That includes children. This month, we will look at how you can use a Raspberry Pi to display a family calendar and help you keep track of all of the events happening in the lives of your family members. Like the previous articles in this series, we will be focusing on the code you will need to get your calendar information. As for the actual physical display, there are many options you could choose. These include small HDMI displays or small screens that plug directly into the GPIO pins. Your choice of display should be made based on where you want to mount the finished project. We will also be assuming that the calendars that we will be displaying from are Google calendars. If you want to use iCal, or some other format, much of the concepts will be reusable but you will need to research the libraries for the specific calendar formats. Since we are going to be using online calendars, you will want to add some kind of network connectivity, such as a WiFi dongle, so that you can pull the data for the display.
+
+Luckily, Google has a full Python library available that provides access to the API used to talk to the Google calendar system. This means that you should have access to all of the features available within the API. The first step will be installing the Python client with the command
+   sudo pip install google-api-python-client
+Google has been doing a lot of work tightening up the security of their APIs. Because of this, you need to go to Google and enable the API before you can use it. There is a wizard at
+   https://console.developers.google.com/start/api?id=calendar
+that will walk you through the creation of a new project and the enabling of the API. You will then get a link to get the credentials for this project. The page you get when you first click the credentials button is a wizard where you can create a new credential. This is not what you need, however. In this case, you should click the cancel button at the bottom of the page and then click on the OAuth consent screen tab at the top of the screen to get setup. You can now set an email address and a product name and hit save. You can now create a new OAuth client ID credential, setting the application type to other. You also need to set a client name at this stage. Closing the resulting dialog box, you can download a JSON version of the client secret that will be used later on to authenticate with. You will likely want to rename the file to something easy to work with, like 'client_secret.json'. This JSON file contains details for authentication, including your client ID and a secret key. You need to keep this information secure.
+
+Now that all of the initial setup has been taken care of, we can start to look at how to talk to the calendar server. Within the main googleapiclient module, there is a subsection called discovery that lets you start the communication with the API of interest. Within the discovery section, the starting point is a method called build. The code below gives a boilerplate of opening communications with the Google calendar API.
+   import httplib2
+   from apiclient.discovery import build
+   from oauth2client import tools
+   from oauth2client.file import Storage
+   from oauth2client.client import AccessTokenRefreshError
+   from oauth2client.client import OAuth2WebServerFlow
+
+   client_id = 'client ID string'
+   client_secret = 'client secret string'
+   scope = 'https://www.googleapis.com/auth/calendar'
+   flow = OAuth2WebServerFlow(client_id, client_secret, scope)
+   storage = Storage('credentials.dat')
+   credentials = storage.get()
+   if credentials is None or credentials.invalid:
+       credentials = tools.run_flow(flow, storage, tools.argparser.parse_args())
+   http = httplib2.Http()
+   http = credentials.authorize(http)
+   service = build('calendar', 'v3', http=http)
+This should give you a service object that you can use to query the calendar server to collect the details you need for your display. There is a lot of work contained in this code. The section where you create a storage object and get the credentials out of them is of particular note. The first time you do the check to see if you have valid credentials, it will fail and want to get a valid set of credentials. This is done by firing up a browser in order for you to go to Google calendar to allow the access. This means you will need to either have a GUI running on your Raspberry Pi this first time, or be using X11 forwarding if you are using SSH to connect to the Raspberry Pi.
+
+So, now that we have an authenticated connection to the calendar server, we can start to work with them and pull out the data that we need for the display. I am assuming that you will have multiple calendars, used to help organize your family. If this is the case, the first step is to pull out a list of the available calendars for this account. You can do that by using the 'calendarList()' method. A full list is available with
+   cal_list = service.calendarList().list().execute()
+The returned data is a structured data set. You can get the entries for the individual calendars by using the keyword 'items'. The individual calendars have lots of information contained within them, such as a unique ID, a description and a summary, among much more information. You could get a print out of all of the summaries with the code below.
+   for cal_item in cal_list['items']:
+      print(cal_item['summary'])
+With a list of the available calendar IDs, you can start building up your list of the actual events that are going to populate your family calendar display. Each of these events has a full dictionary of details, similar to the information available for the calendars. As quick example, you can grab the summaries for all of the events for the primary calendar with the code below.
+   event_list = service.events().list(calendarId='primary').execute()
+   for event_item in event_list['items']:
+      print(event_item['summary'])
+Using these examples, we could print off the summary, start time and date with
+   for event_item in event_list['items']:
+      print(event_item['summary'] + ' ' + event_item['start']['dateTime'])
+The format that the dateTime property gets printed in is along the lines of '2007-03-30T14:30:00-03:00'. So, you get the date, then a 'T', then the time in 24 hour format and then the timezone for the event. There is also an equivalent entry for the end of an event. This all works great, as long as a 'dateTime' property has been set for the given event. But, you may have all day events, so you will need to do some error checking when you start pulling this data out. If you entered a location for the event, that is stored in the 'location' property of the event that you can access in the same way that you pull out the summary. This is just the free-form text that you entered when you initially created the event.
+
+Some of the more important event details that you might be interested in includes the list of attendees and a list of any included attachments. Both of these are lists of structured data. For each event, you could loop through and pull out the name of each attendee with the following code.
+   for attendee in event_item['attendees']:
+      print(attendee['displayName'])
+Items like the 'displayName' are optional, so you will want to be sure that you actually get a string back before trying to do anything with it. In a similar way, you could loop through attached files to a given event.
+   for attachment in event_items['attachments']:
+      # Do something interesting
+This is a bit more messy if you wanted to pull any extra detail from the attachments. To begin with, you will likely want to look at the 'title' and the 'mimeType' properties to see if there is anything useful that you can do with it within your family calendar display. If there is, the attachment will show up in one of two ways. If it is stored in Google Drive, there will be a 'fileID' property that you can use within the Google Drive API to pull the file information down. If it is a file located somewhere else, there will be a 'fileUrl' property that you can use to pull the file down from.      
+
+We were only able to cover the most essential parts of being able to query your Google calendars in order to pull out information for your family calendar display. But hopefully, you can see the possibilities of how you can use all of this information to keep you and your family well organized. There are also APIs for all of the other Google products that are accessed in a similar way, so you could take the code above as a jumping off point to pull in even more data from your online presence. If you were granted access, you could even pull in data from other people's calendars, so you can even keep synchronized with what the grandparents might be up to.
+
+
+
+@ Boxout title (2-4 words)  -  4 words
+Can you do updates?
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2269 characters
+
+While the main part of the article is about querying Google calendar to pull event details to populate a family calendar display, there is nothing stopping you from working in the other direction and updating the remote calendar based on what happens at the monitor. This way, you can keep yourself synchronized with is happening back home. The first thing you might want to be able to do is to add a new event to a calendar. While there is an 'insert' method, it is probably overkill for such a simple application. For your family calendar, you probably just want to use the 'quickAdd' method.
+   new_event = service.events().quickAdd(
+       calendarId='primary',
+       text='Meeting at library on August 28 2:00PM").execute()
+Let's say that you need to actually update an existing event. As an example let's say you got the time wrong on the above newly created event. You could change it with
+   new_event['start']['time'] = '3:00PM'
+   updated_event = service.events().update(calendarId='primary', eventId=new_event['id'], body=new_event).execute()
+You can do this update with any event that you can look up the event ID for, in any calendar that you have access to. The last simple operation you may want to do is to delete an existing event. You can do this with
+   service.events().delete(calendarId='primary', eventId='eventId').execute()
+You may want to be careful with this particular function, since your offspring may decide to quietly delete that upcoming dentist's appointment that they are less than thrilled in attending. You may need to reorganize these events after the fact. If so, you can move an event from one calendar to another with code like
+   updated_event = service.events().move(calendarId='primary', eventId='eventId', destination='destCalId')
+If your family calendar allows for some kind of interaction, say by using a touch screen attached to your Raspberry Pi, you can now allow for updates to propagate back out to the Internet. This way, you will know immediately on your phone that a play date has been added for your child back at home.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

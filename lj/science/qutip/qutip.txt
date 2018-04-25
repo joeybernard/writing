@@ -1,0 +1,75 @@
+Taking Python to the Next Level
+
+
+
+With the reincarnation of Linux Journal, I thought I would take this article through a quantum leap (pun intended) and look at quantum computing. As was true with the beginning of parallel programming, the next hurdle in quantum computing is developing algorithms that can do useful work while harnessing the full potential of this new hardware. Unfortunately, most people don't have a handy quantum computer lying around that they can develop code on. For the vast majority of us, we will need to develop ideas and algorithms on simulated systems. That is fine for such fundamental algorithm design. This month, we will look at one of the Python modules available to simulate quantum systems. Specifically, we will be looking at QuTiP. In such a short article, we will not be able to cover much in the theory of quantum computing. Instead, we will focus on the mechanics of how to use the code.
+
+The first step is to install the QuTiP module. On most machines, you will be able to install it with the following command:
+   sudo pip install qutip
+This should work fine for most people. If you have the need for some feature that is the latest and greatest available, you can always install QuTiP from source by going to the homepage (http://qutip.org/index.html). Once it is installed, you can verify that everything worked by starting up a Python instance and entering the following Python commands.
+   >> from qutip import *
+   >> about()
+You should see details about the version numbers and installation paths.
+
+The first step is to create a qubit. This is the simplest unit of data to be used for quantum calculations. The following code will generate a qubit for 2 level quantum systems.
+   >> q1 = basis(2,0)
+   >> q1
+      Quantum object: dims = [[2], [1]], shape = (2, 1), type = ket
+      Qobj data =
+      [[ 1.]
+       [ 0.]]
+By itself, this object doesn't give you much. The simulation kicks in when you start applying operators to such an object. For example, you can apply the sigma plus operator (which is equivalent to the raising operator for quantum states). You can do this with one of the operator functions:
+   >> q2 = sigmap * q1
+   >> q2
+      Quantum object: dims = [[2], [1]], shape = (2, 1), type = ket
+      Qobj data =
+      [[ 0.]
+       [ 0.]]
+As you can see, we get the zero vector as a result from the application of this operator.
+
+You can combine multiple qubits into a tensor object. The following code shows how this can work.
+   >> from qutip import *
+   >> from scipy import *
+   >> q1 = basis(2, 0)
+   >> q2 = basis(2,0)
+   >> print q1
+      Quantum object: dims = [[2], [1]], shape = [2, 1], type = ket
+      Qobj data =
+      [[ 1.]
+       [ 0.]]
+   >> print q2
+      Quantum object: dims = [[2], [1]], shape = [2, 1], type = ket
+      Qobj data =
+      [[ 1.]
+       [ 0.]]
+   >> print tensor(q1,q2)
+      Quantum object: dims = [[2, 2], [1, 1]], shape = [4, 1], type = ket
+      Qobj data =
+      [[ 1.]
+       [ 0.]
+       [ 0.]
+       [ 0.]]
+This will couple them together and they will be treated as a single object by operators. This lets you start to build up systems of multiple qubits and more complicated algorithms.
+
+There are more general objects and operators available when you start to get to even more complicated algorithms. The basic quantum object can be created with the following constructor.
+   >> q = Qobj([[1], [0]])
+   >> q
+      Quantum object: dims = [[2], [1]], shape = [2, 1], type = ket
+      Qobj data =
+      [[1.0]
+       [0.0]]
+These objects have several visible properties, such as the shape and number of dimensions, along with the actual data stored in the object. You can use these quantum objects in regular arithmetic operations, just like any other Python objects. For example, if you have two Pauli operators, sz and sy, you could create a Hamiltonian as below.
+   >> H = 1.0 * sz + 0.1 * sy
+You can then apply operations to this compound object. You can get the trace with the following.
+   >> H.tr()
+In this particular case, you can find the eigen energies for the given Hamiltonian with the method 'eigenenergies()'.
+   >> H.eigenenergies()
+There are also several helper objects to create these quantum objects for you. The basis constructor used earlier is one of these helpers. There are also other helpers, such as 'fock()' and 'coherent()'.
+
+Because you will be dealing with states that are so far outside of our usual day-to-day experiences, it may be difficult to reason what is happening within any particular algorithm. Because of this, QuTiP includes a very complete visualization library to help see, literally, what is happening within your code. In order to initialize the graphics libraries, you will likely want to stick the following code at the top of your program.
+   >> import matplotlib.pyplot as plt
+   >> import numpy as np
+   >> from qutip import *
+From here, you can use the 'sphereplot()' function to generate three dimensional spherical plots of orbitals. The 'plot_energy_levels()' function takes a given quantum object and calculates the associated energies for the object.  Along with the energies, you can plot the expectation values for a given system with the function 'plot_expectation_values()'.
+
+We have been able to cover only the barest tip of the proverbial iceberg when it comes to using QuTiP. There is functionality that allows you to model entire quantum systems and see them evolving over time. Hopefully this short article has been able to highlight one tool available to you if you decide to embark on research in quantum systems and computation.

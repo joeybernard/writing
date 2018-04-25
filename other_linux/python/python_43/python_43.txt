@@ -1,0 +1,89 @@
+
+@ Title (2-4 words)  -  7 words
+Monitor Your Car with a Raspberry Pi
+
+
+
+@ Standfirst (20 words approx)  -  21 words
+With just a few extra items, you can use your Raspberry Pi to build a very sophisticated monitor for your automobile.
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1657 words
+
+Many people have developed projects where Raspberry Pis are used as the core of house monitoring systems. There is no reason that you can't go mobile with this basic idea, and create a monitoring system for your automobile. This month, we will look at how you can build such a monitor and keep track of what your car and its engine is doing. The reason this is possible is because of the On Board Diagnostics (OBD-II) protocol. Essentially, every modern vehicle has an OBD port where you can connect a device and interact with the control computers within your vehicle's engine. In most cases, you will need a dongle to act as an interface between the vehicle and some type of computer. The dongles available today can usually be connected to through either a USB cable or a Bluetooth wireless connection. For this project, you could use either connection type. If you do choose to use the Bluetooth dongles, however, do not forget to install the Bluetooth stack for your Raspberry Pi. For example, under Raspbian, you can do this with the following command.
+   sudo apt-get install bluetooth bluez bluez-utils blueman
+Along with the software, you will need to have a Bluetooth dongle plugged into one of the USB ports on your Raspberry Pi. If you have a Raspberry Pi 3, however, there is a Bluetooth radio builtin on the board itself. You will also want some kind of display available to show what is happening inside your vehicle's engine. This is where your creativity can really shine. You can either choose one of the purpose built screens, which plug into the display connector on the Raspberry Pi board. Or, you can select another display type that can connect over HDMI. You also will have to come up with some mechanism to mount this display within the confines of your particular vehicle.
+
+Once you have the physical elements connected together, it is time to start getting your code talking to your vehicle so that you have data to display. The first step is to install the OBD Python module. It currently isn't in the package list for Raspbian, so you will need the following command to install it using pip.
+   sudo pip install obd
+This module is designed to work the the standard ELM327 family of OBD adapters. Also, the OBD module is sub-1.0.0 in version number, so it is subject to changes. You should keep an eye on the change logs for updates to see if any changes will affect the features that you are using. There is a full documentation site available, located at http://python-obd.readthedocs.io/en/latest/. Communications with the OBD interface happens with a core object, named OBD. Interacting with your vehicle's engine involves a query and response system. A "Hello World" type of program would look like the following.
+   import obd
+   my_car = obd.OBD()
+   cmd = obd.commands.SPEED
+   response = my_car.query(cmd)
+   print(response.value)
+The call to "OBD()" instantiates a new connection object to your vehicle over either USB or Bluetooth. You can then select one of the query commands included with the OBD Python module. You then send this command to your vehicle with the "query()" method and get the response back as an object. You can then read off various parameters, such as the value in this case. There are also helper methods within the response object. For example, the following code prints out the current speed in miles per hour.
+   print(response.value.to("mph"))
+The initialization scans all devices connected to your Raspberry Pi and tries to bind to the first one it finds that appears to be an OBD interface. But, you could have multiple devices connected, or you may have a less standard interface that you are trying to use. In these cases, you can more explicitly control the connection. You can explicitly set the port, the baud rate and the protocol for your connection. For example, you could connect to an OBD dingle on USB with the command below.
+   conn = obd.OBD('/dev/ttyUSB0', 9600)
+If you have multiple OBD devices connected to your Raspberry Pi, you can get a list of them, and then connect to a given one, with the following code.
+   obd_devices = obd.scan_serial()
+   print(obd_devices)
+   curr_conn = obd.OBD(obd_devices[0])
+If you need to verify the connection to your vehicle before interacting with it, you can use the method 'is_connected()' to get a true or false for the connection.
+
+There is a rather large list of possible commands that you can use in the 'query()' method. They are available in the table 'commands', as part of the obd Python module. If you already know the name, you can either use it as a property of the 'commands' table, or you can explicitly refer to it by using list syntax. For example, you could refer to the RPM value of your engine with either of the following lines of code.
+   rpm1 = obd.commands.RPM
+   rpm2 = obd.commands['RPM']
+The 'query()' method returns an OBDResponse object with the details gathered from your vehicle. These response objects have 4 properties. The value property contains a decoded value from the vehicle's response. The command property contains the query command that was initially sent to the vehicle. The message property contains a Message object, which holds the raw response from the vehicle's system. The last property is named time, which contains a time-stamp of when the response was received. One thing to be aware of is that if the query fails to get a response from the vehicle, the obd module will return an empty response object. You can check for this by using the response object's 'is_null()' method. For most cases, the returned value in the response object is a simple value. However, there is a special query command that returns a much more complicated response; namely, the status query command. In this case, you get a response object whose value contains a large amount of information that you can use right away. For example, you can find out whether the check engine light is lit with the following code.
+   if response.value.MIL:
+      print("Houston, we have a problem.")
+Along with these, there is also a long list of tests that are run by your vehicle, the results of which can be seen within this response object. There are two Boolean properties for each test: 'available' tells you whether this test is available on your vehicle, and 'completed' tells you whether the test finished. So, for example, the following code looks at the oxygen sensor monitoring system.
+   if response.value.OXYGEN_SENSOR_MONITORING.available:
+      if response.value.OXYGEN_SENSOR_MONITORING.completed:
+         print("Oxygen sensor test completed")
+Another special query and response involves looking at diagnostic trouble codes (DTCs). These are the codes that get set when you have an issue that turns on the check engine light on your vehicle. As a first step, the following code will give you the count of how many DTCs were set.
+   response = my_car.query(obd.commands.GET_DTC)
+   print("There are " + len(response.value) + " trouble codes set")
+The actual returned values are tuples, containing the actual error code, and a text description of the error code if it is one that the obd Python module understands.
+
+The one major problem, so far, is that the query method is a blocking function. This means that your program will be paused and have to wait until it returns before it can do anything else. This is not very user-friendly when trying to build a user interface to display all of this monitoring data. In these cases, you will be better served by using the asynchronous connection object instead. This new object uses a background thread to continually monitor the OBD connection and update the relevant values within the connection object. This means that any queries are returned immediately, since you don't need to go out and ask the engine. The following code keeps track of the engine's RPM value.
+   my_obd = obd.Async()
+   my_obd.watch(obd.commands.RPM)
+   my_obd.start()
+   print(my_obd.query(obd.commands.RPM)
+When you are done, you can call the 'stop()' method to stop watching the RPM value. Now you can have your own fancy car monitoring system mounted to your dash.
+
+
+
+@ Boxout title (2-4 words)  -  5 words
+Take a shortcut with PyOBD
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  455 words
+
+If you don't already have a GUI of your own that you want to add OBD functionality to, you can use the PyOBD project to interact with your vehicle immediately. The main site for the project is located at https://github.com/Pbartek/pyobd-pi, which you can get the code from. You can either download a tarball from the site, or use git to clone the repository on your Raspberry Pi. You will also need to use the following commands to install the extra dependencies.
+   sudo apt-get install python-serial
+   sudo apt-get install python-wxgtk2.8 python-wxtools wx2.8-i18n libwxgtk2.8-dev
+Once you have the repository cloned, or the tarball unpacked, you can move into the code directory and start up the GUI program with the commands below.
+   cd pyobd-pi
+   sudo su
+   python obd_gui.py
+This pops up a GUI where you can interact with the OBD interface connecting your Raspberry Pi to your vehicle. You need to do this as root so that you have the correct permissions to work with the OBD interface. Also, since this is a GUI program, you will need to run this under X11. It will be up to you as to what desktop environment you are most comfortable using. There are tabs for each of the sections that OBD can manage. The first tab gives the current status of the connection to the OBD interface, and hence your vehicle. The second tab gives you the results from the vehicle's self-tests. The third tab reports on the current values of the various sensors available for your particular vehicle. The fourth tab reports on any DTCs that were set. You can also clear them from this tab, assuming that you have fixed the underlying issues that tripped those error codes. The last tab displays a trace of the communications between your Raspberry Pi and the vehicle that it is attached to.
+
+This project also includes a logger that can simply record all of the available values from the OBD interface. You can start it with the following command.
+   python obd_recorder.py
+The data is stored in the directory "$HOME/pyodb-pi/log/". It will actually query the OBD interface and see what sensors are available, and then log the related values as quickly as they can be queried.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

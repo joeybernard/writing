@@ -1,0 +1,230 @@
+@ Title
+
+TensorFlow
+
+
+
+@ Standfirst (20 words) - 15 words
+
+With TensorFlow, you can add leading edge machine intelligence to your own software development projects.
+
+
+
+@ Intro (633 words)
+
+Google has invested a large amount of developer time and effort into the capabilities of machine learning. This work has been applied to many of the artificially intelligent applications available from Google. One of the tools developed by the Brain Team to do this work is TensorFlow. TensorFlow was originally designed to be used for machine learning and neural network applications, but they wrote it in a general enough way that has allowed it to be borrowed for many other machine intelligence applications. TensorFlow has been written as a set of API layers, available as Python modules. The lowest level API available is called the TensorFlow Core. All of the other APIs are built on top of this layer and make common programming tasks easier, while the TensorFlow Core layer provides the maximum amount of control to all of the available functionality. The tensor part of TensorFlow describes the basic data structure used, the tensor. In this instance, a tensor is defined as an array of arrays of any dimension. The rank of an array is the number of dimensions, whereas the shape is a list defining the sizes of each of the dimensions. The flow part of TensorFlow is the computational part. TensorFlow uses a computational graph where the nodes are computational steps. There are a number of different node types that can be used for various types computations. You can create very complex computational graphs that can apply convoluted processes to flows of data.
+
+Nodes, in general, accept 0 or more tensors and output 1 tensor. The most basic type of node is a constant node, which accepts nothing and returns a single tensor. You can create a couple of constant nodes with the code below.
+   import tensorflow as tf
+   node_a = tf.constant(6)
+   node_b = tf.constant(7)
+To do calculations with TensorFlow, you need two steps. The first is creating a graph, which we have done above. The second step is to run the graph and do the required processing. This is handled by a structure called a session. The code below runs the above graph as a very basic session.
+   session_a = tf.Session()
+   print(session_a.run([node_a, node_b]))
+Constant nodes return their contents, so when you run this session you get the values 6 and 7 printed out. This is not very useful by itself. You are likely to want to apply operations to these tensors and do something useful with them. These operations are defined as nodes, too. There are a large number of built-in operations available. As an example, you can find the answer to life, the universe and everything with the following code.
+   node_ans = tf.multiply(node_a, Node_b)
+   print(session_a.run(node_ans))
+This will print out the ultimate answer, 42. These nodes can be chained together in very complex collections in order to complete very complicated processes, such as training a neural network. This is why TensorFlow has become the defacto standard toolkit for machine learning applications.
+
+
+
+@ Tip1 (30 words) - 41 words
+
+Constants in TensorFlow have a data type assigned to them. Many of the operations expect to be applied to values of particular data types, so you will need to keep in mind whether the data types you are using are appropriate.
+
+
+
+@ Tip2 (30 words) - 34 words
+
+Depending on where you are trying to install TensorFlow, you may not have the ability to do a normal install. In these cases, there are Docker images available that should contain everything you need.
+
+
+
+@ Body1 (1003 words) - 1018 words
+
+Constant nodes are not very interesting, however. You probably want to be able to apply some common operation to different sets of values. One way you can manage this is by using placeholder objects which act as promises to set specific values later. For example, you can build an adder with the following code.
+   num1 = tf.placeholder(tf.float32)
+   num2 = tf.placeholder(tf.float32)
+   number_adder = tf.add(num1, num2)
+You need to set a specific data type for each placeholder. Now, you can set specific values when you run a session. As an example, you can add two numbers with the following line.
+   print(session_a.run(number_adder, {num1=1.2, num2=2.3}))
+This code prints out the total answer, 3.5. As you can see, values can be assigned through the use of a dictionary.
+
+This isn't the only way to handle repeatability. There is a Variable object which behaves a bit like a constant node. The major difference is that the variable node can be changed after it is defined. When you do create a new variable, you need to give it an initial value and a data type. As an example, you can define an area variable with the following code.
+   my_area = tf.Variable([10.1], dtype=tf.float32)
+Variables aren't populated until they are initialized, however. This is handled by using a special method within TensorFlow. If you assign the method to a variable name, you can pass it in to the run method, as in the following example.
+   init = tf.global_variables_initializer()
+   session_a.run(init)
+If you need to change these variable objects later, there is a method called 'assign' that can be used to change the stored values. When you need to pull them out and use them, you can use the 'get_variable()' method.
+
+Most people will be more interested in using the higher level objects and methods rather than the low level core functions. The first one you will likely run into is the estimator. Estimators manage the four following actions:
+   - training
+   - evaluation
+   - prediction
+   - export for serving
+Estimators are very useful shortcuts when doing machine learning programming. You can use either one of the pre-made estimators, or you can use the building blocks to create your own custom estimators. Estimators wrap a lot of the messy stuff around building and training models. You don't need to worry about sessions and explicit graphs anymore. You can build your model and have the estimator train it and evaluate it. You will need to write functions to import your original data. These input functions need to be written to return two objects. The first is a dictionary where the keys are column names and the values are tensors containing the data. The second item is a tensor containing one or more labels. For each of the columns of input data, you will need to create a feature column. The following line shows how you could create a column of height values.
+   height = tf.feature_column.numeric_column('height')
+You can add processing functions as an extra parameter when you create a new feature column. These functions can do things like apply a normalizing function to the incoming data. Once you have all of your columns prepared, you can create a new instance of one of the pre-made estimators. The following code is an example of creating a linear classifier.
+   estimator = tf.estimator.LinearClassifier(feature_columns=[height],)
+You can now train your new estimator by using the 'train()' method and handing in the input function you created earlier, along with how many steps to use in the training. You can use all of the programmer time that has gone into writing these estimators to your advantage. They have been written to use best practices in deciding how to run the estimator, whether to span across multiple machines or to use GPUs.
+
+Many of the functions and objects that we have looked at so far have automatically run in a multi-threaded form when possible. There will be times when you want to have more control over threading. In those cases, TensorFlow includes a Queue object that you can use to explicitly control how nodes can be executed in parallel. There are several built in queues available, for example, a random shuffling queue. The example below shows what it looks like.
+   queue = tf.RandomShuffleQueue(capacity=cap,
+      min_after_dequeue=int(0.9*cap), shapes=source.shape, dtypes=source.dtype)
+where 'source' is an input data object being processed. You then need to create an operator to enqueue one object at a time.
+   enqueue = queue.enqueue(source)
+With this, you can create a queue runner object that will spin up the threads and feed it the code from the queue.
+   num_threads = 4
+   queue_runner = tf.train.QueueRunner(queue, [enqueue] * num_threads)
+
+
+
+@ Pull1 (17 words) - 24 words
+Estimators wrap a lot of the messy stuff around building and training models. You don't need to worry about sessions and explicit graphs anymore.
+
+
+
+@ Howto1 (4 steps - 68 words/step)
+Installation of TensorFlow
+
+@ Step1 - 69 words
+The recommended first step is to create a virtual environment where you can install TensorFlow without complications from other Python modules. This is done with the command
+   virtualenv --system-site-packages ~/tensorflow
+If you want to use Python 3.X, you will want to add the option '-p python3'.
+
+@ Step2 - 77 words
+Next, activate the new virtual environment with the command
+   source ~/tensorflow/bin/activate
+You should see your command line prompt changed with the name of the virtual environment as a prefix. Your path environment variable should now be set so that you will use the Python executable and other utilities which are stored in the 'bin' directory.
+
+@ Step3 - 62 words
+In order to install TensorFlow, you need to have a very recent version of pip. You can be sure you have the latest version by using the command
+   easy_install -U pip
+Executing any pip commands will now use this latest version.   
+
+@ Step4 - 61 words
+You can now install TensorFlow. The basic installation is done with the command
+   pip install --upgrade tensorflow
+This installs the CPU only version of TensorFlow. If you want the version that supports using GPUs, you can replace 'tensorflow' with 'tensorflow-gpu'.
+
+
+
+@ Tip3 (30 words) - 28 words
+
+While most people will use the Python API of TensorFlow, there are other options available. You can download APIs for the languages Java, C/C++ and even Go.
+
+
+
+@ Body2 (800 words) - 834 words
+
+Once the QueueRunner object is created, you need to register it so that the TensorFlow toolkit knows that it needs to be managed. This can be done with the following code.
+   tf.train.add_queue_runner(queue_runner)
+Don't forget to add the ability to dequeue items with code like the following,
+   get_batch = queue.dequeue_many(batch_size)
+where batch_size tells TensorFlow how many items to pull off the queue at once. At this point, you have everything setup to have your data processed in parallel, but nothing has started running yet. While you can manually create a session and manage starting and stopping everything, the point is to build on the work already done and available within TensorFlow. You could use the MonitoredSession to take care of all of the work, as in the example below.
+   with tf.train.MonitoredSession() as sess:
+      while not sess.should_stop():
+         print(sess.run(get_batch))
+Every step we went through above can be broken down to core level code, which you can manipulate in those cases when the pre-built code just isn't doing what you need it to do.
+
+Now that we have TensorFlow doing some work, how can we get it to do this work quickly? Performance very quickly becomes an issue, since so many people are using TensorFlow for very large data sets and large models. There are several best-practices documented on the main TensorFlow web site. The first item you should look at is the slowest part of your computer, the hard drive. One common bottleneck is the input step where you read in data and do any pre-processing to it. This is an issue that can be difficult to diagnose properly, however. Usually, the clearest sign is that either the CPU or the GPU is spending a large amount of time idle. This is something that is very subjective, so you will need to be the judge of when this crosses into the area of a problem. The first place to look is whether you can have your data loaded from a larger single file rather than many smaller files. This is because the hardware and operating system is much more efficient when dealing with large files. The second place to look, if this is your performance issue, is to see if the Dataset API can help your code. It was added to the contrib section in version 1.2, and is scheduled to be added to the core part of TensorFlow. It is written in C++ and handles multi-threaded input of data files much faster than the Python equivalents. If your performance issue is computation bound, instead, then there are other techniques you could use. The first is to look at the Fused Ops, which combine several operations together as a single unit. Combining multiple steps into a single step always speeds up operations within Python.
+
+If you have tried everything else and are willing to experiment, there is an alpha project that has been released called the XLA compiler (Accelerated Linear Algebra). This project is a specialized compiler that can take the linear algebra used within TensorFlow computations and produces code that is optimized for particular hardware. The project developers do warn that you will not necessarily see a speedup, but that the purpose of the project is to get that speedup. The compiler is available as both a JIT (Just In Time) or an AOT (Ahead Of Time) compiler. Because it is under such heavy development, you will want to keep up with all of the new work being done if you dive into using the XLA compiler. You work with XLA by writing input instructions using the HLO (High Level Optimizer) language. Your HLO code takes graphs, or computations, and produces machine-level instructions for the hardware that is being used. As with most other traditional compilers, the XLA back-end is modular. This means that you can write a new back-end for new hardware and simply swap it in. As of the writing of this article, the JIT compiler is supported on x86-64 CPU architectures and Nvidia GPU architectures, whereas the AOT compiler is supported on x86-64 and ARM CPU architectures.
+
+The JIT compiler can be used both at the session level or at the individual command level. The following code shows how you could use the JIT compiler for an entire session.
+   config = tf.ConfigProto()
+   config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+   sess = tf.Session(config=config)   
+
+
+
+@ Pull2 (17 words) - 23 words
+Once the QueueRunner object is created, you need to register it so that the TensorFlow toolkit knows that it needs to be managed.
+
+
+
+@ Howto2 (6 steps - 68 words/step)
+Using GPU Devices
+
+@ Step1 (68 words) - 77 words
+The first step is to be sure that the CUDA libraries are installed on your system. You will need to visit Nvidia's web site to get the drivers and libraries for your particular hardware and operating system. You will also need the libcupti-dev package, which in Ubuntu is available with the command
+   sudo apt-get install libcupti-dev
+   
+@ Step2 (68 words) - 69 words
+Available devices are labeled by type and number. For example, the CPU of your machine will be labeled as '/cpu:0', whereas the first GPU card will be labeled as '/gpu:0'. If you have multiple cards, the second card would be labeled as '/gpu:1'. This is how it is displayed in logging information, as well as how you refer to them in configuration calls.
+
+@ Step3 (68 words) - 72 words
+Since TensorFlow does a lot of code analysis, you may want to check to see what it is deciding to do. The following code logs device usage for a given session.
+   sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+This will print out which device is used for any particular call to run for this session.
+
+@ Step4 (68 words) - 64 words
+You can force TensorFlow to use a particular device by using the 'device()' method for a particular session. For example, the following code forces TensorFlow to use the first GPU card.
+   with tf.device('/gpu:0'):
+      ... TensorFlow operations ...
+
+@ Step5 (68 words) - 69 words
+Normally, TensorFlow tries to maximize GPU memory usage. If you need to use a smaller amount, and allow memory use to grow, you can set the appropriate configuration option.
+   config = tf.ConfigProto()
+   config.gpu_options.allow_growth = True
+   session = tf.Session(config=config, ...)
+
+@ Step6 (68 words) - 75 words
+By default, TensorFlow will only use one GPU at a time. If you want to use more than one at a time, you will need to parcel out the work with code like the following.
+   for d in ['/gpu:2', '/gpu:3']:
+      with tf.device(d):
+         ... TensorFlow operations ...
+
+
+
+@ Tip4 (30 words) - 35 words
+Debugging TensorFlow programs can be messy for larger systems. Luckily, there is a debugger available to help you. The debugger, named tfdbg, provides the ability to step through your model and investigate tensors and nodes.
+
+
+
+@ Box1 (121 words) - 127 words
+
+Very often, you will need to visualize the graphs and models being used in your TensorFlow code. Luckily, TensorFlow includes a utility called TensorBoard that can help with these visualization tasks. There is a lot of documentation and several examples available at the TensorBoard github site (https://github.com/tensorflow/tensorboard). You will need to write out summary data by adding the following line to your code.
+   file_writer = tf.summary.FileWriter('~/tensorflow_logs', sess.graph)
+Once your program finishes, you can start TensorBoard with this summary data.
+   tensorboard --logdir ~/tensorflow_logs
+
+
+
+@ Body3 (738 words) - 736 words
+
+If, instead, you want to only use the JIT compiler for the most difficult individual commands, you can use the manual technique as shown in the following example.
+    jit_scope = tf.contrib.compiler.jit.experimental_jit_scope
+    x = tf.placeholder(np.float32)
+    with jit_scope():
+      y = tf.add(x, x)
+In this example, the add method gets run through the JIT compiler, if possible. The JIT compiler analyzes everything you hand in and tries to compile it, if possible. Luckily, if it can't compile your code it will just fail silently and drop back to the regular Python code for the given operation. So it is a safe technique to try without having to worry that you might break something.
+
+If you want to try the AOT compiler, you will use a toolchain the should seem familiar to developers who have used more traditional languages, like C or C++. In this case, you would use the utility 'tfcompile' to take an input file and produce an executable output file. The input file should contain a subgraph that gets compiled into a single function that takes input as one or more feeds and provides output as one or more fetches. The major limit to using the AOT compiler is that the given subgraph can't use Placeholders or Variables. In most cases, you should be able to replace any Placeholders or Variables with feeds that mimic the required behavior.
+
+When you start using TensorFlow more intensely, you will have runs that can take a very long time to run. In these cases, you are going to want to checkpoint variables and models so that you can stop and restart your processing when necessary. There is a Saver object that can dump Variables to disk so that they can be reloaded later. As an example, the following code saves all of the Variables currently in your program.
+   saver = tf.train.Saver()
+   ... start the session ...
+   save_path = saver.save('~/checkpoint.ckpt')
+When you want to restore these Variables, you can use the following code to read the checkpoint file.
+   saver = tf.train.Saver()
+   ... start the session ...
+   saver.restore(sess, '~/checkpoint.ckpt')
+If you only want to save particular Variables, you can set them as parameters to the Saver call where you give the Variable name and label to be used. This would look like the following.
+   saver = tf.train.Saver({'var1':var1})
+More often, you will likely want to save and restore your entire model, including the Variables, Graphs and metadata. This is handled through the SavedModel builder, as in the following example.
+   builder = tf.saved_model_builder.SavedModelBuilder('~/export_dir')
+   ... start session ...
+   builder.add_meta_graph_and_variables(sess, [tag_constants.TRAINING],
+                  signature_def_map=foo_signatures, assets_collection=foo_assets)
+   ... do work within session ...
+   builder.save()
+Along with the session, you need to give the builder the signatures and asset collections for your model. You will want to run your model for a while and then call the save method when you reach an interesting point, or when you need to stop and go home for sleep. When you come back and want to pick up the saved model, there is a loader object that can take care of the work needed. The following code will read in the model that was saved above.
+   ... start session ...
+   tf.saved_model.loader.load(sess, [tag_constants.TRAINING], '~/export_dir')
+With the above code, you can expand your program out to very large systems and very complex models that you can share with others.
+
+
+
+@ Pull3 (17 words) - 29 words
+If you want to try the AOT compiler, you will use a toolchain the should seem familiar to developers who have used more traditional languages, like C or C++.

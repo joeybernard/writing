@@ -1,0 +1,183 @@
+Pi code-based tutorial, 4 pages
+-feel free to include commands and small segments of code in-line with the body text, but for larger chunks of code please use figure references or refer people to the coverdisc as we can supply them with code, if you send it in with your commission.
+Note: please indicate where code starts and ends with /c/ and any output with /o/, as it enables a non-tech savvy art person to layout the pages e.g.
+/c/
+$ telnet 192.168.1.200 8000
+/c/
+/o/
+Trying 192.168.1.200...
+/o/
+
+Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
+One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
+
+Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
+
+
+@ Title  -  10 words
+
+Using Tensorflow to Classify Images - Putting Neural Networks to Work
+
+
+
+@ Standfirst  -  21 words
+
+Tensorflow has given everyone the power of a deep learning library. This has made possible a huge number of advanced projects. 
+
+
+
+@ Profile
+[Joey Bernard]
+
+Joey Bernard has written a column on scientific software, as well as a column on writing Python code for the Raspberry Pi. In his day job, he helps researchers and students at the university level in designing and running HPC projects on supercomputing clusters.
+
+
+
+@ Resources
+List everything required for this tutorial and provide URLs if applicable.
+If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+
+@ Lead image
+Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+
+NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
+
+Total word count is 2,952 (roughly 16,940 char).
+
+@ Intro text  -  199 words
+
+Neural networks have been around, as an idea, since the very beginning of artificial intelligence research. The problem has always been that it is very difficult to implement them in an efficient way. This has kept these techniques out of the hands of the average software developer. This has been the case until Google developed a library for the Google Brain internal project. This library was releases as an open source library named Tensorflow. Tensorflow has been out in the wild since 2015. In just a few short years, it has found its way into a huge number of fields and projects, including convolutional neural networks, audio recognition and image recognition, among others. In this article, we will look at how Tensorflow can be used to do image recognition and classification. Because it has shown its usefulness, Tensorflow has been ported to many different platforms. This has included, most recently, mobile platforms such as Android and Apple smart phones. We will look at how to get it installed on your platform, and how to a basic system setuo so that you can do some image processing. Don't forget that there is loads of other functionality available in Tensorflow, too.
+
+
+
+@ Body text
+
+2,752 words (rouhgly 15,800 chars)
+
+Use 8 subheadings (or crossheads) to break this text up.
+
+@ Heading 1  -  Installation
+The first step is to get Tensorflow installed on the machine where you will be doing all of this image analysis work. For most platforms, you should be able to install it using pip. Because we only have room to talk specifically about one platform, I will assume that you are using a Debian-based Linux distribution. Assuming this, you can install the necessary tools with the following command.
+/c/
+sudo apt-get install python3-pip python3-dev python-virtualenv
+/c/
+In order to keep your Python enviornment organized, you should create a virtual environment where you can safely install Tensorflow. You can do this with the following.
+/c/
+virtualenv --system-site-packages -p python3 tensorflow
+/c/
+This will create a virtual environment, in the subdirectory named 'tensorflow', where you can install Tensorflow. You can activate it by sourcing the activation script.
+/c/
+source ~/tensorflow/bin/activate
+/c/
+/o/
+(tensorflow)$
+/o/
+Your command line prompt should change to the new one seen above. You can now install Tensorflow into the virtual environment with
+/c/
+(tensorflow)$ pip3 install --upgrade tensorflow
+/c/
+This installs the CPU version of the Tensorflow library. However, much of the processing that it does can be farmed out to a GPU for faster results. If you have an Nvidia card, you can use the following commands to install the required CUDA support package and install the GPU version of Tensorflow.
+/c/
+sudo apt-get install cuda-command-line-tools
+source ~/tensorflow/bin/activate
+pip3 install --upgrade tensorflow-gpu
+/c/
+You should verify that everything installed correctly. You can run the following tiny piece of code.
+/c/
+import tensorflow as tf
+hello_test = tf.constant('Hello from TensorFlow!')
+sess = tf.Session()
+print(sess.run(hello_test))
+/c/
+You should get the following output.
+/o/
+Hello from TensorFlow!
+/o/
+Assuming you see this output, you should be good to go on and actually get some work done.
+
+@ Heading 2  -  Basic Ideas
+In Tensorflow, there is a core concept of the graph. Data is imported into variables with some relationship between the elements. There is also a series of processes that need to be applied to the data. All of these processes and relationships are combined to define a dataflow graph. Tensorflow then acts as the engine that traverses these graphs and executes all of the operations that have been defined. All of these features are accessible through the low-level API in Tensorflow, but most people don't need to work with that much detail. There is a higher-level API that provides data import functions that can manage creating the data structures from many common data file formats. Then, there are a series of functions called estimators. These estimators create entire models, and the underlying graphs, so that you can simply run the estimator to do the data processing that is needed.
+
+@ Heading 3  -  Inception-v3
+One of the tasks that Tensorflow has shown its usefulness for is image recognition. This means that a lot of work has been done to improve the performance. When you start developing your own algorithms, the work done in the image recognition estimators would be well worth your time to investigate. One family of image recognition estimators is named inception. It has been released in a series of version, with the most current being version 3. The inception models were trained using a data set called ImageNet. This collection was put together in 2012 to act as a standard set to test and compare image recognition systems. It consists of over 14 million images in 1000 categories.
+
+Luckily, inception-v3 is a fully trained model that you can download and use to experiment. Once you have Tensorflow installed, you can download inception from the github repository with the following commands.
+/c/
+git clone https://github.com/tensorflow/models.git
+cd models/tutorials/image/imagenet
+/c/
+In this folder, you will find the Python script 'classify_image.py'. Assuming you have never run this script before, or downloaded the model data at some other time, it will start by downloading the file 'inception-2015-12-05.tgz' so that it has the model data. If you did already download the model, you can tell this script with the command line option '--model_dir'. In order to have it classify your own images, you can hand them in with the command line option '--image_file'. If you are just testing it, you can use the default image of a panda. When you run it, you should get output like the following.
+/c/
+python ./classify_image.py
+/c/
+/o/
+giant panda, panda, panda bear, coon bear, Ailuropoda melanoleuca (score = 0.89107)
+indri, indris, Indri indri, Indri brevicaudatus (score = 0.00779)
+lesser panda, red panda, panda, bear cat, cat bear, Ailurus fulgens (score = 0.00296)
+custard apple (score = 0.00147)
+earthstar (score = 0.00117)
+/o/
+As you can see, it gives you the top 5 matches for what Tensorflow thinks your image might be with a confidence score. If you want, you can change the number of returned matches with the command line option '--num_top_predictions'.
+
+@ Heading 4  -  Tuning the net
+While the inception model is very good, it is designed to be as general as possible and be able to identify a wide range of categories. But, you may want to tune the model to be even better at identifying some smaller subset of types of images. The model is a multi-level neural network that has been trained. In these cases, you can reuse the bulk of the inception model and just replace the last layer of the neural network to be specific for your new image category. In the main tensorflow github repository that you need to download, there is a Python script that gives an example of how to retrain the inception model.
+/c/
+python tensorflow/examples/image_retraining/retrain.py --image_dir ~/my_images
+/c/
+This script takes all of the images in the directory 'my_images' and retrains the model using each image. This simple a retraining process can still take 30 minutes or more. If you were to do a full training of the model, this could take a huge number of hours. There are several other options available, including selecting a different model to act as a starting point. There are other smaller models that are faster, but not as general. If you are writing a program to be run on a lower power processor, such as in a phone app, you may decide to select one of these instead.
+
+@ Heading 5  -  Training on new data
+While the above example may be fine for the majority of people, there may be cases where you need more control than this. In these cases, you can manually manage the retraining of your model. The first step is to load the data for the model. The following code lets you do this.
+/c/
+graph = tf.Graph()
+with graph.as_default():
+   with tf.gfile.FastGFile('classify_image_graph_def.pb', 'rb') as file:
+      graph_def = tf.GraphDef()
+      graph_def.ParseFromString(file.read())
+      tf.import_graph_def(graph_def, name='')
+/c/
+This loads the model and creates a new graph object. The graph is made up of several layers, all leading to a final output layer.
+/c/
+last_layer = graph.get_tensor_by_name('pool_3:0')
+/c/
+This final layer is what does the final classification and makes the final decision as to what your image is. At this point, you can process your specialized images to create a new final layer. There are several steps required in order to preprocess the images, and then train a new final layer.
+
+@ Heading 6  -  TF-slim
+As you can see, we have only touched the code necessary in the most cursory way in the material above. We haven't had the space available to dig into much of the detail that you require in order to get any work done. This is a well known complaint people have with Tensorflow. To help alleviate this issue a wrapper layer of code, named tf-slim, that minimizes the amount of code that you need in order to get some useful work done. It is available in the contrib portion of the tensorflow installed package. You can import it with the code below.
+/c/
+import tensorflow.contrib.slim as slim
+/c/
+
+@ Heading 7  -  Performance?
+
+@ Heading 8  -  Where to?
+
+
+
+
+
+
+@ Supporting images
+3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+
+If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
+
+If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
+
+@ Captions
+Images need captions, which need to be around 15 words each.
+
+A note on captions:
+These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+
+@ 2x boxouts
+60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
+
+A note on boxouts:
+Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+
+@ 2x Pullquotes
+Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+
+
+[IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]

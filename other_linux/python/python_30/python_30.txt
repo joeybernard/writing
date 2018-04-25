@@ -1,0 +1,97 @@
+@ Title (2-4 words)
+Locations for Raspberry Pi's
+
+
+
+@ Standfirst (20 words approx)  -  19 words
+This month, we will look at how to use a GPS to tell your Raspberry Pi where it is.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9448 characters
+
+In previous articles, we have looked at home to add various types of sensors to the Raspberry Pi to get it to interact with the world around it. One very useful piece of information that your Raspberry Pi could collect is its location on the Earth. It may be very useful to know where you are in order to decide on what action to take. This month, we will look at adding the functionality of GPS (Global Positioning System) to your Raspberry Pi and how to use it within your own Python code. For those of you who may not have run into GPS before, it is a constellation of 31 satellites orbiting the Earth. Using extremely accurate time system and some very complicated math, they communicate with ground-based receivers and let them know where on the planet's surface they happen to be located at. In this article, I will be assuming that you are using either one of the "official" Raspberry Pi GPS modules or using a "standard" GPS unit that connects over USB. These types of GPS connections can be communicated with after you install the correct packages. If you are using Raspbian, you can install the needed packages with the command
+   sudo apt-get install gpsd gpsd-clients python-gps
+The first package installs a daemon program that allows you to make a connection with your GPS over a network port. The second package installs client programs that you can use to verify that your GPS is working correctly and the Raspberry Pi can communicate with it correctly. For example, you can verify that everything is working correctly by using one of the supplied utilities like
+   cgps -s
+One thing to keep in mind is that sometimes things will stop working. If this does occur, you may need to restart the GPS daemon, with the commands
+   sudo killall gpsd
+   sudo gpsd /dev/ttyUSB0 -F /var/run/gpsd.sock
+where the TTY device may be different for your particular situation. You can use the utility 'lsusb' to get a full listing of all of the devices which might be connected to your Raspberry Pi over USB. For the rest of this article, I will just assume that the GPS is available at '/dev/ttyUSB0'.
+
+At this point, you could simply write code to read data directly from the GPS by querying the file '/dev/ttyUSB0'. This would be very messy, however. Luckily, the daemon gpsd provides a translation layer that handles the reading of the raw data and formatting it into a standard form that can be used within your own applications. The first step is to create a connection to the gpsd daemon so that you can talk to your GPS. The basic code looks like
+   import gps
+   gpsd = gps.gps()
+By default, this will connect to the gpsd daemon on your local machine (the Raspberry Pi) on port 2947. There are the parameters 'host' and 'port' where you can change these if you have a unique setup. There are also the parameters 'verbose' and 'mode' that can control how this connection behaves. There are also instance methods for the newly created gps object that allow you to alter this behaviour. For example, you can use the code
+   gpsd.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+The most basic thing you can do now is simply to grab the next available data packet with
+   record = gpsd.next()
+You will likely want to check what class this message is in order to decide what to do with it. The first class we will look at is the TPV (Time-Position-Velocity) message. This type of message is what most people think of when they think of GPS. But this is not the only type of information that you can get. There is also a class of message called SKY, which provides a sky view of the satellites visible to your GPS receiver. Part of this message includes a list of satellite objects which contain the coordinates for each of the visible satellites. There are also ATT and GST messages which contain error and status messages, in case you are interested in digging into some of the details available.
+
+With the first class of messages, the TPV messages, there is a lot of information available. You can get a really accurate time source by looking at the time attribute of the message contents. You can get this with the code
+   if record['class'] == 'TPV":
+       if hasattr(record, 'time'):
+           print(record.time)
+From this code, you can see that the returned record is actually a dictionary object. Depending on the exact details of your particular GPS device, it may not return all of the possible attributes for a TPV object. This is why you should use the Python built-in 'hasattr()' to check to see if the return object has the particular attribute that you want to use. You can get the current location of the GPS receiver, in terms of the latitude, longitude and altitude, with the code
+   latitude = record.lat
+   longitude = record.lon
+   altitude = record.alt
+Do not, however, do it this way. I have removed any checks to see whether these attributes exist or not. Do not be as lazy as I am being when writing your own code. The latitude and longitude are given in degrees, where +/- represent North/South and East/West, while the altitude is given in meters. You can check to see whether these are present or not by checking the NMEA (National Marine Electronics Association) mode of the returned data. A mode of 0 means it has not been set yet and a mode of 1 means that there is no fix. Once you have a fix, a mode of 2 means that you two dimensional data and a mode of 3 means that you have three dimensional data. If you are moving, you can get other interesting bits of information. The TPV class object has the attributes of track, speed and climb. The track is current bearing in degrees from true north, the speed is your current rate of travel in meters per second and the climb gives you the rate of climb (positive) or sink (negative) in meters per second. All of these values also have error estimates included in other attributes.
+
+The other major message class, SKY, provides you with information on the satellites visible above your head. You need to verify the message class with
+   if report['class'] == 'SKY':
+      # Then look at the data
+One of the attributes within this type of message is a list of satellite objects that contain the details of each of the satellites visible. The identifier for the satellite is in the 'PRN' attribute, and whether it was used or not in calculating your current position is stored in the attribute 'used' as a Boolean flag. The position of the satellite is given relative to your position. The attributes 'az' and 'el' give the values of the azimuth and elevation from your current location. The last attribute you get is the signal strength (in the attribute 'ss'), given in dB.
+
+Now that we have a connection to the GPS receiver and can talk to it, what could you do with it? If you wanted to build a tracker, you could build a loop that writes the current position out to a file. In the code below, I have assumed that there is a file open, labelled as 'file1'. Then, you could use
+   while True:
+      record = gpsd.next()
+      if record['class'] == 'TPV':
+         file1.write('lat: ' + record['lat'] + ' lon: ' + record['lat'])
+This code example uses the dictionary form of the returned data. This is essentially the JSON form of the parsed data. You can read up more about this JSON data at the URL http://www.catb.org/gpsd/gpsd_json.html, the website for the gpsd daemon that we are using to communicate with the GPS receiver. If you wanted to use the example project given at the beginning of the article, you could keep checking to see whether you are in a particular location with code like
+   mylat = 46.498293369
+   mylon = 7.567411672
+   while True:
+      record = gpsd.next()
+      if record['class'] == 'TPV':
+         if record['lat'] == mylat and record['lon'] == mylon:
+	    # Do something amazing
+When you are all done, you should remember to clean up all of the connections that you made earlier in your code. The gps object has a method available to shutdown this connection. It looks like
+   gpsd.close()
+This shuts down the socket connection to the gpsd daemon that is running on your Raspberry Pi.
+
+Now, you should be able to add geolocation to your projects without too much trouble. This means you can build really cool projects, such as a locked box that only opens if you happen to be in a particular location or a tracking device that records where your car has been travelling. Be sure to share any interesting ideas you may discover with the wider world so that we can all build on each other's ideas.
+
+
+
+@ Boxout title (2-4 words)
+But, where are we?
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2544 characters
+
+While the GPS receiver connected to your Raspberry Pi can give you your exact coordinates, most people cannot process latitudes and longitudes in any intuitive way. Luckily, there are several services available on the Internet, called geolocation services, that can help translate these coordinates to another form that is more intuitive. You will need to install the relevant Python module, on Raspbian, with the command
+   sudo apt-get install python-geopy
+The core part of the geopy module is the concept of a geocoder. There are prebuilt subclasses for services like Google, Yahoo and Bing. You can use whichever is your favourite one. In the following examples, we will use the Nominatim geocoder for the OpenStreetMap geolocation service. To start with, you can create a geocoder with
+   from geopy.geocoders import Nominatim
+   geolocator = Nominatim()
+Normally, most people use this to find the coordinates of an address. We will actually use it to do a reverse look-up to find out the address, if one exists, for the coordinates that the GPS has given you. You can do this with code like
+   location = geolocator.reverse((mylat, mylon))
+You can give the coordinates as either a list of values, as above, or as a single string with the actual values. The returned location object contains the given latitude and longitude, but also contains an address attribute as a Unicode string. If you want to dig in to the returned details, you also have access to the complete returned JSON object as the attribute named 'raw'. For example, you could grab the country portion of the address with
+   location.raw['address']['country']
+In my case, I get Canada back as my current country. There are also utility functions available to do manipulations with this geographical data. For example, you can find the distance between two locations with code like
+   from geopy import distance
+   location2 = geolocator("41.49008, -71.312796")
+   mydist = distance.distance(location.point, location2.point)
+There are lots of other tools available, too, allowing you to play with this data.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

@@ -1,0 +1,106 @@
+@ Title (2-4 words) - 6 words
+Monitoring Audio with a Raspberry Pi
+
+
+
+@ Standfirst (20 words approx) - 25 words
+Since Raspberry Pi's are so compact, they can be used to power monitoring hardware. This issue, learn how to use it for audio monitoring tasks.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count) - 9540 characters
+With such a small physical footprint and such a low power requirement, the Raspberry Pi is a perfect platform that you can use to build your own scientific equipment. This month, we will look at how you might be able to use your Raspberry Pi to monitor and analyze sounds in your environment. This might be useful if you are listening for particular environmental sounds. The hardware would be a Raspberry Pi, some kind of USB microphone, and some kind of USB wireless connection if you want to be able to check on the monitoring process remotely. The specifics of the hardware will be left as an exercise for the reader. You should be able to use almost anything that is available to you. This article will focus on the Python code that you will need in order to record this audio and do some processing on it. I will be assuming that you are using a Debian based distribution on your Raspberry Pi, such as Raspbian, in any of the installation instructions below.
+
+The first step is to make your microphone available to Python. PortAudio is a cross-platform library that can handle playing and recording audio on many different machines. PyAudio is the Python module that provides a wrapper around the PortAudio library. Luckily, both are available in the Raspbian package library. You can install them with the command
+   sudo apt-get install python-pyaudio
+The actual module you need to import in your code is called 'pyaudio'. The module consists of two key objects, PyAudio and Stream. PyAudio is the object that initializes the PortAudio library and allows you to start interacting with the audio devices on your Raspberry Pi. So, the boilerplate code to start your program would look like
+   import pyaudio
+   p = pyaudio.PyAudio()
+Now that you have an instantiated PyAudio object, you can open your audio device and start recording from it. There are several parameters to the open function that control recording options like the sampling rate, the number of channels, the audio format, and the size of a temporary buffer. Since you will likely need these values in the processing step of your program, you will want to store them in meaningful variables. As an example, you might want to use
+   CHUNK = 1024
+   FORMAT = pyaudio.paInt16
+   CHANNELS = 2
+   RATE = 44100
+The open function would look like
+   stream = p.open(format=FORMAT,
+                   channels=CHANNELS,
+		   rate=RATE,
+		   input=True,
+		   frames_per_buffer=CHUNK)
+By default, this function call will try and open the default audio device. If you only have one plugged in, it should do the expected thing and open that particular device. But, what do you do if there are more than one microphone plugged in? You need to add an extra parameter, named 'input_device_index', that selects the device of interest. Unfortunately, the device index that PyAudio uses is kind of arbitrary. You can use the following code to get a list of the devices and their related indices
+   for i in range(p.get_device_count()):
+      dev = p.get_device_info_by_index(i)
+      print((i,dev['name'],dev['maxInputChannels']))
+From this output, you can find out what index value you should use in the open function call.
+
+With an open stream connected to a microphone, you can start to read data in. Since you defined the temporary buffer to be of size 'CHUNK', you use the same value in the read function from the stream. A convenient way to store this incoming data is to append them to a list. An example loop that you might want to use would look like
+   frames = []
+   for i in range(0, END_TIME):
+      data = stream.read(CHUNK)
+      frames.append(data)
+The recorded audio now exists in the frames list, ready to be processed. If you need to keep copies of this data, maybe for later analysis, you can dump it into wave files. The wave Python module lets you work with files in WAV format. You can write out the data with code like
+   import wave
+   wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+   wf.setnchannels(CHANNELS)
+   wf.setsampwidth(p.get_sample_size(FORMAT))
+   wf.setframerate(RATE)
+   wf.writeframes(b''.join(frames))
+   wf.close()
+where the filename you want to use is stored in the variable WAVE_OUTPUT_FILENAME. When the audio recording portion of your program is done, you need to clean up after yourself. You need to stop and shutdown the stream first, then close down the audio device you were using. This can be done with
+   stream.stop_stream()
+   stream.close()
+   p.close()
+
+Once you have real data coming in, what can you do in order to process it? The simplest thing to do is to simply plot it as a time series of the amplitude of the sound in the environment. The matplotlib module is the go to Python package to handle plotting and graphing of all kinds. It is a rather large module, however, and you will need to import whichever sub-module you need for the type of plotting you want to do. For most standard plots, you should be fine importing the following
+   import matplotlib.pyplot as plt
+You can then use 'plt' as the prefix for all of the plotting functions. If you just want to create a scatter plot where the 'x' values are the index of the data list, you can use
+   plt.plot(DATA)
+   plt.show()
+where the variable DATA has all of the sound information that you are interested in. This may be just the data collected from one sampling, or some combination of multiple scans.
+
+While the amplitude is one interesting quality of sound, a lot of information is lost when only looking at these values. Something that is usually of much more interest is the frequencies that exist in the sound sample. While amplitude can change quite dramatically from one scan to another, the frequencies being generated by whoever or whatever is making the sound changes very little. So you can, theoretically, identify sources based on the spectrum of frequencies you measure. Mathematically, you can use the Fast Fourier Transform (FFT) to extract the frequencies that go into generating the sound you recorded. In Python, there are basic FFT functions in the numpy module, and more complicated sine and cosine transforms in the scipy module. Both of these modules are huge, so you can just import the sections you need with
+   import numpy.fft as npfft
+   OR
+   import scipy.fftpack as spfft
+You can plot these frequency spectra with
+   import numpy as np
+   import matplotlib plt
+   import scipy.fftpack as spfft
+   yf = spfft.fft(DATA)
+   plt.plot(yf)
+   plt.show()
+where the variable DATA contains whatever number of samples you are processing this run. This will display what the major frequencies are in your recorded sound. Once you have this data generated, you can start to do comparisons with known sound sources and potentially make identifications within the environment that you are monitoring.
+
+Since all of the calls we have use above are blocking, we run the risk of getting stuck in one portion or another. To try and alleviate possible issues, you may want to look at using threads. While we are still stuck working with the GIL, it may still allow you to do more intensive processing while you are waiting for the next batch of sound data to come in. You can create a new thread with the code
+   import thread
+   thread.start_new_thread(my_func, (arg1, arg2, arg3, )
+where the function 'my_func' either handles the sound recording, or the data processing functionality. Since you are going to want to pass data in and out of these functions, an easy way to handle this is with a queue object. Setting one up is as simple as
+   import Queue
+   queue1 = Queue.Queue(SIZE)
+which will create a queue that can hold SIZE elements in it. If you hand this in as one of the parameters to your thread functions, you can use it to pass data back and forth. You just need to also create and use locks to control access to the queue to be sure only thread is accessing it at a time. Locks can be created with the function call
+   lock1 = thread.allocate_lock()
+You can then use the lock methods 'acquire()' and 'release()' to manage access to the queue. You should be ready to build your own monitoring hardware for all sorts of applications.
+
+
+
+@ Boxout title (2-4 words) - 4 words
+Remotely Accessing Your Monitor
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] ) - 2264 characters
+The whole point of using a Raspberry Pi and building your own environmental monitor is to have something that can operate independently and away from any available amenities. This is fine if you are only interested in recording and storing the data that you are collecting and looking at it later in an offline fashion. But, what if you wanted to check in on your monitor and see what it is actually measuring? In this case, you should be able to connect some type of USB device that allows it to connect to the internet. This could be as simple as a WiFi dongle, if you have a WiFi network nearby, or something that operates over the cellular networks for more remote access. Once you have your Raspberry Pi connected to the internet, you can use IPython to provide a read out of the monitor's activity. You will want to install
+   sudo apt-get install ipython-notebook
+to get the notebook portion of IPython. You can start up the notebook with the command
+   ipython notebook --ip=* --no-browser
+to tell IPython to accept connections from anyone, and to not open a browser on the Raspberry Pi. IPython dumps information on the console where it got started, so you probably want to run it under tmux or screen. This way, IPython can continue to print output to the console while you are disconnected. If you are going to run any of the examples in the main article, you probably will want to add the option '--pylab' to the ipython command. This tells IPython to pre-load the matplotlib and numpy modules.
+
+You can then connect to the IPython instance by opening the URL 'http://my.rpi.ip:8888' in a web browser on your local machine, where 'my.rpi.ip' is the IP address for your Raspberry Pi. If you have a working script, you can create a new notebook and import the code from it into the new notebook. Once it is running, you can disconnect and reconnect again and check in on the progress. There are also modules available to help you turn your IPython notebook into a proper dashboard. This way you can create a fully featured monitoring application on your Raspberry Pi.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

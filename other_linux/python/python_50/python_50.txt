@@ -1,0 +1,115 @@
+
+@ Title (2-4 words)  -  5 words
+Using Your RDBMS With Python
+
+
+
+@ Standfirst (20 words approx)  -  27 words
+When you have a lot of data to work with, you will likely need to use a RDBMS. This month, learn how to use one with Python.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1687 words
+
+Last issue, we looked at how to use SQLite to use data without having to have a full RDBMS (Relational DataBase Management System) installed and running. This is fine when you have a limited amount of data, but at some point you will need to use the extra performance available with a full RDBMS. These include items like indexes and cached queries. Options, like MySQL or Postgresql, are available that focus on providing your data as efficiently as possible. We won't be looking at how to set up or manage the actual database, as that would be a series of articles on its own. We will instead assume that there is already an existing database and we will just focus on how to use it with Python. Also, we will be using MySQL as the example RDBMS for the code examples. The concepts are very similar from one database to another, with only the syntax really changing much. To install the Python module for Debian-based distributions, like Raspbian, can be handled with the following command.
+   sudo apt-get install python-mysql.connector
+If you are using Python 3.X, you can replace 'python-mysql.connector' with 'python3-mysql.connector'.
+
+Once you have the Python module installed, you will need to import it into your program with something like the following.
+   import mysql.connector
+The very first step is to connect to the MySQL server. The basic form is shown below.
+   my_conn = mysql.connector.connect(user='username', password='password',
+                                     host='127.0.0.1', port='3306',
+				     database='mydb')
+In this example, the MySQL service is running on the local machine, hence the host being set to '127.0.0.1'. If it is running on some other machine, you can set the host parameter to the relevant IP address or hostname. If it is listening on the default port, 3306, you can leave it off of the parameter list. In most previous articles, I have not worried too much about exception handling, leaving that as an exercise for the reader. But, when it comes to connecting to database, there are lots of places where a program can fall down so we should at least look at how to manage connection errors. The following code is a decent boilerplate that you can use.
+   from mysql.connector import errorcode
+   try:
+     my_conn = mysql.connector.connect(user='username', database='test1')
+   except mysql.connector.Error as err:
+      if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+         print("Something is wrong with your user name or password")
+      elif err.errno == errorcode.ER_BAD_DB_ERROR:
+         print("Database does not exist")
+      else:
+         print(err)
+   else:
+      my_conn.close()
+This all assumes the the database already exists on the MySQL server. If it doesn't, you can leave the database parameter off of your connect call, and create the database after connecting to the server. The following code would create a new test1 database.
+   DB_NAME = 'test1'
+   my_conn = mysql.connector.connect(user='username')
+   my_cursor = my_conn.cursor()
+   my_cursor.execute("CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME))
+   my_conn.database = DB_NAME
+This way, you can have your program bootstrap the entire data storage step, assuming that the username you are using has the privileges needed to create a new database.
+
+Continuing the setup of your database, you may need to create tables in order to store your data before doing any work with it. Just as with creating a database, you will need to have a cursor that can execute SQL statements. The following code will create a table to store names and phone numbers.
+   table_stmt = "CREATE TABLE 'phones' ('name' varchar(50) NOT NULL, 'number' int(9) NOT NULL) ENGINE=InnoDB"
+   my_cursor.execute(table_stmt)
+As you can see, we are essentially just handing in SQL statements to be processed by the MySQL server. These types of statements are called DDL (Data Definition Language) statements. You can send in pretty much anything that the MySQL server understands.
+
+Once your database has been created and properly structured, you need to load data in order to start using it. If you have large amounts of data, you will likely want to bulk load it directly by using the utilities that come with MySQL. If you are loading data as it is being collected within your program, you can use something like the following code.
+   add_phone = "INSERT INTO phones (name, number) VALUES (%s, %s)"
+   phone_data = ('Joey Bernard', 5551234567)
+   my_cursor.execute(add_phone, phone_data)
+As you can see, we separated out the insertion statement from the data being inserted. This way, you can easily reuse the add statement. Also, since the data is separated out, you can more easily do pre-processing to ensure that the incoming data is sanitized. One of the key structures of a RDBMS is the relational part. This means that you may need the row ID of the most recent insertion to use as a key linking it to some other entry in some other table. This would look like the following.
+   row_id = my_cursor.lastrowid
+By default, connections to the database have autocommit turned off. This means that everything you do is handled through transactions. In order to ensure that the data change you just made is actually pushed to the database, you need to commit the transaction with the following code.
+   my_cursor.commit()
+This will commit everything that has happened since the last commit call. This means that you can also rollback changes by using the 'rollback()' method of the cursor object. Again, this applies to everything that has happened since the last commit.
+
+Once you have a database that is fully loaded with data, how do you pull it back out in order to work with it? You can hand in a SELECT statement, using the 'execute()' method of the cursor object. As with the INSERT statement above, you can separate the statement from any search parameters that you want to use to constrain your query. As an example, the following code will pull up all of the data in the test1 table.
+   my_cursor.execute("SELECT * FROM test1")
+There are two ways to pull out the results from this query. If you want to pull out one of them, you can use the 'fetchone()' method of the cursor object. This will give you a tuple containing the next row in the list of rows returned by your query. There are also 'fetchmany()' and 'fetchall()' methods that allow you to grab larger chunks of returned data. If you wanted to step each returned row and do something with each one, you can use code like the following.
+   for (name,number) in my_cursor:
+      print("Name: {}, Phone number: {}".format(name, number))
+This works because the cursor object can be used as an iterator.
+
+As users work with your program, you will need to alter data stored in your MYSQL database. If you need to update stored information, you can use the UPDATE SQL statement. The following code will update my phone number.
+   my_cursor.execute("UPDATE test1 SET number=5559876543 WHERE name='Joey Bernard'")
+If you find that you need to actually clean up old data, you can remove it with code like the following.
+   my_cursor.execute("DELETE FROM test1 WHERE name='Joey Bernard'")
+When your data collection gets large enough, you may want to take advantage of the strengths of a RDBMS by creating and using stored procedures within the MySQL database. We will assume that you already created a stored procedure within the database, named 'my_func'. You can then use the 'callproc()' method of the cursor object. An example would look like the code below.
+   my_cursor.callproc('my_func')
+   for result in my_cursor.stored_results():
+      print(result.fetchall())
+You need to use the 'stored_results()' method to pull each result out, and then use its 'fetchall()' method to get the actual returned data. When you are done, don't forget to clean up after your self with the following.
+   my_cursor.close()
+   my_conn.close()
+And now you are ready to handle even larger amounts of data.
+
+
+
+@ Boxout title (2-4 words)  -  3 words
+What about Postgresql?
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  456 words
+
+While MySQL is very popular, it does have its limits. For more complex data storage needs, you may decide to use Postgresql instead. The most popular option for a Python module to work with a Postgresql database is psycopg2. You can install it with the following command.
+   sudo apt-get install python-psycopg2
+Using this module will look familiar to what we covered with MySQL, with both minor and major syntax variations. For example, you can connect to a database and get a cursor with the following code.
+   import psycopg2
+   my_conn = psycopg2.connect("dbname=test1 user=username")
+   my_cursor = my_conn.cursor()
+As you can see, the main difference to this point is that the parameters for the 'connect()' method are named differently and are not separated by commas.
+
+Interacting with the database is handled the same way as with MySQL. That is, you can use the 'execute()' method of the cursor to run SQL statements against the database. While SQL is standardized, every RDBMS seems to add their own extensions to the language. This includes MySQL and Postgresql, so don't expect to be able to seamlessly move queries from one database to another. This module also uses similar methods to the MySQL module to get results out, namely the methods 'fetchone()' and 'fetchall()'. You even have the 'callproc()' method to execute stored procedures within the database.
+
+Since you will want to move to Postgresql because of having too much data, you will likely need to worry about how much data is coming back from queries. By default, the entire set of results comes back in the client cursor object, which may use huge amounts of RAM on the client. If this happens, you can create and use server side cursors so that the result set stays on the server. This way, you only need to worry about RAM for each single row that you are fetching.
+
+If you want to go fully Python, you can even use it on the server side. The Postgresql database allows you to use PL/Python to write stored procedures. This means that you will have Python code from the server to the client. You can install it on your database by using the following command.
+   createlang plpythonu dbname
+Now you can have Python at all levels of your application.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

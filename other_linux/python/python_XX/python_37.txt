@@ -1,0 +1,96 @@
+@ Title (2-4 words)  -  5 words
+Make a Festive Light Display
+
+
+
+@ Standfirst (20 words approx)  -  22 words
+With a Raspberry Pi, some lights and a sound system, you can make your own festive display with music and synchronized lights.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9350 characters
+
+In a previous article, we looked at how to use the GPIO bus on the Raspberry Pi to send control signals out to devices in the real world, but did not have time to look at examples of what those devices might be. This month, we will look at using these signals to power on and off a set of LED lights. Simply turning lights on and off is rather boring by itself, however. So we will look at how to synchronize their flashing with a piece of music. Putting these two together, you would have the start of a festive display that you could setup in your own house.
+
+To begin with, you will need to be sure and have all the required Python packages installed on your Raspberry Pi. Only part of the requirements are available within the package management system for the distribution that you are using. You will need to use pip for part of it. For example, in Raspbian, you would do the installation with the following two commands
+    sudo apt-get install python-rpi.gpio
+    sudo pip install python-midi
+The audio file format we will be using is a MIDI file. Before we begin writing code, we should probably do a quick review for those readers who don't know what a MIDI file is. A MIDI file is a straight-forward text file with a list of entries describing what the audio should sound like. This file format is the preferred for musicians when writing music, since it is essentially a one-to-one match to notes and notation on sheet music. You can then translate your written music to audio almost instantly. Another advantage of MIDI files is that they involve almost no processing power, as opposed to compressed audio file formats such as MP3. The kind of instructions used in a MIDI file include the note, the duration, the instrument, and alterations to the audio such as vibrato or panning. A single MIDI file can also contain multiple tracks for more complicated music pieces. We will be using the utilities in the package python-midi to manage working with the actual MIDI files. While they are simple text and you could read them in as such, this package provide wrappers to work with the data in a more Pythonic way. Actually playing the MIDI file out as audio will be handled by the package python-pygame.  That is the one disadvantage of using MIDI files. Generating the audio that gets played out to the world is either handled by a hardware synthesizer, or a software equivalent. So the quality of the audio output can vary quite dramatically from one machine to another.
+
+The first link in the chain for this project will be loading and playing a MIDI file. Luckily, pygame can handle this quite readily. The following code is a good boilerplate example of how to handle this portion.
+    import pygame
+    freq = 44100
+    bitsize = -16
+    channels = 2
+    buffer = 1024
+    filename = 'my_music.mid'
+    pygame.mixer.init(freq, bitsize, channels, buffer)
+    pygame.mixer.music.set_volume(0.8)
+    pygame.mixer.music.load(filename)
+    pygame.mixer.music.play(0)
+This code initializes the pygame subsystem with the settings at the beginning of the code. Then, the music portion of pygame has its volume set and the MIDI file is loaded. The last command is to start the playback of the MIDI file. The zero in the play method tells pygame to only play the MIDI file once. If you wanted to repeat the playback 5 times, you would change the method call to be 'pygame.mixer.music.play(4)'.
+
+The second link is to flash the LED lights in some kind of order. To do this, we will use the GPIO python package to turn the lights on and off. The following code is a good starting point for the use of LED lights.
+    import RPi.GPIO as GPIO
+    import time
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(1, GPIO.OUT, initial=GPIO.LOW)
+    GPIO.output(1, GPIO.HIGH)
+    time.sleep(1)
+    GPIO.output(1, GPIO.LOW)
+In this code, the setmode method sets the pin numbering scheme to be used in the rest of the code. You then need to use the setup method to initialize each of the pins you will be using in your light show. We initialize the pins so that they start with a low value so that all of the lights are off to begin with. You can then start flashing the lights on and off. In this sample code, we just turned the light on, waited 1 second, and then turned it back off again. We will look at more complicated patterns later in the article.
+
+Now, how can we combine the audio portion and the light display together in fun and interesting ways? The key part of this is to decide what musical events trigger what light events. As an example, we will keep it simple. If we assume that the music has a very limited number of notes, we could flash a separate light for each of these notes. When the note is being played, the associated GPIO pin is set to high, and then when it isn't, the same pin is set to low. Ideally, you might want to try and play one note and then light the associated LED, then play the next note and light its associated LED. While you could do this, we won't be using this technique in this article. Instead, we will be reading in the MIDI file and creating a script of light flashes to be played alongside the audio from the MIDI file. The first step is to load the MIDI file and create an object that we can query. You can do this with the following code.
+    import midi
+    mid1 = midi.read_midifile('my_music.mid')
+The object mid1 can now be examined to see what music is about to be played. In a "regular" MIDI file, which you might have downloaded from a music site, there are a large number of possible MIDI events, across multiple tracks. Since we want to synchronize this music with lights, we will be assuming that the music has been simplified to a single track, with only note on and note off events. The object returned is called a Pattern object, which is a container that can hold multiple tracks. Each track holds a series of MIDI events, ending with a special end of track event. Each event entry contains a tick, a channel and a data value. The data object contains the velocity, or volume of the note, along with the actual note being played. So, in our very simplified example, we are only interested in when a note turns on and when a note turns off. The following code shows how to get a listing of these events.
+    track1 = mid1[0]
+    sched = []
+    for midi_event in track1:
+        if midi_event.name == 'Note On':
+            light = midi_event.get_pitch()
+            sched.append([1,light])
+        elif midi_event.name == 'Note Off':
+            light = midi_event.get_pitch()
+            sched.append([0,light])
+What this code does is go through each event in the track and checks to see if it is either a note on or note off event. If it is a note on event, then we add an entry to the scheduling list with a 1 (for turn the light on) and the related note value. For a note off event, we do the same except we use 0 (for turn the light off) instead. Now, we can use this to actually run our display. Assuming we have done the initialization steps above and that we have our light schedule created, the following code will start the music playing and then start flashing the lights.
+    pygame.mixer.music.play(0)
+    for light in sched:
+        if light[0] == 0:
+            GPIO.output(light[1], GPIO.LOW)
+        elif light[0] == 1:
+            GPIO.output(light[1], GPIO.HIGH)
+There may be a slight discrepancy in the synchronization, depending on latencies of when the signals actually make it out to the LEDs. Depending on how exact you wanted your display, you may need to play with this code in order to get the matching closer. There are also many other options for how to synchronize music to a light display. For more complex musical pieces, you may want to assign a range of notes to each light. Or, if your music has multiple instruments (which are denoted by channels), you may wan the lights to signal when each instrument is playing rather than which notes are being played.
+
+At the end, you have to remember to cleanup after yourself. There are several subsystems that have been initialized and need to be shutdown cleanly. Don't forget to include the following code.
+    pygame.mixer.quit()
+    pygame.quit()
+    GPIO.cleanup()
+Now you have the basic tools you need to create a display with music and a light show synchronized together. You could use this for a holiday display, or if you wanted to create a really fun dance room for a party. And while we used LED lights here as a simple example, there is nothing stopping you from using these signals to drive a controller for a much larger light display. Or even a motor controller to have movements that are synchronized to the music. Use your imagination.
+
+
+
+@ Boxout title (2-4 words)  -  3 words
+Using LightShow Pi
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2384 characters
+While the main article gives you some ideas of how to read MIDI files and have them control some kind of display synchronized to the music, this may be more work than you want to put into your display. If this is the case, there is a project for you. Namely, LightShow Pi. You can find it at http://lightshowpi.org. The preferred way to get the code is through git. Assuming that you have git installed on your Raspberry Pi, you can the LightShow Pi code with the commands
+    git clone https://togiles@bitbucket.org/togiles/lightshowpi.git
+    cd lightshowpi
+    git fetch && git checkout stable
+    sudo ./install.sh
+Now that the code is installed, it will use the first 8 GPIO pins to drive 8 separate light displays. There is a test script, named hardware_controller.py, in the py subdirectory which will test out your hardware configuration before you move on to the actual display. If you wanted duplicate the same activity as that modelled in the main article, you can use the included playback script, as shown below.
+    sudo python py/synchronized_lights.py --file=/home/pi/my_music.mp3
+As you may have noticed, this script can take in an MP3 file to control the entire display with. It can even use an entire playlist of music files to control the display with. You need a playlist file where each line has the song title, a single tab character and then the audio file to be played. You can then hand in the playlist file with the command
+    sudo python py/synchronized_lights.py --playlist=./playlist.file
+Along with MP3 files, it will also play WAV files. If you have the ability to have the audio available as a stream, you could even use that as the source of control for the system. What is this code actually doing? It is actually running an FFT on the audio to see what spread of frequencies are being produced. This spread of frequencies will then be displayed through the first 8 GPIO pins. This is essentially the same behaviour as the spectrum analyzer on your home sound system. If you are not interested in doing really custom work, you will probably find that LightShow Pi will serve your needs rather well.
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

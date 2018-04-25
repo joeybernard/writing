@@ -1,0 +1,90 @@
+@ Title (2-4 words)  -  3 words
+Checking Your Mail
+
+
+
+@ Standfirst (20 words approx)  -  20 words
+With Python, you can have your Raspberry Pi act as mail checker giving you a running list on incoming email.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9569 characters
+
+Since the Raspberry Pi is such as a small computer, it gets used in a lot of projects where you want to monitor some source of data. One such monitor that you might want to create is a mail checking monitor that can display your current unread emails. This issue, we will look at how you could use some Python to create your own mail checking monitor to run on your Raspberry Pi. We will focus on the communications between the Raspberry Pi and the mail server and not worry too much about how it might be displayed. That will be left as a further exercise to the reader.
+
+To start with, most email servers use one of two different communication protocols. The older, simpler one was called POP (Post Office Protocol), and the newer one is called IMAP (Internet Message Access Protocol). We will cover both protocols to cover all of the situations that you might run into. We will start with the older POP communications protocol. Luckily, there is support for this protocol as part of the standard library. In order to start using it, you will need to import the poplib module, and then create a new POP3 object. For example, the following will create a connection to the POP server available through GMail.
+   import poplib
+   my_pop = poplib.POP3_SSL(host='pop.gmail.com')
+You need to use the POP3_SSL class when connecting to GMail because Google uses SSL for it's connections. If you are connecting to a different email server that is not quite so security conscious, you can use the POP3 class to make an unencrypted connection. The POP communication protocol involves the client sending a series of commands to the server to interact with it. For example, you can get the welcome message from the server with the 'getwelcome()' method, as shown below:
+   my_pop.getwelcome()
+The first things that you will want to communicate to the server is the username and password for the email account that you are interested in. Having the username in your code is not too much of a security issue, but the password is another matter. Unless you have a good reason to have it written out in your code you should probably ask the end user for it. Included within the standard library is the getpass module which you can use to ask the end user for their password in a safer fashion. You could use the following code, for example.
+   import getpass
+   my_pop.user('my_name@gmail.com')
+   my_pop.pass_(getpass.getpass())
+You should now be fully logged in to your email account. Under POP, your account will be locked until you execute the 'quit()' method of the connection. If you need a quick summary of what is on the server you can execute the 'stat()' method.
+   my_pop.stat()
+This method returns a tuple consisting of the message count and the mailbox size. You can get an explicit list of messages with the 'list()' method. You have two options for looking at the actual contents of these emails, depending on whether you want to leave these messages untouched or not. If you want to simply look at the first chunk of the messages, you can use the 'top()' method. The following code will grab the headers and the first 5 lines of the first message in the list.
+   email_top = my_pop.top(1, 5)
+This method will return a tuple consisting of the response text from the email server, a list of the headers and the number of requested lines, and the octet count for the message. The one problem with the 'top()' method is that it is not always well implemented on every email server. In those cases, you can use the 'retr()' method. It will return the entire requested message in the same form as that returned from 'top()'. Once you have your message contents, you need to decide what you actually want to display. As an example, you might want to simply print out the subject lines for each message. You could do that with the following code.
+   for line in email_top[1]:
+      if 'Subject' in i:
+         print(i)
+You need to explicitly do the search because the number of lines included in the headers varies from message to message. One you are done, don't forget to execute the 'quit()' method to close down your connection to the email server. One last thing to keep in mind is how long your email server will keep the connection alive. While running test code for this article, it would frequently timeout. If you need to, you can use the 'noop()' method as a keep-alive for the connection.
+
+The second, newer, protocol for talking to email servers is IMAP. Luckily, there is a module included in the standard library that you can use, similar to the poplib module we looked at above called imaplib. Also, as above, it contains two main classes to encapsulate the connection details. If you need an SSL connection, you can use IMAP4_SSL. Otherwise, you can use IMAP4 for unencrypted connections. Using GMail as an example, you can create an SSL connection with the following code.
+   import imaplib
+   import getpass
+   my_imap = imaplib.IMAP4_SSL('imap.gmail.com')
+As opposed to poplib, imaplib has a single method to handle authentication. You can use the getpass module to ask for the password.
+   my_imap.login('my_username@gmail.com', getpass.getpass())
+IMAP contains the concept of a tree of mailboxes where all of your emails are organized. Before you can start to look at the emails, you need to select which mailbox you want to work with. If you don't give a mailbox name, the default is the inbox. This is fine since we only want to display the newest emails which have come in. Most of the interaction methods return a tuple that contains a status flag (either 'OK' or 'NO') and a list containing the actual data. The first thing we need to do after selecting the inbox is to search for all of the messages available, as in the following example.
+   my_imap.select()
+   typ, email_list = my_imap.search(None, 'ALL')
+The email_list variable contains a list of binary strings that you can use to fetch individual messages. You should check the value stored in the variable typ to be sure that it contains 'OK'. To loop through the list and select a given email, you can use the code
+   for num in email_list[0].split():
+      typ, email_raw = my_imap.fetch(num, '(RFC822)')
+The variable email_raw contains the entire email body as a single escaped string. While you could parse it to pull out the pieces that you want to display in your email monitor, that kind of defeats the power of Python. Again, available in the standard library is a module called 'email' that can handle all of those parsing issues. You will need to import the module in order to use it, as in the example below.
+   import email
+   email_mesg = email.message_from_bytes(email_raw[0][1])
+All of the sections of your email are now broken down into sections that you can pull out much more easily. Again, to pull out the subject line for a quick display, you can use the code
+   subject_line = email_mesg.get('Subject')
+There are many different potential items that you could select out. To get the full list of available header items, you can use the 'keys' method, as below
+   email_mesg.keys()
+Many times, the emails you get will come as multi-part messages. In these cases, you will need to use the 'get_payload()' method to extract any attached parts. It will come back as a list of further email objects. You then need use the 'get_payload()' method of those returned email objects to get the main body. The code might look like
+   payload1 = email_mesg.get_payload()[0]
+   body1 = payload1.get_payload()
+
+As with POP email connections, you may need to do something to keep the connection from timing out. If you do, you can use the 'noop()' method of the IMAP connection object. This method acts as a keep-alive function. When you are all done, you need to be sure to clean up after yourself before shutting down. The correct way to do this is to close the mailbox you have been using first, and then logout from the server. An example is given below
+   my_imap.logout()
+   my_imap.close()
+You now should have enough information to be able to connect to an email server, get a list of them, and then pull out the sections that you might want to display as part of your email monitor. For example, if you are displaying the information on an LCD, you might just want to have the subject lines scrolling past. If you are using a larger screen type display, you might want to grab a section of the body, or the date and time, to include as part of the information.
+
+
+
+@ Boxout title (2-4 words)  -  4 words
+What about sending emails?
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2234 characters
+
+In the main body of the article, we have only looked at how to connect to an email server and how to read from it. But what if you need to be able to also send emails off using some code. Similar to poplib and imaplib, the Python standard library includes a module called smtplib. Again, similar to poplib and imaplib, you need to create an SMTP object for the connection, and then to login to the server. If you are using the GMail SMTP server, you could use the code
+   import smtplib
+   import getpass
+   my_smtp = smtplib.SMTP_SSL('smtp.gmail.com')
+   my_smtp.login('my_email@gmail.com', getpass.getpass())
+This code asks the end user for their password, but if you aren't concerned about security you could have it hardcoded into the code. Also, you only need to use the 'login()' method for those servers that require it. If you are running your own SMTP server, you may have it setup to accept unauthenticated connections. Once you are connected and authenticated, you can now send emails out. The main method to do this is called 'sendmail()'. As an example, the following code sends a "Hello World" email to a couple of people.
+   my_smtp.sendmail('my_email@gmail.com', ['friend1@email.com', 'friend2@email.com'], 'This email\r\nsays\r\nHello World')
+The first parameter is the from email address. The second parameter is a list of to email addresses. If you have only a single to address, you can put it as a single string rather than a list. The last parameter is a string containing the body of the email you are trying to list. One thing to be aware of is that you will only get an exception if the email can't be sent to any of the to email addresses. As long as the message can be sent to at least one of the given addresses, it will return as completed. Once you have finished sending your emails, you can clean up with the code
+   my_smtp.quit()
+This cleans everything up and shuts down all active connections. So now your project can reply to incoming emails, too.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

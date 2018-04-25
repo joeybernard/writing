@@ -1,0 +1,148 @@
+@ Title (2-4 words)
+A Raspberry Pi Photo Frame
+
+
+
+@ Standfirst (20 words approx)  -  21 words
+With some Python code and a nice display screen, you can turn your Raspberry Pi into a very nice photo frame.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9641 characters
+
+In a previous article, we looked at using Kivy as a cross-platform graphical interface framework that you can use with your Raspberry Pi. Unfortunately, we did not have the room to really look at any possible uses. This month, we will look at one possible use, that of displaying photos on some kind of display. This might be something you do at home, with family pictures, or it could be a slideshow for a business or event. If you didn't get a chance to read the previous article, that is OK. We will review enough of the basics that you should be able to get off to a running start this month. You will obviously need a physical display attached to your Raspberry Pi to show the images on. There are several options available, such as the official 7-inch touch screen. You can also use anything that accepts HDMI as input. You will also need your Raspberry Pi to start up the X11 server when it boots up. By default, Raspbian should do this. But, if you are like me, you may have disabled the X11 server and only use the console. If this is the case, you will need to either re-enable the desktop or just reinstall the OS to have a clean start.
+
+The first step is to be sure that the Kivy packages are installed on your Raspberry Pi. If you are running Raspbian, you can do this with the command
+    sudo apt-get install python-kivy python-kivy-examples
+This also installs a collection of good examples that you can use as jumping off points for further projects. With Kivy, you subclass the App class to create the graphical interface. The core of the Python script would contain the following code.
+    import kivy
+    from kivy.app import App
+
+    class PhotoFrameApp(App):
+        def build(self):
+	    root = self.root
+	    # insert the code that does
+	    # the work here
+
+    if __name__ == '__main__':
+        PhotoFrameApp().run()
+The commented section of this core code is where we will need to put all of the Python code that does the work of loading images and displaying them.
+
+The first step is to get the list of image files to use as part of the photo frame. There are several different ways you could do this. If you wanted to simply use all of the images within a subdirectory, you could create the list with the code below.
+    # get all images in a subdirectory
+    current_dir = dirname(__file__)
+    filelist = glob(join(current_dir, 'images', '*'))
+This pulls all of the files in the subdirectory named 'images'. If your images are scattered around your filesystem, it might be better to use a text file containing the locations for each of the files you want to use. In this case, you would want to use the following code.
+    in_file = open('filelist.txt')
+    temp = in_file.readlines()
+    in_file.close()
+    filelist = []
+    for line in temp:
+        filelist.append(line.strip())
+We needed to use the strip method because the readlines method of the file object includes the newline character at the end of each line. We need to remove these before we can use them later on when we go to load the images.
+
+The next step is to actually display the images. The simplest method is to just pop them up on the screen, one at a time. But this is a bit boring. Instead, we could use the available Carousel object to handle transitioning the images from one to another. The following code shows how to create this type of display.
+    import kivy
+    from kivy.app import App
+    from kivy.uix.image import Image
+    from kivy.uix.carousel import Carousel
+    from kivy.clock import Clock
+
+    class PhotoFrameApp(App):
+        carousel = Carousel(direction='right', loop='true')
+        def my_callback(self,dt):
+            self.carousel.load_next()
+        def build(self):
+            # Use the filelist generation method of choice
+            for curr_image in filelist:
+                image = Image(source=curr_image)
+                self.carousel.add_widget(image)
+        Clock.schedule_interval(self.my_callback, 2.5)
+        return self.carousel
+    if __name__ == '__main__':
+        PhotoFrameApp().run()
+In the previous code, the carousel object was set to loop. This means that when you reach the end of the list of images, it will simply loop back around to the beginning of the list, continuing forever. The next portion defines the callback for the updating of the carousel. It simply calls the 'load_next()' method of the carousel to pull up the next image on the list. In the 'build()' method, the first step is to create the list of image filenames. You could use either of the methods suggested earlier, or one of your own devising. Once you have that list, you can loop through each of them and create a new Image object for each of them. These new Image objects are added to the carousel with the 'add_widget()' method. The last step in the 'build()' method is to create a schedule using the Clock object. Using the 'schedule_interval()' method, this code will change the image every 2.5 seconds.
+
+This method is good as a first start, but what if you want a more interesting transition between images? This can be done by using another set of classes called Screen and ScreenManager. If your list of images don't take up too much RAM, you can simply create a new Screen object for each image. The following code is an example of you could do this.
+    import kivy
+    from kivy.app import App
+    from kivy.uix.image import Image
+    from kivy.uix.screenmanager import Screen,ScreenManager,FadeTransition
+    from kivy.clock import Clock
+
+    class PhotoFrameApp(App):
+        sm = ScreenManager(transition=FadeTransition())
+        curr_screen = 0
+        num_screens = 0
+        def my_callback(self,dt):
+            self.sm.current = str(self.curr_screen)
+            if self.curr_screen == self.num_screens-1:
+                self.curr_screen = 0
+            else:
+                self.curr_screen = self.curr_screen + 1
+        def build(self):
+            # Create the list of files in list filelist
+            self.num_screens = len(filelist)
+            for i in range(self.num_screens):
+                image = Image(source=filelist[i])
+                screen = Screen(name=str(i))
+                screen.add_widget(image)
+                self.sm.add_widget(screen)
+            Clock.schedule_interval(self.my_callback, 2.5)
+            return self.sm
+    if __name__ == '__main__':
+        PhotoFrameApp().run()
+As you can see, there is a bit more involved in creating the screens and adding the images than in the previous example. When you loop through the list of image files, you need to create a new Image widget. You then create a new Screen widget and add the Image widget as a child. The last step is that you need to add the new Screen widget to the ScreenManager object that was created at the top of the class. We do reuse the 'schedule_interval()' method to have the screens transitioning every 2.5 seconds. The callback function needed to be changed, though. The ScreenManager has an attribute, named 'current', that identifies which screen is the one being displayed. When you change what is identified by the current attribute, the two images are changed using the transition method that was defined when you created the ScreenManager object. If you are using the latest version of Kivy, there is a new method available, called 'switch_to()'. In this case, you don't need to add the Screen objects as widgets to the ScreenManager object. The 'switch_to()' method removes the current displayed screen and adds the new screen, applying the transition method being used. The version of Kivy available in the Raspbian package repository is older, so I used the older method managing screens. The example above used the FadeTransition method to move from one screen to another. The other transitions available are NoTransition, SlideTransition, SwapTransition, WipeTransition, FallOutTransition and RiseInTransition. If you want to have even more variety in your image display, you can change the transition method for each method by changing the attribute 'transition' for the ScreenManager object.
+
+This code only displays the images, but that isn't the only thing you can do. You could also create an interactive photo frame that you can manipulate the pictures, if you have a touch screen as the display. As the code is written above, you can swipe back and forth to display other images. If you remove the 'Clock.schedule_interval()' command, then the image display will stay static unless you swipe to change the image being displayed. Also, there is a widget, called 'Scatter', that you can load the picture into before adding to the screen objects. The Scatter class allows you to use multi-touch to rotate the image, or stretch it or shrink it. This mind be handy if you wanted to create a photo album application rather than a photo frame display.
+
+While we have ended up with a perfectly usable application to display images, we were also able to dig into some of the other features available within Kivy. Hopefully, this has sparked some further interest in looking at everything else that can be done with such a powerful framework. You can us it to build really powerful user interfaces running on your Raspberry Pi.
+
+
+@ Boxout title (2-4 words)  -  5 words
+Can You Use PyGame Instead?
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2426 characters
+
+Of course, Kivy is not the only framework that you could use to create this image display. As another example, we will look at how you could use PyGame to do a similar job of showing a series of photos on a Raspberry Pi display.
+    import pygame
+
+    pygame.init()
+    display_width = 800
+    display_height = 600
+    gameDisplay = pygame.display.set_mode((display_width,display_height))
+    black = (0,0,0)
+    white = (255,255,255)
+    clock = pygame.time.Clock()
+    # Create the filelist image list
+    def img_swap(x):
+        gameDisplay.blit(filelist[x], (0,0))
+    finished = False
+    x = 0
+    while not finished:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                finished = True
+        gameDisplay.fill(white)
+        img_swap(x)
+        pygame.display.update()
+        if x == len(filelist)-1:
+            x = 0
+        else:
+            x = x+1
+        clock.tick(60)
+    pygame.quit()
+    quit()
+As you can see, this code is a bit more low-level. The commented line is where you would place the code that creates the list, named 'filelist', that has the filenames for all of the pictures that you wanted to use as part of the display. To display the image, it is a two step process. You first need to fill the window with white to essentially erase the currently displayed image. Then the function 'img_swap()' uses the 'blit()' method to copy the image data to the physical display. Again, to keep the code simple, we used (0,0) as the origin to start the drawing of the image. But this means that all of the images are displayed in the bottom left-hand corner. You probably would want to add code to the function in order to figure out the coordinates to use as an origin that would put your image in the center of the window. Pygame also has a clock object that you can use trigger the swapping of the images on a regular schedule.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

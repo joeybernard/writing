@@ -1,0 +1,108 @@
+@ Title (2-4 words) - 6 words
+Using 3D on Your Raspberry Pi
+
+
+
+@ Standfirst (20 words approx) - 18 words
+The Raspberry Pi includes a basic GPU. Learn how to use it to generate 3D graphics on board.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count) - 9696 characters
+
+Many of the examples we have looked at in this column have been programs that run on the console. This month, we will be taking a look at how you can include 3D graphics within your Python code. The hardware on the board includes a GPU, so you should be able to take advantage of everything this computer is capable of. Since we are going to be playing with graphics, this means that you will probably want to have an actual monitor connected to your Raspberry Pi. If you don't have one, you can connect to your Raspberry Pi over SSH with X11 forwarding turned on. As long as you have an X11 server on your desktop, you can see the display on your local machine. To get access to OpenGL from Python, you will need to install the correct package, with
+   sudo apt-get install python-opengl
+This is assuming that you are using a Debian-based distribution, such as Raspbian. It will also install the OpenGL libraries that actually talk to the GPU and handle the 3D operations. For those who don't already know, OpenGL is the open source, multi-platform library to handle 3D graphics. For those of you coming from the Microsoft world, it is essentially Direct3D for everything non-Microsoft. All of the actual functionality is encoded within libraries written in C, while python-opengl provides a set of Python wrappers allowing you to access these libraries from your code.
+
+The first step in trying to use OpenGL in Python is to import all of the code that you will need. Because OpenGL can be a bit messy and convoluted, there are several categories of helper functions available. These are grouped under the GLU and GLUT sub-modules. The imports that will likely be part of your boilerplate are
+   from OpenGL.GL import *
+   from OpenGL.GLU import *
+   from OpenGL.GLUT import *
+All of the functions that you will likely ever need should be imported to your namespace. One of the really useful functions that GLUT provides is the ability to create windows and to draw within them. In order to use it, you need to initialize the subsystem first.
+   glutInit()
+   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH)
+The first thing you will need is a window to draw within. Windows need a size and a position to define where they should be drawn on the physical screen. A basic window would be defined by
+   glutInitWindowSize(500, 400)
+   glutInitWindowPosition(0, 0)
+The last step is to actually create the window. This creates a new window object and displays it on the display device in use. You can do this with
+   window1 = glutCreateWindow('window1')
+The newly created window is created with a title on the main window bar defined by the string handed in as an option.
+
+At this point we have a window, but there is nothing in it yet. The next step is to tell OpenGL what you want to draw on this canvas. You can do this by setting a callback function that OpenGL can use to draw with. A boilerplate of a draw function looks like
+   def draw1():
+      glClear(GL_COLOR_BUFER_BIT | GL_DEPTH_BUFFER_BIT)
+      glLoadIdentity()
+      # Other drawing
+      glutSwapBuffers()
+The first line blanks out the contents of the window. The second line reset the position of the window, ready for further drawing. The commented line is where you would place any other drawing commands needed by the draw1 function. The last line is important for double-buffering. The technique of double-buffering is where you draw on an in-memory buffer region, and then dump the entire contents of this region to the physical display device. This is done to get the fastest possible drawing speed. Once you have your function defined, you can set it as the callback function with the GLUT function
+   glutDisplayFunc(draw1)
+The last step is to tell OpenGL to start drawing. You can do this with
+   glutIdleFunc(draw1)
+   glutMainLoop()
+The first line tells OpenGL to run the draw1 function whenever the system is otherwise idle, In this case, this means all the time. The second line starts the processing loop for the OpenGL process. You now have a black window, which is rather boring.
+
+Now we need to actually start drawing within this new window. In OpenGL, drawing simple objects is done by using vertices and connecting lines between them. As a simple example, we will look at drawing a basic rectangle. Any drawing commands need to be bracketed by a begin command and an end command to tell OpenGL what functions need to be paid attention to. This looks like
+   glBegin(GL_QUADS)
+   # drawing commands
+   glEnd()
+The actual drawing commands consist of telling OpenGL where the vertices are located within the window. For this simple case, the coordinate system of the window starts at (0, 0) in the bottom left corner. The x-coordinate increases towards the right, and the y-coordinate increase towards the top. If we have the coordinates of the bottom left corner of the rectangle in the variables x and y, with a width and a height defined, we can set the vertices with the code
+   glVertex2f(x, y)
+   glVertex2f(x + width, y)
+   glVertex2f(x + width, y + height)
+   glVertex2f(x, y + height)
+Notice that you need to define the vertices in order, going around your rectangle. You probably also want to draw your rectangle is some other color than the black background of the window. You can do this by changing the color used, just before you start drawing. The relevant command is
+   glColor3f(0.0, 0.0, 1.0)
+The parameters are floating point numbers, from 0.0 to 1.0, to define how much red, green and blue to use in the color. So the above command will give you a bright blue rectangle. If you were to run this code as is, however, you still won't see your rectangle. This is because we haven't told OpenGL that we are drawing is 2D yet. A function that contains all of the required steps looks like
+   def prepare2d(width, height):
+      glViewport(0, 0, width, height)
+      glMatrixMode(GL_PROJECTION)
+      glLoadIdentity()
+      glOrtho(0.0, width, 0.0, height, 0.0, 1.0)
+      glMatrixMode(GL_MODELVIEW)
+      glLoadIdentity()
+Digging into the details of what these functions are and why you need them would probably fill another full article. For now, we will need to treat them as a bit of a black box and as further reading for the student.
+
+"But, what about 3D?" I hear you ask. Luckily, we can reuse much of what we have already covered above to move into 3 dimensions. The first change is that vertices now are defined with three values rather than two, giving you a set of x, y and z coordinates. The second change is in the category of functions that you need to use. You should have noticed that the drawing functions used above are explicitly 2-dimensional in their names. For example, you should have noticed the '2' in names like 'glVertex2f()'. To draw 3-dimensionally, this changes to names like 'glVertex3fv()'. The third change is more conceptual. Once we move to 3 dimensions, we need to worry about where we are in relation to the object that is being drawn, and what the field of view and depth of clipping panes need to be. The essential definitions can be set with
+   gluPerspective(45, (width/height), 0.1, 50.0)
+The first parameter is the field of view in degrees, the second parameter is the aspect ratio, and the last two parameters are the near and far clipping panes. OpenGL needs this to figure out how to project your 3-dimensional object onto a 2-dimensional surface (the screen) so that it looks correct. You start off located right next to the object, which is too close to see it clearly. Luckily, you can move relatively easily. There is a function that can apply  a transformation matrix to objects within OpenGL. In order to move back, say 5 units, you would use
+   glTranslatef(0.0, 0.0, -5)
+There are also other types of transformations, like rotations, which can be applied within OpenGL. If we extend the example rectangle from above to a cube, we could draw it the same way by going from vertex to vertex. We can then apply a rotation to it with
+   glRotatef(1, 3, 1, 1)
+This takes an angle and x, y and z coordinates and rotates the matrix by that much. You can then clear the screen and redraw the rotated cube.
+
+Needless to say, this article has barely scratched the surface of what you can do with OpenGL in Python. There are entire series of books available in order to cover everything within OpenGL. But, hopefully it has whetted your appetite enough to encourage you to go explore in more detail what functionality is available in OpenGL.
+
+
+
+@ Boxout title (2-4 words)
+What about pygame?
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] ) - 2381 characters
+Pygame is the default, go-to library whenever you want to do anything multimedia in Python. The question is, does it play well with OpenGL? Luckily, the answer to that question is a yes. The windows and canvases that you can create and manage with pygame are compatible and usable with the functions from OpenGL. This means that you can use the higher level functions from pygame to quickly and easily setup the bulk of your application, and then drop to using the lower level OpenGL functions when you want to do more complex transformations with 3 dimensional objects. You can initialize the pygame subsystem with the code
+   import pygame
+   from pygame.locals import *
+   pygame.init()
+   pygame.display.set_mode((800, 600), DOUBLEBUF|OPENGL)
+You can then call all of your OpenGL drawing functions and they will use the canvases and buffers created by pygame. There is one difference, however. In the main body of the article, we handled double buffering with OpenGL calls. When the drawing buffer was finished and ready to be displayed, you needed to call 'glutSwapBuffers()'. When you use pygame, you need to call
+   pygame.display.flip()
+to achieve the same effect. This mixing of two categories of function calls, and the need to read two sets of documentation, is the price you pay for the easier coding effort. This includes easy timing loops like 
+   pygame.time.wait(10)
+You also get access to easier to use interaction functions. Reading in keystrokes and other events is much easier. You can check keystrokes with could like
+   for event in pygame.event.get():
+      if event.type == pygame.KEYDOWN:
+         # Do something when down arrow is pressed
+The last step when you use pygame is to call
+   pygame.quit()
+in order to clean up all of the memory buffers and video memory locations.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

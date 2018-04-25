@@ -1,0 +1,107 @@
+@ Title (2-4 words)  -  6 words
+Monitoring Servers with a Raspberry Pi
+
+
+
+@ Standfirst (20 words approx)  -  28 words
+Raspberry Pis are a great platform for any kind of monitoring project. This month, learn how you can keep an eye on your servers with a Raspberry Pi.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9456 characters
+
+Even with a small footprint, Raspberry Pis can still provide a fairly powerful set of computing resources. This is the perfect combination for projects which are meant to monitor something. This month, we will look at how we could code up a system to be able to keep an eye on some important server that you need information on. There are several ways you could do this. Since we have limited space here, don't forget to check out other options in case something else might work better in your situation. As with other articles in this series, we will be using Python to write the code that will handle all of the hard work of monitoring the external server.
+
+A properly hardened server should only allow encrypted connections over SSH from outside machines. There are several options available for modules that you could install. A pure Python module that is fairly complete is paramiko. This is the package that we will use for this article. You can install it on your Raspberry Pi with the command
+   sudo apt-get install python3-paramiko
+If you are using Python 2.X, you can change the module name to be 'python-paramiko'. This command also installs the Python modules that support cryptographic operations. Once you have the module installed, you can get your code prepared with the code below.
+   import paramiko
+   client = paramiko.SSHClient()
+   client.load_system_host_keys()
+   client.connect('192.168.0.10', username='pi', password='raspberry')
+This piece of code may or may not work. It all depends on whether you have already connected to the external server with SSH before. If you have, then an identifier named the host key should have been saved in the file '~/.ssh/known_hosts'. If so, then it should be in the set of keys imported by the load keys method. If you have never made an SSH connection to the server in question, then it will not be in the known hosts file and you will get an exception. You set a callback function to deal with this situation manually. If you are only going to be connecting to known machines, there is a shortcut you can use instead. Paramiko include a helper method that will automatically add new hosts to the known hosts list for you. You can turn this functionality on with the line of code below.
+   client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+You need to add this line somewhere before you try and make your first connection. If you want to minimize the chances of security issues, paramiko gives you helper methods to manage the host key file. The following code accepts a host key and then saves it off to the standard file.
+   client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+   client.connect('192.168.0.10', username='pi', password='raspberry')
+   client.save_host_keys('/home/pi/.ssh/known_hosts')
+You can then reload this host key file in regular usage with the following code segment.
+   client.load_host_keys('/home/pi/.ssh/known_hosts')
+   client.connect('192.168.0.10', username='pi', password='raspberry')
+
+So, now we have an open SSH connection to the server you wish to monitor. What can you do with this? Since you want to monitor the health of the remote machine, you will need to execute commands on this remote machine and get the results back to analyze and/or display them. The simplest method available to do this is the 'exec_command()' method. The following code snippet shows you how you can get the current uptime of the server.
+   stdin, stdout, stderr = client.exec_command('uptime')
+   curr_uptime = stdout.readlines()
+   print(curr_uptime)
+The output you get will look like
+   [' 21:55:43 up 13 days, 22:34,  0 users,  load average: 0.00, 0.00, 0.00\n']
+In the original code snippet, you should have noticed that the method 'exec_command()' returns a tuple of values for the standard input stream (stdin), the standard output stream (stdout) and the standard error stream (stderr). When you call this method, a new Channel is opened and the three standard IO streams are attached. You can then read output from the executed command from the stdout and stderr streams. The three streams behave much like standard Python file objects. This means that when you use the 'readlines()' method, you will not be able to go back and reread that data. This means that you should always save off this incoming data to a variable, just in case.
+
+This works fine for simple commands, but what if you need to use a more complicated command that requires your interaction? A very common example would be any command that requires sudo access in order to run. In these cases, your user account would need to have sudo permissions, and then you would need to be able to type in your password when asked by sudo. Luckily, you have the stdin stream from the 'exec_command()' method that allows you to send in the required input. The following code shows how you can get the output from the dmesg command.
+   stdin, stdout, stderr = client.exec_command('sudo dmesg', get_pty=True)
+   stdin.write('raspberry\n')
+   stdin.flush()
+   dmesg_data = stdout.read().splitlines()
+With the 'exec_command()' method, we introduced a new parameter named 'get_pty'. By default, this parameter is False, but you may need to set it to True for some remote machines. The 'write()' method for the stdin stream takes your password, to be handed in to the sudo process. You need to include the newline character at the end of your password to represent you hitting the enter key on the keyboard. Once this has been executed, you need to call the 'flush()' method to make sure that this data is pushed to through the SSH connection to the remote machine. You can then read the returned results from the dmesg command. In the above example, we just used the 'read()' method, and then used the 'splitlines()' method to end up with a list of the returned lines. If you have something specific you are looking for, you can loop through the returned lines to look for it. For example, the following code looks for all of the lines that are messages from the systemd process.
+   for line in dmesg_data:
+      if line.split(':')[0] == 'systemd':
+         print(line)
+This can work for any system software that might be running on your monitored server.
+
+The last thing you might want to be able to do with the server is to move files on and off the remote machine. It might be that you need to pull log files off the system for further analysis, or you may need to push new versions of configuration files up to the server. The beginning of working with files is exactly the same as above, up to the point that you have a valid client object ready that has opened a connection to the remote machine. The following code shows how to get a log file off of the server.
+   sftp = client.open_sftp()
+   sftp.get('localcopy.log', 'serverside.log')
+   sftp.close()
+This code opens an SFTP connection to the server and calls the get method. This gets the remote file, named 'serverside.log', and saves it to the local file 'localcopy.log' in the current working directory on your local Raspberry Pi. Once you have finished with all of your file IO, you need to use the 'close()' method to clean up the connection details.
+
+Putting all of this together, the following code example shows how you could check the load average on the server and to print out a warning if it gets higher than some certain value.
+   import paramiko
+   client = paramiko.SSHClient()
+   client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+   client.connect('192.168.0.10', username='pi', password='raspberry')
+   stdin,stdout,stderr = client.exec_command('cat /proc/loadavg')
+   data1 = stdout.readlines()
+   data2 = data1[0].split()
+   if float(data2[0]) >= 5.0:
+      print('HELP! TOO MUCH WORK!')
+   client.close()
+This will scream at the user, in all caps, when the the 1 minute load on the remote machine gets to at least 5.0.
+
+For very secure systems, you may not be allowed to connect using a username and password combination. If this is the case, you will need to use an SSH key to authenticate yourself with the remote machine. If you have the keys already setup correctly within the directory '~/.ssh', you can simply call the 'connection()' method with no password. Paramiko will then search in the standard places for the relevant key files. If you just have a file, containing the relevant key information, you can hand this into the 'connection()' method. The following example shows how to use the key file that you placed in the current working directory.
+   client.connect('192.168.0.10', username='pi', key_filename='mykey.pub')
+This should allow you to follow whatever security measures are in place when trying to monitor your remote server.
+
+Now that we have figured out how to create a server monitor, there should be no excuse for having that mission critical hardware getting into trouble. You should have all of the up-to-date information you need to be able to manage that system successfully.
+
+
+
+@ Boxout title (2-4 words)  -  4 words
+Talking to your server
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2151 characters
+
+Sometimes, you simply need to interact directly with your remote server. You may register some catastrophic condition and you need to have a real person available to deal with the issue. Luckily, paramiko includes a helper method that allows you to open an interactive shell session on the server. You can then send and receive data with the remote shell. The beginning of the code would look like
+   import paramiko
+   client = paramiko.SSHClient()
+   client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+   client.connect('192.168.0.10', username='pi', password='raspberry')
+   shell1 = client.invoke_shell()
+This newly created shell object can send and receive raw data to the remote shell instance. For example, you can get the load average with the following code.
+   shell1.send('cat /proc/loadavg\n')
+   data = shell1.recv(1024)
+   print(data)
+Because you are sending everything over this shell connection, you need to remember to add a newline character at the end of any commands that you are sending. Unlike other methods, like 'exec_command()', this interactive shell remains active and connected, ready to accept your next command. There are a large number of helper functions available from the Channel that was created when we invoked a new shell session. You can even transfer X11 commands and data back and forth with the method 'request_x11()'. One of the parameters you can hand in is a handler function to handle the X11 traffic occurring over this shell session.
+
+When you are all done, you can close down the remote shell by sending in the exit command. This looks like
+   shell1.send('exit\n')
+The first time you read from this shell, you will get the logout message. After that, any subsequent reads will give you an empty string. This means that the channel is actually closed.
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
+xxxx

@@ -1,0 +1,115 @@
+@ Title (2-4 words)  -  5 words
+Recognizing Emotions with Your Pi
+
+
+
+@ Standfirst (20 words approx)  -  25 words
+This issue we will look at teaching your Raspberry Pi to recognize emotions, using either a web camera or the official Raspberry Pi Camera module.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body (1,620 words, REDUCE your word count by 24 words for one line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on)  -  1619 words
+
+In previous issues, we have looked at how to get your Raspberry Pi to take pictures and videos, and then how to recognize motion in front of a camera. We even went so far as to teach the Raspberry Pi to recognize faces, using OpenCV. But, how far can you take this? This month, we will look at how we could teach the Raspberry Pi to recognize the emotional content of the faces it recognized. In order to do this, we will look at how to use the Google Cloud Vision API to analyze the images that the Raspberry Pi has taken. This is free if you are just using this for personal projects. Just keep in mind that if you are using the Google API for a large number of transactions, you will need to pay based on the actual usage. You need to start by getting an account set up with Google and creating a file with your authentication credentials. Since this can be a bit involved, I will leave it to the official documentation (this documentation is available at https://cloud.google.com/vision/docs/common/auth). Once you have a JSON file with your credentials, you can make it available to your code by executing the following command on the command line.
+   export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credential/file.json
+Of course, since this is a web service, your Raspberry Pi will need to be on the Internet in order to send the images to the Google Cloud and get the analysis results back. We will assume that you are taking the pictures with either the PiCamera or a USB webcam. As a reminder, you can take pictures with the PiCamera using code like the following.
+   import picamera
+   camera = picamera.PiCamera()
+   camera.resolution = (1600, 1200)
+   camera.sharpness = 100
+   camera.capture('image.jpg')
+   camera.close()
+In either case, you should have the pictures of the faces on the filesystem of your Raspberry Pi, ready to be analyzed. 
+
+Assuming you have a bunch of images available, the first step is to make sure that all of the required packages are installed. Assuming that you are using a Debian-based distribution, such as Raspbian, you can install the required packages with the following commands.
+   sudo apt-get install python-oauth2client
+   sudo pip install --upgrade google-api-python-client
+The second command is needed because there is no DEB package in the standard Raspbian package repository. You can now import the libraries that you will need to connect to the Google API and start making requests. The following code is a good start.
+   import base64
+   from googleapiclient import discovery
+   from oauth2client.client import GoogleCredentials
+As you can see, we only need the 'discovery' object, used to find the web service of interest, along with the 'GoogleCredentials' object to handle authentication to the Google service. Assuming that all of the Python modules installed correctly, the above code should import correctly. The next step is to make the actual connection to the Google Vision services. The following code assumes that you correctly set the environment variable earlier.
+   credentials = GoogleCredentials.get_application_default()
+   service = discovery.build('vision', 'v1', credentials=credentials)
+In order to use this service, you need to send your request in as a JSON data set. This includes the image data containing the face that you want to analyze. Assuming that the face image is stored in the file 'image.jpg', the following code will load the image and send it to Google.
+   with open('image.jpg', 'rb') as image:
+      image_content = base64.b64encode(image.read())
+      service_request = service.images().annotate(body={
+         'requests': [{'image': {'content': image_content.decode('UTF-8')},
+                       'features': [{'type': 'FACE_DETECTION','maxResults': 10}]
+                     }]
+         })
+   response = service_request.execute()
+As you can see, the image data needs to be base64 encoded in order to be sent to the Google vision service. Once you have the request generated, you can use the 'execute()' method to actually send it off to the Google Cloud and get the results back.
+
+What do you end up getting back? The Google Vision facial recognition service returns a lot of details about the face that you sent in. There is a rather large list of the positions for all of the features of the face, such as the eyes, eyebrows, nose, mouth, etc. It also returns a bounding box of where in the image the full face is. Along with this physical information, the Google vision service returns a list of potential emotional content, which is what we are interested in. There are actually four categories of emotional content returned, named joyLikelihood, sorrowLikelihood, angerLikelihood and surpriseLikelihood. The values of these categories are some percentage, given as a range between 0.0 and 1.0, that is somewhere between 0% and 100%. This specific percentage and what it represents may change as the model changes, so it is not that useful for an end user. Luckily, there is a set of bucketized categories that are more intuitive. They are labelled UNKNOWN, VERY_UNLIKELY, UNLIKELY, POSSIBLE, LIKELY and VERY_UNLIKELY. You can then check to see how likely each emotion is in the given face. To simply see what the values are, you can use the following code.
+   anger = response['responses'][0]['faceAnnotations'][0]['angerLikelihood']
+   surprise = response['responses'][0]['faceAnnotations'][0]['surpriseLikelihood']
+   sorrow = response['responses'][0]['faceAnnotations'][0]['sorrowLikelihood']
+   joy = response['responses'][0]['faceAnnotations'][0]['joyLikelihood']
+   print("Happy: " + str(happy))
+   print("Angry: " + str(anger))
+   print("Surprise: " + str(surprise))
+   print("Sorrow: " + str(sorrow))
+You can now tailor the behaviour of your code based on these results. For example, if sorrow is very likely, you could ask the user what is wrong, as in the following example.
+   if (str(sorrow) == 'VERY_LIKELY'):
+      print('It looks like you are sad. Do you want to talk about it?')
+Since your Raspberry Pi is capable of dealing with physical objects through the GPIO pins, you could even have it do something physical, like lighting certain LEDs or activating some kind of servo.
+
+The Google vision service also recognizes other items within images from the same call to the facial recognition service. Let's say that you have a security system that not only allows happy people into your inner sanctum, but they must also be wearing the hat of power. Luckily, the information returned from your service request includes the likelihood that the person in the image is wearing some kind of headwear. Using these, the following code could be used to unlock the doors to your clubhouse.
+   joy = str(response['responses'][0]['faceAnnotations'][0]['joyLikelihood'])
+   headwear = str(response['responses'][0]['faceAnnotations'][0]['headwearLikelihood'])
+   if (joy == 'VERY_LIKELY'):
+      if (headwear == 'VERY_LIKELY'):
+         unlock_system()
+As well, the vision service can be used for several other recognition tasks. For example, the label detection method allows you to detect broad categories of objects within a given image. With the following code, you could send an image of your living room and get back whether your pet cat is in that image. 
+   description = str(response['responses'][0]['labelAnnotations'][0]['description'])
+   if (description == 'cat'):
+      print('Hello kitty')
+This code, of course, uses the same type of service request as above. Except that the type of request is changed from 'FACE_DETECTION' to 'LABEL_DETECTION'. If you are analyzing images of the great outdoors, you could use the landmark detection method to see what natural and man-made features exist within a given image. It tries to identify specific landmarks and its geographical location, along with a confidence score. There is even a method for detecting popular product logos within an image. So, you could have your Raspberry Pi punish people who favour the rival brand for your favourite product. How deliciously evil.
+
+With the all of the power of Google's artificial intelligence behind you, you can make your Raspberry Pi much more responsive to the people it needs to interact with. As you are building on the power behind the Google artificial intelligence engine, you will have a system that is capable of amazing functionality.
+
+
+
+@ Boxout title (2-4 words)  -  4 words
+Can this be easier?
+
+
+
+@ Boxout text (440 words, again, REDUCE your word count by 24 words for one a single line of code (each line is roughly equal to 8 words and we have a line break before and after code), 32 words for 2 lines, 40 words for 3 lines and so on).  -  447 words
+
+The main body of this article uses the generic Google API client Python module to make its requests to the vision service. This is fine, especially if you are going to be using several different Google service over the life of your program. If you are going to only be using the Google Cloud services, there is a specific Python module that supports only these services. You can install it using the pip command below.
+   pip install --upgrade google-cloud-vision
+The equivalent to the facial recognition code in the main article would look like the following.
+   import io
+   from google.cloud import vision
+   vision_client = vision.Client()
+   with io.open('/path/to/image.jpg', 'rb') as image_file:
+      content = image_file.read()
+   image = vision_client.image(content=content)
+   faces = image.detect_faces()
+   print('Faces:')
+   for face in faces:
+      print('joy: {}'.format(face.emotions.joy))
+As you can see, the big advantage to these specific Python client modules is that everything is accessible as either a method or a property of the provided classes. So, you can create and image object and call its 'detect_faces()' method to access the Google Cloud service. The returned list contains a number of objects that encapsulate the JSON that we were parsing manually earlier. This makes for much more compact code, but you do lose the in depth knowledge of what is being requested and returned by the Google Cloud service.
+
+You also have the ability to do the internet processing off-site, too. Let's say you have an IP camera that is located at some remote location. You can have the code on your Raspberry Pi reference those remote images in the calls to the Google Cloud services. The code would look like the following.
+   vision_client = vision.Client()
+   image = vision_client.image(source_uri=uri)
+   labels = image.detect_labels()
+   print('Labels:')
+   for label in labels:
+      print(label.description)
+The variable 'uri' will point at the image location for the IP camera. This code will identify the various objects within your images.
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line
+xxxx
+
+Imagery – if you have any suggestions for illustrating the column, please supply them as we usually put something in the section introduction.

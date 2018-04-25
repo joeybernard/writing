@@ -1,0 +1,37 @@
+3D CAD Modelling
+
+There are several options available in Linux to handle CAD, or Computer Assisted Drafting, projects. This month we will look at one named OpenSCAD. This project is available on Linux, Mac OSX and Windows. It should be available within most Linux distributions. For example, you can install it on Debian-based distributions with the command
+   sudo apt-get install openscad
+This will install all of the relevant binaries, along with lots of example files. Many other CAD systems, such as blender, are focused on the graphics of the rendering in order to produce very pretty pictures. OpenSCAD is more focused on the practical side of 3D modelling. It also isn't designed to do interactive model construction, but more on using CAD specification files and then rendering the final object, almost like compiling an executable.
+
+You can either start OpenSCAD from a menu entry in your desktop environment or by executing the command 'openscad' from a terminal window. When it first starts up, you will get an initial window where you can select from a list of recent files or pick from the list of installed example files. [openscad1.png] To start to get a feel for this, we will look at one of the example files. In this case, we will look at the first one, 'CSG.scad'. [openscad2.png] The default layout consists of three separate panes. The main pane on the left hand side is the main editor where you can define all of the parts of your 3D design. The right hand side is divided into two more panes. The top half is where the final 3D rendered object is displayed. The bottom half is a console pane where messages are displayed. These messages could include messages from the rendering section. The viewing pane is a standard 3D viewing pane. You can click and drag the display to rotate the view of your 3D object. There is also a set of icons at the bottom of the viewer where you can zoom in or out, rotate, or select one of the standard views. There is also a set of icons at the top of the editor window that gives you access to the most common functions. Here, you can open or save projects, as well as preview or render your object.
+
+When you are ready to start a new project, you can either click on the menu item "File->New" or type Ctrl+N. This will pop up a new window with an empty editor. Unlike many other CAD systems, OpenSCAD doesn't include a toolbox of objects that you can click and drag to build up your object. Instead, you need to type in the specifications for each of the elements for your design. As a simple example, you could add a cube with dimensions 2x3x4 by typing
+   cube([2, 3, 4]);
+You won't see anything at this point within the viewer pane. In order to trigger a rendering, you can do a preview by clicking the menu item "Design->Preview", or pressing F5. [openscad3.png] There are a number of basic objects available, such as spheres, cylinders and polygons. In order to do things with these basic units, there are a number of transformational functions that you can apply to them. For example, you can move an object with the translate function, as seen below.
+   translate([5,0,0]) {
+       sphere(1, center=true);
+   }
+The structure of OpenSCAD projects is based on a tree structure. So transformational functions, like translate, apply to the children of the function. These children are all grouped together within the curly braces. You can also apply a number of other transformations, such as mirroring, scaling, colouring, rotating or offsets. You can combine multiple transformations by simply adding them one after the other on a single line. For example, you could move, then rotate, a cube with the command
+   translate([2,2,2]) rotate([45,0,0]) cube(2);
+In this case, we can also place the cube command on the same line since we only have one child. [openscad4.png]
+
+Along with 3D elements, you can build your object out 2D elements. There are several basic elements available, such as circles, squares, polygons and even text elements. You can use these to build up the surfaces of your project directly. A second way of building 3D objects from 2D elements is through the process of extruding. Extrusion essentially takes a 2D shape and extends it through the third dimension. An example would be getting a cylinder by extruding a circle. This is called linear extrusion. Rotational extrusion takes a 2D object a rotates it around some axis in order to generate a 3D object. Taking our circle example, we could rotate around one of the axes in order to generate a donut shape, or torus. You can apply the same types of transformations that we looked at for 3D objects, too.
+
+Using the above examples, you could build up rather complex objects already. But there is another class of functions available that allow you to combine multiple objects in other ways. You can merge multiple overlapping objects together with the union transformation. You can get only the parts that overlap with the intersect transformation. You can even slice away pieces by using the difference transformation to remove any overlapping sections. There are even program control structures available, such as for loops and if-else conditionals. Using all of these available combinations can lead to rather complex behaviours.
+
+Once you have a project properly defined, you can try fully rendering it. There are a few different ways to initiate this. You can click on the menu item "Design->Render", or more directly, you can hit the F6 key. The console window will give you diagnostic information about what was done during the rendering, including data like the number of edges, vertices and facets that were used. If you are happy with the way it turned out, you can export your project a few different ways. You can export an image of your project as either a PNG file, or an SVG file, by clicking the menu item "File->Export" and selecting the file format. You can also export it into one of several other formats used in other CAD systems. One of the formats, STL (STereoLithography), is used in several different systems including 3D printing. Because of its ubiquity, it has earned its own button at the top of the editor pane.
+
+While OpenSCAD isn't designed to generate the prettiest rendered images, hopefully you've seen enough in this article to see where it can fit in your workflow. It is a very good program for handling more practical designing of real objects in a simple way. So keep it in mind as another tool in your toolbox for your design needs. We were only able to cover a small amount of the available functionality, so don't be afraid of digging into the manual for OpenSCAD to see all of the other things that you can do with this software.
+
+
+URLs
+http://www.openscad.org  -  Main web site for the OpenSCAD project
+
+
+
+IMAGES
+openscad1.png  -  When you first start up OpenSCAD, you get a listing of the most recent projects along with a selection of examples.
+openscad2.png  -  The main window for OpenSCAD, where you can define the objects to be rendered.
+openscad3.png  -  As a "Hello World" example, you can draw a basic cube with a single command.
+openscad4.png  -  You can apply transformations to your project elements.

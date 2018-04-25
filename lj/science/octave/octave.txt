@@ -1,0 +1,51 @@
+Octave for Numerical Computations
+
+
+We have looked at several packages for doing scientific computations on a Linux system. But to this point, we have not looked at using Octave. Octave is a very complete numerical computation system, modelled on how Matlab operates, that is licensed under the GPL. There are several additional packages that provide further functionality, usually provided as separate packages within the package system for most distributions. For example, on Debian-based distributions you can install the core part of Octave with the command
+   sudo apt-get install octave
+If you wanted to add the ability to do symbolic calculations, you could do so with the command
+   sudo apt-get install octave-symbolic
+It is actually more proper to think of Octave as a programming language, rather than as a program. As such, it is built to be developed upon. A key idea is to allow end-users to expand on the functionality provided. In this sense, it is more akin to R in its structure. Also similar to R, there is an equivalent to the CRAN repository called the Octave Forge. This is where users can upload and share their own extensions and scripts for Octave, and you can download, install and use these extra packages.
+
+Once Octave is installed, you can start it by either clicking on the entry within your desktop's menu system or by typing 'octave' within a terminal window. The core interface to octave is a command line driven interface where you can type in commands and get results back directly within the text interface. This makes octave a very powerful tool to use for scripting numerical calculations. When you move to doing larger calculations on high-performance clusters, this is a very important ability. This also means that you can have different graphical front-ends, since they only need to be able to talk to the octave engine in the same way that your scripts do. The default GUI that comes with octave gives you a complete project workspace. [octave1.png] This includes a file browser, workspace environment view and command history on the left hand side and a command window on the right hand side. When you type commands within the command window and hit enter, they are executed immediately with the results being displayed immediately. When you move to more complex calculations that need to be written as a single script, you can click on the editor tab, below the command window, and get a full editor. Here, you can enter more complex programs and save them off to disk, as well as running them within Octave. You can even set breakpoints within these larger pieces of code, giving you more of a feeling of using an IDE for Ocatve.
+
+The core of the Octave language has many operators to handle basic arithmetic. These include addition, subtraction, multiplication, division and exponentiation. As in R, these operators are polymorphic and do different things based on their input values. There are also core functions, including natural logarithms/exponents and trigonometric functions. These, also, are polymorphic. The core data types include the usual integers, floating point numbers, and even complex numbers. There are some key constants predefined, such as pi or the base of the natural logarithm, set to the accuracy of the machine being used. So there is already quite a bit of functionality available with just the core of Octave. The syntax is relatively simple, with input lines identified with a greater than sign and output is displayed directly after the associated command. For example, you can write Euler's Identity with the following code.
+   > exp(i*pi)
+This will give you an answer that includes a tiny imaginary part. This is due to the finite accuracy of finite machines. You can get the 'correct' answer of -1 by taking the real part of the result. [octave2.png]
+
+The most common task that Octave gets used for, at least initially, is linear algebra. Most people find their way to Octave through these types of tasks. One common example is solving systems of equations of the form, Ax=b. This would look like the following.
+   > A = [2, 0; 0, 2]
+   > b  [2; 1]
+   > x = A \ b
+The first line defines a matrix, where each column value is separated with a comma and each row is separated by a semi-colon. The second line defines a vector, and the third defines the solution to the system of equations, x. Octave knows what to do with the operator '\' based on the input types A and b. While you will likely get some recipe from a friend of yours who told you that octave is great for your engineering problem, how do you take the next step? Luckily, octave includes a very complete help system where you can learn lots more about all of the available functionality. In this case, you could type in the command
+   > help '\'
+and get a more thorough description of what it does. [octave3.png] When you start looking for new functionality, there is a command, named 'lookfor', that can search through all of the documentation for some search string that you give it. This way, you can start to explore and find out even more items that you can use Octave for.
+
+As with other scientific programs, Octave includes graphical functions that allow you to display your data and results in a visual format. For example, let's say that you want to plot a sine function. You could enter the following commands.
+   > t = linspace(0, 50, 200);
+   > x = sin(t);
+   > plot(t, x);
+The first line gives you a vector of 200 values. The second line applies the sine function to each of these values and gives you a vector of the results. The third line takes these and plots them. [octave4.png] The generic plot function, in a similar fashion to that in R, is fairly intelligent. It will take quite a few different input combinations and try to figure out what you intend to do. For other situations, there are specific functions available.
+
+When you move beyond what is available in the core of Octave, where do you go? Support for the Octave Forge is built into the core of Octave. This is all handled through the 'pkg' command. You can see what is already installed on your system with the command
+   > pkg list
+You likely won't have anything installed at first. The forge has loads of extra functionality that you can work with. For example, you can add data smoothing functionality with the following command.
+   > pkg install -forge data-smoothing
+You can then use it by loading it with the command
+   > pkg load data-smooting
+You can find a full list of what is available by following the link to the forge from the main octave web site. When you are ready, there is very complete documentation on how to create your own packages. This way, you can share any of the great discoveries that you make during your research.
+
+As you can see, this was just a tiny taste of Octave. Every year, more and more functionality is added. It has become a very compelling replacement for other commercial offerings, especially in a research environment. Hopefully, you have seen enough to consider giving it a try for your own computational tasks.
+
+
+
+IMAGES
+octave1.png  -  When you first open octave, you get a complete workspace navigator.
+octave2.png  -  In the command window, you get solutions immediately after entering an octave command and hitting enter.
+octave3.png  -  Octave includes a complete help system for all of the available functions.
+octave4.png  -  Octave includes the ability to generate graphics of your results.
+
+
+
+URLS
+https://www.gnu.org/software/octave/  -  Main web site for the Octave project

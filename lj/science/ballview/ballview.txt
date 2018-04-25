@@ -1,0 +1,22 @@
+Visualization in Biochemistry
+
+
+Biochemistry is a massive arena of scientific research and a heavy user of computational resources. Hence, there are a huge number of software packages to handle the work that needs to be done as part of this research. This month, we will look at another project that provides some of the functionality. The BALL (Biochemical ALgorithms Library) project provides a framework in C++ that can be used for rapid prototyping of othe software packages. Because of the speed of development in a field like biochemistry, you may not have the option of using some already available piece of software. In these cases, you need to be able to use building blocks to create the software that solves your problem. This is what BALL provides. We won't be digging into the core of BALL in this article, but we will look at an associated project named ballview, instead. Ballview is a biochemistry visualization package written using the framework provided by BALL.
+
+To use ballview on Linux, the expectation is that you will be compiling it from source code. You can either download a tarball, or use git to download the most recent copy. The following command gets the souce code down to your local machine.
+   git clone https://github.com/BALL-Project/ball.git
+Once you have to source code downloaded, you can change into the 'ball' directory to build the binaries. Ballview uses cmake as the build mechanism, which is not standard on most Linux distributions. If you need to install it, you should be able to do so with you distribution's package management system. For example, on Debian-based distributions, you can install it with the command
+   sudo apt-get install cmake
+There are also a list of other requirements that you may need to install. The following command will install them on a Debian-based distribution.
+   sudo apt-get install bison flex libglew-dev
+Once you are ready, you need to create a build directory. The following commands create a build directory and build ballview.
+   mkdir build
+   cd build
+   cmake ..
+
+
+
+
+URLS
+http://www.ball-project.org/  -  Main project web site
+https://github.com/BALL-Project/ball  -  Main source repository

@@ -1,0 +1,53 @@
+Using Python for Science
+
+
+In previous issues, we have looked at several ways Python could be used to do scientific calculations. But, we never looked at how to actually set up and use Python itself in a way that makes scientific work easier. This month, we will look at a Python distribution, named Anaconda, that is targeted at scientific and data research. The default installation includes a large number of Python modules that are useful when doing data science, or any other type of scientific computing, really. Installation is relatively easy. You can find download links on the main Anaconda site that will allow you to choose between Mac OSX, Windows and Linux. For Linux, you can choose between Python 2.X and 3.X, as well as between 32-bit or 64-bit executables. Now that Python 3.X has matured more, my default suggestion has changed. Unless you have a specific reason to do something differently, I would suggest that you default on downloading and using Python 3.X. Once it is downloaded, you can either make the downloaded file executable or you can run by directly using bash, as below.
+   bash ./Anaconda3-4.4.0-Linux-x86_64.sh
+You will need to accept the license agreement in order to finish the installation. The installer will ask for an installation location, defaulting on the directory 'anaconda3' within your home directory. It will unpack everything there, and then ask if you wanted its bin directory added to your PATH environment variable. It is important to remember this if you use Python scripts to do system administration tasks. If you just run the command 'python', it will default to the one installed by Anaconda.
+
+One of the core technologies that makes Anaconda unique is the conda package management system. Conda can be used to manage all of the modules and other software installed when you installed Anaconda. To manage updates, you can simply run the following commands:
+   conda update --all
+You can also selectively update individual packages by using their package names in the above command rather than the option '--all'. To install a new Python module, such as opencv, you can use the command
+   conda install opencv
+It will check on all of the requirements and make sure all of the dependencies are correct. If you can't remember, or don't know, what a particular module name might be in the conda packaging scheme, you can do a search with a command like the following.
+   conda search --names-only open
+This will return a list of all of the conda package names that have the text 'open' in them. You can always check to see what has already been installed by using the 'list' option to conda. If you have finished with some experimental code and want to remove a particular package that you no longer need, you can uninstall them with the following command.
+   conda remove opencv
+All of these commands have several more options that we haven't covered here. You can find many more details by looking at their help pages.
+
+Another really powerful tool, especially when working on multiple projects, is the enhanced management of virtual environments that is possible with Anaconda. When you are doing research computations, you often have to start with explorations into your problem area. You definitely don't want any of these exploratory tasks to interfere with any currently ongoing work. The best option is to set up a separate, isolated, environment where it is safe to destroy things with no fear of losing earlier work. This is handled by virtual environments. Python has had virtual environments for some time, but the management of them can be unintuitive for some people. Anaconda has included a set of tools to help simplify the process. When you install Anaconda, you actually are operating within a default environment already. In order to create a new one, you would use the command
+   conda create --name project1
+In order to activate this new environment, you would run the command
+   source activate project1
+Now, everything you do, in regards to Python and conda, will take place within this environment. For example, if you run the command 'conda list' within this environment, you will see that there are no packages installed. If you now install a package, it will only exist within this environment. This way, you can have an isolated environment that will only contain the Python modules that you need for this particular project. If you already have an environment that you have been working with, but you want to extend it in some manner, you can clone this starting environment with the command
+   conda create --name project2 --clone project1
+As you work with this environment, conda keeps track of the history of changes that you have applied to it. You can get the list of these changes with the command
+   conda list --revisions
+This way, you can always revert back to some previous revision with the command
+   conda install --revision X
+where X is the revision number you wish to revert to. Once you are done with your work for the day, you can deactivate a given environment with the command
+   source deactivate
+When you are completely finished with a particular environment, you can permanently delete it with the command
+   conda remove --name project2 --all
+Just be sure that you are deleting the correct environment. You don't want to accidentally destroy all of your hard work. You can get a list of all of the environments managed by conda with the command
+   conda info --envs
+If you are working on a project collaboratively, you probably don't want to have to send an entire environment to someone else, as that would simply take too much bandwidth. You also don't want to send a list of handwritten instructions on how to recreate it, as humans are famous for forgetting steps. Instead, conda includes the following command that can be used to create a descriptive file.
+   conda list --explicit >> project1.txt
+You can send this file to your collaborator and have them run the command
+   conda create --name my_project1 --file ./project1.txt
+This will allow them to recreate your project environment.
+
+All of these commands have been managed on the command line, but not everyone is comfortable with that. For those people, Anaconda includes the Anaconda Navigator. You can start it up with the command 'anaconda-navigator'. [anaconda1.png] On the first page of the application, you will see launchers for the major Python software that is available through Anaconda. This includes packages like spyder, orange3 and the jupyter notebook. If they haven't been installed yet, you will see a button labelled 'Install' rather than 'Launch'. The second page allows you to manage environments within your Anaconda installation. [anaconda2.png] From here, you can manage the installed Python modules, create new environments, or clone existing ones. You can even import projects from specification files to create a new copy of an environment. The right-hand side of the window displays Python modules. You filter based on whether the list is those installed, updateable or yet to be installed.
+
+There is a third page, currently in beta, which manages projects. [anaconda3.png] Projects are a way of organizing larger pieces of code and sharing them with others. Sharing is made easier with the Anaconda Cloud. Once you have an account on Anaconda Cloud, you can upload projects, environments, packages, and jupyter notebooks. Once they have been uploaded, you can much more easily share them with other people around the globe. While you can log in and work with the Anaconda Cloud in a web browser, the Anaconda Navigator allows you to log in directly from there and be able to interact with your materials stored online. While this was a short introduction, hopefully there was enough here to help you get your scientific code more organized. In future articles, we will dig a bit more into actually doing some scientific work with Python and taking advantage of these organizational tools.
+
+
+
+URLS
+https://www.continuum.io/  -  The main Anaconda web site
+
+
+IMAGES
+anaconda1.png  -  The Anaconda Navigator provides a graphical interface to interact with your installation of Anaconda.
+anaconda2.png  -  Anaconda allows for managing environments within your installation.
+anaconda3.png  -  Anaconda also helps you manage larger projects, along with environments.

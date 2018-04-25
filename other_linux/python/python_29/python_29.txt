@@ -1,0 +1,110 @@
+@ Title (2-4 words) - 5 words
+Talking on the I2C Bus
+
+
+
+@ Standfirst (20 words approx) - 20 words
+There are several ways that the Raspberry Pi can talk to the world. This month, learn about the I2C bus.
+
+
+
+@ Bio (20-30 words)
+Joey Bernard is a true Renaissance man, splitting his time between building furniture, helping researchers with scientific computing problems and writing Android apps
+
+
+
+@ Body ( = 9400 - P characters, where P = [no. of lines of code in new paragraphs x 35] + [no. of new paragraphs for code x 70], eg 5 lines of code at 35 characters per line, split into 2 separate paragraphs rather than a single paragraph of five lines, means a reduction of 315 characters from the overall character count)  -  9248 characters
+
+The Raspberry Pi was designed to provide several ways to interact with the world through sensors and activators. In the past, we have looked at using the GPIO interface pins to communicate with several devices at once. This is not the only way to work with the world at large, however. This month, we will look at one of the other mechanisms available, the I2C bus. I2C (Inter-Integrated Circuit) bus was invented by Philips Semiconductor, with version 1 having come out in 1992. The design is for short connection paths, and supports multiple masters and multiple slaves where messages on the bus are delivered using device addresses. Messages have a START section and a STOP section, wrapped around the core of the message. The three types of messages that you can send are a single message where a master writes data to a slave, a single message where a master reads data from a slave, or a combined message where a master sends at least two read or two write messages to one or more slaves.
+
+Now that we have a little bit of an idea of what the I2C bus is, how can you use it with your Raspberry Pi? The first step is to activate the bus within the Linux kernel. By default, the relevant kernel modules are blacklisted and not loaded at boot time. If you are using a newer version of Raspbian, you can use the utility 'sudo raspi-config' and select the 'Advanced Options' section to set correct options. If you are using an older version or simply wish to make the changes manually, it is a bit more complex. In order to change this, you will need to edit the file '/etc/modprobe.d/raspi-blacklist.conf' and comment out the line about the I2C module. The line in question is
+   blacklist i2c-bcm2708
+This line should be changed to
+   #blacklist i2c-bcm2708
+Once you have removed the I2C module from the blacklist, you can add the I2C module to the list of modules to be loaded at boot time. This file is '/etc/modules', and you should add the following to the end of the file contents
+   i2c-dev
+Rebooting at this point will now make the I2C bus accessible to the kernel, and through it to user space programs. Because it is a low level interface, your user will need to be added to the I2C access group. If you are still using the default pi user, you can do this with the command
+   sudo adduser pi i2c
+In order to do anything useful, you will want to install the available command line tools and the Python module with the command
+   sudo apt-get install i2c-tools python-smbus
+A simple test to verify that everything is working correctly is to use the command 'i2cdetect -y 0' to query the bus and see if anything is connected. You should see that nothing is there, since we haven't connected anything yet. If you are using a newer Raspberry Pi, the I2C bus is set to using port 1, rather than 0, so you would need to use the command 'i2cdetect -y 1' instead. You are now ready to connect your devices to the Raspberry Pi. The pins used are part of the GPIO header, with two of those pins used for I2C communications. There are modules available to detect magnetic fields, or ultrasonic range finders, among many others. The devices that you attach to the I2C bus all need to have unique addresses so that only one of the deivces will receive messages to some particular address. The address of the device is set during manufacture, so you will need to read the specification documents to see what the address is for any particular device.
+
+Now that everything is setup and connected, we can start to look at how to write some Python code to actually do something useful with the devices on the bus. The first step is to import the required module with
+   import smbus
+You may have noticed that we didn't import something with I2C in the name. This is because the hardware on the Raspberry Pi uses a subset of the full I2C specification, called SMBus (System Management Bus), defined by Intel in 1995. This is also the protocol used in I2C interfaces for desktop computers. Before doing anything else, you will need to instantiate a SMBus object with
+   bus = smbus.SMBus(0)
+The parameter handed in within the constructor is the port to open a connection on. So, for a newer Raspberry Pi, you would use 1 rather than 0. Once you have a new SMBus object you can start doing some basic reading and writing to the devices on the I2C bus. The most basic boilerplate code looks like
+   i2c_addr = 0x20
+   # Write a byte to the device
+   bus.write_byte(i2c_addr, 0xFF)
+   # Read a byte from the device
+   val = bus.read_byte(i2c_addr)
+Since we are dealing with individual bytes, it is easiest to use hexidecimal numbers in your code. The common parameter in both reading and writing is the bus address for the device. This address is a 7-bit number, which may be given to you as a binary number within the documentation for the device. You can convert it to a hexidecimal pair by adding an extra 0 to the beginning of this 7-bit address.
+
+These simple commands write to the first register of your device. But, it may be more complex and have multiple registers available for reading and writing data to. In these cases, you can explicitly pick which register to use with the functions
+   # Writing to a specific register
+   reg = 0x10
+   val = 0x01
+   bus.write_byte_data(i2c_addr, reg, val)
+   # Reading from a specific register
+   return_val = bus.read_byte_data(i2c_addr, reg)
+For larger chunks of data, you can read and write 2-byte words, as well. The code to do this looks like
+   # Writing a full word
+   word_val = 0x0101
+   bus.write_word_data(i2c_addr, reg, word_val)
+   # Reading a full word
+   return_word = bus.read_word_data(i2c_addr, reg)
+   
+For most devices, this is probably the most that you will need to use. There will be cases, however, when you need to read and write even larger chunks of data to and from your device. In these cases, you can read and write entire lists of values to and from your device. Because of the specification differences between I2C and SMBus, there are two sets of reading and writing functions. If you want to use the SMBus, the functions look like
+   # Writing a full list
+   list_val = [0x01, 0x02, 0x03, 0x04]
+   bus.write_block_data(i2c_addr, reg, list_val)
+   # Reading a full list
+   return_list = bus.read_block_data(i2c_addr, reg)
+The problem with these methods is that they are limited to a maximum of 32 bytes of data. If you need to transfer more than this, you need to use the underlying I2C protocols. When you write a list, you can simply hand in the list. When reading, however, you need to tell the library how many bytes to read in as part of the function call. A basic example of the code would look like
+   # Writing a full list
+   list_val = [0x01, 0x02, 0x03, 0x04]
+   bus.write_i2c_block_data(i2c_addr, reg, list_val)
+   # Reading a full list of 5 values
+   return_list = bus.read_i2c_block_data(i2c_addr, reg, 5)
+There is also the concept of a process call within the SMBus protocol. This function both sends a block of data and reads a block of data from a device on the bus. The python function call looks like
+   result_list = bus.block_process_call(i2c_addr, reg, list_val)
+This lets you interact with the device in a single function call, which can help clean up your code a bit.
+
+The last two functions we will look at are shortcut functions, designed to allow for quick interactions with your I2C device. The first is the function
+   bus.write_quick(i2c_addr)
+This function writes a single bit to the first register of the device at the address you give it. For some devices, this may be enough interaction to get some useful work done. The second shorthand function is
+   bus.process_call(i2c_addr, reg, val)
+This function call executes the process call transaction of the SMBus protocol, similar to the 'block_process_call()' function from above. The purpose is to send a chunk of data to your device and receive a resultant set of data back from it, as a single function call.
+
+Hopefully, this article has been able to provide a jumping off point in using I2C and SMBus. Now, you can start adding a whole suite of devices to your Raspberry Pi and create a complete sensor platform for your projects. 
+
+
+
+@ Boxout title (2-4 words)
+SPI is available too
+
+
+
+@ Boxout text ( = 2200 - Q characters, where Q = [no. of lines of code in new paragraphs x 45] + [no. of new paragraphs for code x 90] )  -  2374 characters
+
+The Raspberry Pi has yet another communication bus available for you to use. This bus is called the SPI bus (Serial Peripheral Interface). It is similar to the I2C interface, except that it only allows for a single master. Also similar to the way I2C is configured on the Raspberry Pi, the SPI bus is not active by default. You will need to activate it, either manually or by using the 'raspi-config' utility. You will also need to install the relevant python module with the command
+   sudo apt-get python-spidev
+Once you have SPI activated and the spidev module installed, you can initialize the bus with the code
+   import spidev
+   spi = spidev.SpiDev()
+The next step is to open a connection to the device of interest. To do this, you need to use the function
+   spi.open(0, 0)
+The two parameters in the open function are the bus and device ID's for the device you want to talk to. When you are done, you will need to explicitly close the connection with
+   spi.close()
+To do basic reading and writing, you can use the following two functions
+   # Read X bytes
+   vals = spi.readbytes(X)
+   # Write X bytes
+   inputs = [0x01, 0x02, 0x03]
+   spi.writebytes(inputs)
+For larger chunks of data, there are two other functions available. These are 'xfer()' and 'xfer2()'. The first one transfers the data at once, keeping the CE line asserted the whole time. The second one de-asserts and re-asserts the CE line after each byte is transfered. There is a low-level function available, called 'fileno()', that returns a file descriptor for the SPI device. This file descriptor can then be used with low-level file interfaces, like 'os.read()'. This provides yet another way of talking with peripheral devices.
+
+
+
+@ Full code listing (optional, no more than 50 lines of code at 70 characters per line; if this is supplied, change the body text to (6100 - P) characters)
