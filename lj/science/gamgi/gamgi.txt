@@ -1,6 +1,10 @@
 Atomic Modelling with Gamgi
 
 
+This month, we are going to move back into the realm of chemistry software. In this case, we will look at the General Atomistic Modelling Graphic Interface, or GAMGI. GAMGI provides a very complete set of tools to be able to design and visualize fairly complex molecules. One special ability is that GAMGI has functionality to make creating repeating structures much easier. This is handy when you are trying to create crystalline structures. It should be available in the package repositories of most Linux distributions. For example, in Debian-based ones, you can install GAMGI with the following command.
+   sudo apt-get install gamgi
+There are also data and documentation packages, named 'gamgi-data' and 'gamgi-doc'.
+
 
 
 
@@ -9,4 +13,4 @@ IMAGES
 
 
 URLs
-http://gamgi.org/  -  Main project website
+http://www.gamgi.org/  -  Main project website
