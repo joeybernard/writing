@@ -1,0 +1,104 @@
+
+
+Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
+One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
+
+Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
+
+@ Title  -  11 words
+Bluetooth - for when you only need a little bit of wireless
+
+
+
+@ Standfirst  -  23 words
+There are several instances where you need to have your Pi talk to some other device. This month we'll look at using Bluetooth.
+
+
+
+@ Profile
+[Joey Bernard]
+Joey Bernard has written a column on scientific software, as well as a column on writing Python code for the Raspberry Pi. In his day job, he helps researchers and students at the university level in designing and running HPC projects on supercomputing clusters.
+
+
+
+@ Resources
+List everything required for this tutorial and provide URLs if applicable. 
+If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+
+@ Lead image
+Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+
+NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
+
+Total word count is 2,952 (roughly 16,940 char).
+
+@ Intro text  -  198 words
+One of the great uses of the Raspberry Pi is as a controller for other devices. The Raspberry Pi includes the GPIO bus, which most people have used in the past. But sometimes, you may need to talk to devices that can't be connected to your Pi by wires. If you have a WiFi hub, you could communicate over it with your devices. This may not be possible in every case, though. Your device may not be able to speak over WiFi. Or, the device may be a low-power device and not be able to run something as electrically expensive as a WiFi radio. In these cases, another option is to communicate over Bluetooth.
+
+As of when this article goes out, there are several Raspberry Pi variants that come with Bluetooth integrated into the system. Any of the Raspberry Pi 3 versions, and the Raspberry Pi Zero W, have built-in Bluetooth radios. With the earlier variants, you would need to use a USB dongle to give your Raspberry Pi Bluetooth capabilities. We won't be covering this option in too much detail in this article. Luckily, everything you need should be available within the Raspbian package repository.
+
+
+
+@ Body text
+
+2,752 words (rouhgly 15,800 chars)
+
+Use 8 subheadings (or crossheads) to break this text up.
+@ Heading 1  -  Installation
+The first step is to make sure that you have all of the required packages installed. You will want to make sure your entire system is updated first. You can do that with the following commands.
+/c/
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get dist-upgrade -y
+sudo rpi-update
+/c/
+Once your Raspberry Pi is fully updated, you can make sure all of the required bluetooth software is installed by installing the one meta-package, as shown below.
+/c/
+sudo apt-get install pi-bluetooth
+/c/
+Not only do you get the required drivers for the Bluetooth stack, but you also get several utilities that you can use to verify your setup.
+
+@ Heading 2  -  Checking Things Out
+Once you you have everything installed, you can use one of the included command line utilities to check that everything is working correctly. The main utility for this purpose is called 'bluetoothctl'. When you run it, you get dropped into an interpreter where you can issue commands to the Bluetooth stack. 
+
+@ Heading 3
+
+@ Heading 4
+
+@ Heading 5
+
+@ Heading 6
+
+@ Heading 7
+
+@ Heading 8
+
+
+
+
+
+@ Supporting images
+3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+
+If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
+
+If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
+
+@ Captions
+Images need captions, which need to be around 15 words each.
+
+A note on captions:
+These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+
+@ 2x boxouts
+60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
+
+A note on boxouts:
+Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+
+@ 2x Pullquotes
+Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+
+
+[IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]
+

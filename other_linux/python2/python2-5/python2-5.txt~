@@ -1,0 +1,71 @@
+Pi code-based tutorial, 4 pages
+-feel free to include commands and small segments of code in-line with the body text, but for larger chunks of code please use figure references or refer people to the coverdisc as we can supply them with code, if you send it in with your commission. 
+Note: please indicate where code starts and ends with /c/ and any output with /o/, as it enables a non-tech savvy art person to layout the pages e.g.
+/c/
+$ telnet 192.168.1.200 8000
+/c/
+/o/
+Trying 192.168.1.200...
+/o/
+
+Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
+One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
+
+Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
+
+@ Title
+10 words; titles are run over two lines to allow for a thorough explanation of what the tutorial is about.
+
+@ Standfirst
+15-20 words; provide a brief, descriptive intro to the piece. As you can see from the example PDF these are two lines.
+
+@ Profile
+[Your name]
+30 words (roughly 123 chars); sell your strengths as an expert, but keep the profile concise to avoid a long profile taking up too much space on the left. See example PDF for an idea of what the profile space. 
+
+@ Resources
+List everything required for this tutorial and provide URLs if applicable. 
+If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+
+@ Lead image
+Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+
+NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
+
+Total word count is 2,952 (roughly 16,940 char).
+
+@ Intro text
+200 words (roughly 1300 characters); Use the first 190 to 200 introduce the topic and tools, explain to the reader what they are about to learn and what the benefit is.
+
+
+@ Body text
+
+2,752 words (rouhgly 15,800 chars)
+
+Use 8 subheadings (or crossheads) to break this text up.
+
+@ Supporting images
+3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+
+If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
+
+If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
+
+@ Captions
+Images need captions, which need to be around 15 words each.
+
+A note on captions:
+These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+
+@ 2x boxouts
+60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
+
+A note on boxouts:
+Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+
+@ 2x Pullquotes
+Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+
+
+[IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]
+
