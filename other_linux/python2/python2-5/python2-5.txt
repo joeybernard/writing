@@ -79,19 +79,29 @@ scan on
 Discovery started
 ....
 /o/
-You should now see 
+You should now see a stream of devices as they become visible to the Raspberry Pi. This will include device IDs that can be used to connect to them. This is handled with the 'connect' command, plus the hexidecimal ID for the required device.
 
-@ Heading 3
+@ Heading 3  -  Using a GUI
+Along with command line tools, like bluetoothctl, there are GUI applications that you can use to manage bluetooth devices and how your Raspberry Pi connects to them. If you are using your Raspberry Pi, plus a display, as the front-end for your project, these can be very useful to make sure everything is set up correctly. A popular GUI application is blueman. With this utility, you can scan to see what devices are available in your vicinity, and make connections to those that you are interested in using. You can pull up more detailed information on these devices, as well as copying files to and from these connected devices. These are important tools that you should use to debug connections before diving into using your own code to manage any communication between the Raspberry Pi and the Bluetooth device. You don't want to have to debug your code without establishing that the underlying Bluetooth connection does work, at least in principle. Otherwise, you may end up wasting time trying to fix non-existent bugs in your code when there is some other hardware issue happening.
 
-@ Heading 4
+@ Heading 4  -  Intro to Python
+While all of these tools are really useful, the real purpose of this article is to give you the ability to add Bluetooth functionality to your own code. This way, you can connect multiple devices together and have them managed from your Raspberry Pi. The first step is to make sure that you have the Bluetooth module for Python installed. You can do so with the following command.
+/c/
+sudo apt-get install python-bluetooth
+/c/
+Once it is installed, you can import it into your code with the Python statement below.
+/c/
+import bluetooth
+/c/
+Since Bluetooth is a type of network stack, a lot of the language around Bluetooth coding should seem very familiar to anyone who has written networking code before. 
 
-@ Heading 5
+@ Heading 5  -  Copying Files Around
 
-@ Heading 6
+@ Heading 6  -  Creating a Server
 
-@ Heading 7
+@ Heading 7  -  Controlling Devices
 
-@ Heading 8
+@ Heading 8  -  Where to Now?
 
 
 
