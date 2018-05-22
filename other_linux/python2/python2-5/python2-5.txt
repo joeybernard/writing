@@ -59,7 +59,27 @@ sudo apt-get install pi-bluetooth
 Not only do you get the required drivers for the Bluetooth stack, but you also get several utilities that you can use to verify your setup.
 
 @ Heading 2  -  Checking Things Out
-Once you you have everything installed, you can use one of the included command line utilities to check that everything is working correctly. The main utility for this purpose is called 'bluetoothctl'. When you run it, you get dropped into an interpreter where you can issue commands to the Bluetooth stack. 
+Once you you have everything installed, you can use one of the included command line utilities to check that everything is working correctly. The main utility for this purpose is called 'bluetoothctl'. When you run it, you get dropped into an interpreter where you can issue commands to the Bluetooth stack. From here, you can use the 'list' command to see what Bluetooth controllers are on your Raspberry Pi. If you have multiple dongles plugged in, you could use the 'select' command to pick which controller is to be used. You will want to make sure that the controller is powered up and active before starting a scan of what devices are available locally. You can do this with the following commands.
+/c/
+power on
+/c/
+/o/
+Changing power on succeeded
+/o/
+/c/
+agent on
+/c/
+/o/
+Agent registered
+/o/
+/c/
+scan on
+/c/
+/o/
+Discovery started
+....
+/o/
+You should now see 
 
 @ Heading 3
 
