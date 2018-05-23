@@ -22,15 +22,18 @@ Joey Bernard has written a column on scientific software, as well as a column on
 
 
 @ Resources
-List everything required for this tutorial and provide URLs if applicable. 
-If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+https://github.com/karulis/pybluez  -  The Python Bluetooth module
+http://pages.iu.edu/~rwisman/c490/html/pythonandbluetooth.htm  -  A short tutorial on Python and Bluetooth
+https://www.raspberrypi.org/blog/raspberry-pi-zero-w-joins-family/  -  The Raspberry Pi Zero W
+https://www.raspberrypi.org/products/raspberry-pi-zero-w/  -  More Raspberry Pi Zero W information
+https://www.raspberrypi.org/blog/raspberry-pi-3-model-bplus-sale-now-35/  -  The Raspberry Pi 3 B+
+
+
 
 @ Lead image
-Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+I think the lead image should be some combination of the Bluetooth logo, the Python logo and the Raspberry Pi logo. I could do up a rough example?
 
-NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
 
-Total word count is 2,952 (roughly 16,940 char).
 
 @ Intro text  -  198 words
 One of the great uses of the Raspberry Pi is as a controller for other devices. The Raspberry Pi includes the GPIO bus, which most people have used in the past. But sometimes, you may need to talk to devices that can't be connected to your Pi by wires. If you have a WiFi hub, you could communicate over it with your devices. This may not be possible in every case, though. Your device may not be able to speak over WiFi. Or, the device may be a low-power device and not be able to run something as electrically expensive as a WiFi radio. In these cases, another option is to communicate over Bluetooth.
@@ -39,11 +42,8 @@ As of when this article goes out, there are several Raspberry Pi variants that c
 
 
 
-@ Body text
+@ Body text  -  2737 words
 
-2,752 words (rouhgly 15,800 chars)
-
-Use 8 subheadings (or crossheads) to break this text up.
 @ Heading 1  -  Installation
 The first step is to make sure that you have all of the required packages installed. You will want to make sure your entire system is updated first. You can do that with the following commands.
 /c/
@@ -52,7 +52,7 @@ sudo apt-get upgrade -y
 sudo apt-get dist-upgrade -y
 sudo rpi-update
 /c/
-Once your Raspberry Pi is fully updated, you can make sure all of the required bluetooth software is installed by installing the one meta-package, as shown below.
+Once your Raspberry Pi is fully updated, you can make sure all of the required Bluetooth software is installed by installing the one meta-package, as shown below.
 /c/
 sudo apt-get install pi-bluetooth
 /c/
@@ -79,7 +79,7 @@ scan on
 Discovery started
 ....
 /o/
-You should now see a stream of devices as they become visible to the Raspberry Pi. This will include device IDs that can be used to connect to them. This is handled with the 'connect' command, plus the hexidecimal ID for the required device.
+You should now see a stream of devices as they become visible to the Raspberry Pi. This will include device IDs that can be used to connect to them. This is handled with the 'connect' command, plus the hexadecimal ID for the required device.
 
 @ Heading 3  -  Using a GUI
 Along with command line tools, like bluetoothctl, there are GUI applications that you can use to manage bluetooth devices and how your Raspberry Pi connects to them. If you are using your Raspberry Pi, plus a display, as the front-end for your project, these can be very useful to make sure everything is set up correctly. A popular GUI application is blueman. With this utility, you can scan to see what devices are available in your vicinity, and make connections to those that you are interested in using. You can pull up more detailed information on these devices, as well as copying files to and from these connected devices. These are important tools that you should use to debug connections before diving into using your own code to manage any communication between the Raspberry Pi and the Bluetooth device. You don't want to have to debug your code without establishing that the underlying Bluetooth connection does work, at least in principle. Otherwise, you may end up wasting time trying to fix non-existent bugs in your code when there is some other hardware issue happening.
@@ -115,38 +115,126 @@ server_socket.close()
 Don't forget that you have two socket connections to shutdown. Now that the basics have been covered, we can dig into heavier functionality.
 
 @ Heading 5  -  Copying Files Around
+One of the things you may want to do with your Raspberry Pi is to act as a data collection point for whatever remote devices are communicating back to it. In these cases, you will want to dump the incoming data to a file for further processing later. The first step is to accept an incoming connection. Since you want to accept a connection from any device out there, you need to listen on all ports.
+/c/
+server_sock=BluetoothSocket( RFCOMM )
+server_sock.bind(("",PORT_ANY))
+server_sock.listen(1)
+port = server_sock.getsockname()[1]
+/c/
+The last line gives you the port that is being listened on. The next step is to accept a connection and grab the device name from that incoming connection.
+/c/
+client_sock, client_info = server_sock.accept()
+/c/
+With this information, you can open up a unique file for this particular connection in order to save the incoming data to. As a simple example, you could do something like the following.
+/c/
+client_file_name = client_info[0] + ".out"
+client_file = open(client_file_name, 'a')
+while True:
+    data = client_sock.recv(1024)
+    if len(data) == 0: break
+    client_file.write(data)
+/c/
+The 'open()' function uses the append mode so that all of the data for a particular device gets collected in one location to make it easier to work with later on. Depending on what kind of data is coming in, you may want to do some formatting to make it easier to deal with.
+
+Going in the other direction is not too difficult, either. You simply need to open up a local file for reading, and then send the data out to the other device. A simple example would look like the following.
+/c/
+data_file = open('data.txt')
+while True:
+    data = data_file.read(1024)
+    if len(data) == 0: break
+    client_sock.send(data)
+/c/
+This type of pattern should be familiar to anyone who has written TCP socket code before. With this boilerplate code, you code write a controller program for your Raspberry Pi that can send out data files to the remote devices, and then read in results and save them to output files. These remote devices could be almost anything. You may have a collection of other Raspberry Pis, some extra older smart phones that are laying around, or some custom hardware based on an Arduino plus a Bluetooth module.
 
 @ Heading 6  -  Creating a Server
+If your Raspberry Pi is going to act as the central data collection node, you will want to actually create a server process that is able to listen for all incoming connections and process them as they report in. The key is that you will need one thread of execution to handle incoming connections. This thread will add the connected sockets to a data structure. Then, you will need another thread to go through these connections and deal with any incoming data. For both of these sections of code, we'll assume that you have a dictionary, named 'connections', that will be used to handle all of this processing.
+
+The first step is to handle the incoming connections. For this portion, the code will essentially set up the socket and then sit and listen for the next connection request.
+/c/
+while True:
+    socket, info = server_sock.accept()
+    address, psm = info
+    connections[address] = socket
+/c/
+This code snippet will loop forever, listening for incoming connections and saving them to the dictionary when they get established.  The next chunk of work is to check all of these connections and see what might be coming in on them. The basic check would look like the following.
+/c/
+def check_data(address, output_file):
+    socket = connections[address]
+    while True:
+        data = socket.recv(1024)
+        if len(data) == 0: break
+        output_file.write(data)
+    socket.close()
+    del connections[address]
+/c/
+Since the 'recv()' function call is blocking, meaning that it will sit and wait until something happens, you will likely want to create a separate thread for each of these connections so that your program won't get blocked and frozen each time it checks for incoming data from each of these connections. Also, the given function cleans up after itself when the connection is lost, or closed from the other side. This may be something that you would rather handle in some central fashion, depending on how robust you want your program to be.
 
 @ Heading 7  -  Controlling Devices
+When dealing with devices in your Bluetooth neighborhood, there are a couple of other techniques that you may want to consider adding to your code. The first is adding code to advertise yourself to all of the locally visible devices by using the Service Discovery Protocol (SDP). There is a function, named 'advertise_service()' that you can use to do this broadcast process. Assuming that you already opened up a socket, as we did earlier, that is currently listening, the following code sets up the SDP process.
+/c/
+bluetooth.advertise_service(server_sock, "rpiService",
+                            service_classes=[bluetooth.SERIAL_PORT_CLASS],
+                            profiles=[bluetooth.SERIAL_PORT_PROFILE])
+/c/
+This sets up a service, named rpiService, that other devices can look for and decide whether they should be connecting to it or not. This can help make the set up of your remote devices a bit easier, since you are now dealing with names rather than addresses. If your remote devices are also using Python code to connect (maybe they are also Raspberry Pi boards), the following code is an example of how to make that connection.
+/c/
+services = bluetooth.find_service(name="rpiService",
+                                  uuid=SERIAL_PORT_CLASS)
+match = services[0]
+port = match["port"]
+name=match["name"]
+host=match["host"]
+client_socket=BluetoothSocket( RFCOMM )
+client_socket.connect((host, port))
+/c/
+This code assumes that there is only one service visible that has the name 'rpiService'.
+
+Along with devices being able to discover your Raspberry Pi server, you may need to let your Raspberry Pi to discover what devices are visible to it. The function 'discover_devices()' does this scan and reports back useful information about any that are found.
+/c/
+nearby_devices = bluetooth.discover_devices(lookup_names=True)
+for address, name in nearby_devices:
+    print("Found  %s - %s" % (addr, name))
+/c/
+This way, if your devices are configured to accept incoming connections, your Raspberry Pi can be completely in charge. It can look to see what devices are up and listening, and then go ahead and make socket connections to them and send them control signals. This way of working implies that the remote devices are coded by yourself and are operating on the premise that the Raspberry Pi will be connecting to them and controlling them directly.
 
 @ Heading 8  -  Where to Now?
-
-
+Before moving on, I need to stress that you should not use any of the code you have seen directly. As you should have noticed, I did no error checking at all. With a protocol like Bluetooth, which is meant to be short-range and low-power, connections between devices are a bit more fragile than you might be used to. Especially if you have coded communication programs over a hard link, like TCP over Ethernet. This means that you are responsible to write your code to be a bit more robust, especially if the remote devices are at the extreme range of the radios. Having said that, I hope that this has put another options in your toolbox for when you need to have multiple machines talking to each other.
 
 
 
 @ Supporting images
-3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+@ Image1  -  bluetooth1.png
+@ Image2  -  bluetooth2.png
+@ Image3  -  star.gif  -  This is an example. Could you do up a version where the central hub is a representation of a Raspberry Pi, with the outer nodes being a combination of Raspberry Pis, Arduinos and/or phones.
 
-If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
 
-If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
 
 @ Captions
-Images need captions, which need to be around 15 words each.
+@ Caption1
+When using the command line utility bluetoothctl, you get to see all of the devices within range of your Raspberry Pi, including their hardware addresses.
+@ Caption2
+If you have a GUI available, a program like blueman can be a friendly way to verify that the underlying Bluetooth hardware is working correctly.
+@ Caption3
+The basic layout of the network we are creating is a star topology where everyone is talking to a central Raspberry Pi.
 
-A note on captions:
-These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
 
-@ 2x boxouts
-60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
 
-A note on boxouts:
-Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
 
-@ 2x Pullquotes
-Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+@ Boxout1 (64 words)  -  BLE for low power systems
+Bluetooth includes a low power implementation, named BLE. You may want to consider looking at this as an option if you are building a project that needs to run off of batteries for an extended period of time. Within the Python bluetooth module, there is a sub-module named 'bluetooth.ble' that has a set of classes and methods to manage this for you.
+
+@ Boxout2 (67 words)  -  Talking to an Arduino
+While all of the code in the main article is meant to run on a Raspberry Pi, that isn't the only DIY device that you may chose to use for your project. You may decide to use a Raspberry Pi, plus the code discussed here, to act a central controller unit. Then you can use an Arduino, plus a Bluetooth module, to act as a remote sensor.
+
+
+
+@ Pullquote1
+While all of these tools are really useful, the real purpose of this article is to give you the ability to add Bluetooth functionality to your own code.
+
+@ Pullquote2
+Since Bluetooth is a type of network stack, a lot of the language around Bluetooth coding should seem very familiar to anyone who has written networking code before.
+
 
 
 [IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]
