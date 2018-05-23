@@ -93,7 +93,26 @@ Once it is installed, you can import it into your code with the Python statement
 /c/
 import bluetooth
 /c/
-Since Bluetooth is a type of network stack, a lot of the language around Bluetooth coding should seem very familiar to anyone who has written networking code before. 
+Since Bluetooth is a type of network stack, a lot of the language around Bluetooth coding should seem very familiar to anyone who has written networking code before. You need to create socket objects and use them to open connections to other devices. Then you can send and receive data across this socket. The first step is to create the socket.
+/c/
+server_socket = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+/c/
+Once the socket is created, you can listen for incoming connections.
+/c/
+port = 1
+server_socket.bind(("",port))
+server_socket.listen(1)
+/c/
+The above code binds the socket to a selected port, and then listens on that port for incoming connections. After that, you can accept incoming connections. As you can see below, you get a client socket and an address from this incoming connection.
+/c/
+client_socket,address = server_socket.accept()
+/c/
+You can then call the 'recv(X)' method of the client socket. The parameter 'X' is the number of bytes to read in from this particular call. Once your code is all done with the Bluetooth connection, you need to remember to shut everything down cleanly.
+/c/
+client_socket.close()
+server_socket.close()
+/c/
+Don't forget that you have two socket connections to shutdown. Now that the basics have been covered, we can dig into heavier functionality.
 
 @ Heading 5  -  Copying Files Around
 
