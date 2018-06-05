@@ -68,7 +68,14 @@ if __name__ == '__main__':
 As you can see, the first step is to import the 'App' class, and implement your own subclass based on it. In this case, the subclass is named 'MyApp'. The primary method that you must implement is the 'build()' function. This method gets executed when your app starts and generates the actual windows and other display elements. In the above example, the code simply generates a Label object in order to show the text 'Hello World'. Once you have the code saved in a Python script file, named 'myapp.py' for example, you can simply run it with the command 'python myapp.py'.
 
 @ Subheading3  -  Displaying Data
-Moving beyond a simple text display, what tools does Kivy provide for displaying data? Since we're talking graphical displays, you probably want to be able to display images in your program. 
+Moving beyond a simple text display, what tools does Kivy provide for displaying data? Since we're talking graphical displays, you probably want to start with being able to display images in your program. This is handled through the Image class. For example, you could add the following to the earlier boilerplate.
+/c/
+from kivy.uix.image import Image
+....
+    def build(self):
+        return Image(source='image.png')
+/c/
+This loads up and displays the image file given as the source for the Image class. This works great for images stored locally, but you may want to load images from some remote source, like a web server. In these cases, you may want to use the 'AsyncImage' class instead. This puts the loading of the image into the background and keeps the rest of your program from blocking while the image is being loaded.
 
 @ Subheading4  -  Layouts
 @ Subheading5  -  Interacting with the World
