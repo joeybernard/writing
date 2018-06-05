@@ -75,11 +75,63 @@ from kivy.uix.image import Image
     def build(self):
         return Image(source='image.png')
 /c/
-This loads up and displays the image file given as the source for the Image class. This works great for images stored locally, but you may want to load images from some remote source, like a web server. In these cases, you may want to use the 'AsyncImage' class instead. This puts the loading of the image into the background and keeps the rest of your program from blocking while the image is being loaded.
+This loads up and displays the image file given as the source for the Image class. This works great for images stored locally, but you may want to load images from some remote source, like a web server. In these cases, you may want to use the 'AsyncImage' class instead. This puts the loading of the image into the background and keeps the rest of your program from blocking while the image is being loaded. There are quite a few parameters to the class instantiation that help control the image display. You can set 'allow_stretch' to let the image fill the containing box. The image ratio is kept by default, but you could allow it to get stretched regardless by setting the parameter 'keep_ratio' to False. If the image your are loading is an animated GIF file, Kivy gives you control over it. You can set how many times to loop through it with the parameter 'anim_loop', while you can control how fast the animation happens with the parameter 'anim_delay'. If your system is actually updating the image file, say you are updating a plot with new data, you can tell your program to reload the new image data with the method 'reload()'.
+
+You may, instead, need to build up your graphical imagery from scratch. The subsection 'kivy.graphics' contains a number of graphical primitives that you can use to build up required imagery. These primitives include objects like lines, ellipses, points, rectangles, beziers and triangles. There are also a number of methods available to alter these graphical elements. These include transformational functions like translate, scale and rotate. You have other standard graphical elements, like pop ups and labels, that allow you to display textual information. For example, the following displays the contents of a text file:
+/c/
+from kivy.uix.label import Label
+text_file = open('my_file.txt')
+text_str = text_file.read()
+label1 = Label(text=text_str)
+/c/
+You can control the layout of the text with parameters such as 'font_name', 'font_size', 'color', 'halign' and 'valign'. You can even make your text box interactive by adding the markup '[ref=XXXX]' and '[/ref]', where 'XXXX' is a label for the reference. This makes the text surrounded by these delineators a link that can have some function bound to it. The following code shows how you would get the function 'my_func' to fire when the word hello gets clicked.
+/c/
+label1 = Label(text='[ref=hello]Hello[/ref] World', markup=True)
+label1.bind(on_ref_press=my_func)
+/c/
+As you can see, you also need to include the parameter 'markup=True' so that the markup tags get processed correctly.
+
+The last big graphical element that you can add to your program is the ability to play video files. All of the really hard work is wrapped up in a very complete VideoPlayer object. With the following code, you get a video display with all of the usual playback controls.
+/c/
+from kivy.uix.videoplayer import VideoPlayer
+player = VideoPlayer(source='my_film.avi', state='play')
+/c/
+This loads the video file and starts it playing immediately. It also includes all of the standard controls so that the end user can control playback.
 
 @ Subheading4  -  Layouts
+While we have looked at a lot of the elements that can be used to display things within your program, we have not looked at how they are actually laid out on the screen. As with many other graphical toolkits, Kivy gives you a set of classes, called layouts, that manage the physical organization of the various elements. As a basic example, the following code draws two buttons, one above the other.
+/c/
+layout = BoxLayout(orientation='vertical')
+btn1 = Button(text='Hello')
+btn2 = Button(text='World')
+layout.add_widget(btn1)
+layout.add_widget(btn2)
+/c/
+The first line creates the layout object, oriented vertically. Then, two button objects are created. All of the objects that generate graphical elements for your program subclass the basic class for widgets. So you can use the 'add_widget()' method of the layout object to add them to the display. The box layout can be thought of as a one dimensional layout, where you can have your widgets grouped either vertically or horizontally. Moving up one dimension, you use the grid layout object. Unlike many other graphical toolkits, you do not have direct control over where widgets are placed within the grid. They get placed simply in the order that they are added to the layout object. They are laid out in row first order. You need to give the grid layout at least one of either the cols or rows parameter. The sizing of the widgets need to match. That is, all of the widgets in a given column need to be the same width and any widgets in a given row need to be the same height. If you want to be more flexible in the sizing of your widgets, you may want to use the stack layout instead. In a stack layout, widgets in a given row or column no longer need to be the same height or width. 
+
+You can move up another dimension by using the page layout object. This creates a multi-page layout where widgets can be added to each page, and you can flip back and forth between them using the borders. A more structured layout object is the anchor layout. In this case, you define an 'anchor_x' and 'anchor_y' parameter. These can take on the values of top, center or bottom. This essentially pins the children of the anchor layout to one of the borders.
+
 @ Subheading5  -  Interacting with the World
+Many of your projects will also need to accept input from end users. This could come in a variety of forms. We have already seen buttons in some of the earlier code examples. Moving beyond the button, Kivy provides a toggle button. The toggle behaves much like a checkbox does. You can make it behave more like a set of radio buttons by using the group parameter. In this case, only one member of the group can be in the down state at a time.
+
+While these types of input values are simple on or off values, that may not be enough. In these cases, you can add a slider to your program.
+/c/
+from kivy.uix.slider import Slider
+s = Slider(min=-100, max=100)
+/c/
+You can read off the value that the user has set it to by checking the value property of the slider. You can also set this value property, which will reset the slider to that position on the display.
+
+For the inputting of textual data, you have a couple of options. The first is the 'TextInput' class. This class allows you to add a text box where the user can add whatever data they wish to type in. It handles cursor movements within the text box, as well as clipboard interaction with the operating system. If you need a more robust textual input option, you may want to look at the CodeInput class. This class lets you embed, essentially, an IDE within your code. You also need to have the Python module pygments installed, as it provides highlighting to the widget. Any of the langauges that are supported by pygments gets highlighted within the code editor window. For example, the following code creates a code input widget that highlights Cython code.
+/c/
+from kivy.uix.codeinput import CodeInput
+from pygments.lexers import CythonLexer
+codeinput = CodeInput(lexer=CythonLexer())
+/c/
+
+
 @ Subheading6  -  Events
+We've looked at all sorts of display options, as well as ways that users can input their own data or interact with your program. But how do you manage the actions that are triggered by these interactions? Whenever you actually do anything, such as clicking on a button or typing some text, these actions trigger events within Kivy. Widgets all implement the EventDispatcher to manage these 
+
 @ Subheading7  -  Non-widget Stuff
 @ Subheading8  -  Where to now?
 
