@@ -1,17 +1,3 @@
-Pi code-based tutorial, 4 pages
--feel free to include commands and small segments of code in-line with the body text, but for larger chunks of code please use figure references or refer people to the coverdisc as we can supply them with code, if you send it in with your commission.
-Note: please indicate where code starts and ends with /c/ and any output with /o/, as it enables a non-tech savvy art person to layout the pages e.g.
-/c/
-$ telnet 192.168.1.200 8000
-/c/
-/o/
-Trying 192.168.1.200...
-/o/
-
-Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
-One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
-
-Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
 
 @ Title  -  9 words
 Using Kivy to Give Your Code a Pretty Face
@@ -30,15 +16,15 @@ Joey Bernard has written a column on scientific software, as well as a column on
 
 
 @ Resources
-List everything required for this tutorial and provide URLs if applicable.
-If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+https://kivy.org
+http://pygments.org
+
+
 
 @ Lead image
-Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+I think maybe some combination of the Kivy, Python and Raspberry Pi logos?
 
-NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
 
-Total word count is 2,952 (roughly 16,940 char).
 
 @ Intro text  -  180 words
 In this column, we have looked at lots of different projects that you could use your Raspberry Pi for. While we looked at code that was specific for each project, such as how to talk to Bluetooth devices or communicate over the GPIO bus, we did not do much with how to interact with people. This month, we will take a look at Kivy, in order to be able to create graphical displays and dashboards. Kivy is a multi-platform library for Python that gives you the tools you need to build a GUI for your Python code. While we will be looking at using it on the Raspberry Pi, Kivy is available on Linux, Windows, Mac OSX and even Android. So, you can take the examples given here and reuse them in lots of other projects. Along with dashboard displays, Kivy provides several different interface options, like buttons, touch screens and even multi-touch interfaces. By the end of this article, you should have the tools you need to add a really useful interface to your Raspberry Pi project.
@@ -121,7 +107,7 @@ s = Slider(min=-100, max=100)
 /c/
 You can read off the value that the user has set it to by checking the value property of the slider. You can also set this value property, which will reset the slider to that position on the display.
 
-For the inputting of textual data, you have a couple of options. The first is the 'TextInput' class. This class allows you to add a text box where the user can add whatever data they wish to type in. It handles cursor movements within the text box, as well as clipboard interaction with the operating system. If you need a more robust textual input option, you may want to look at the CodeInput class. This class lets you embed, essentially, an IDE within your code. You also need to have the Python module pygments installed, as it provides highlighting to the widget. Any of the langauges that are supported by pygments gets highlighted within the code editor window. For example, the following code creates a code input widget that highlights Cython code.
+For the inputting of textual data, you have a couple of options. The first is the 'TextInput' class. This class allows you to add a text box where the user can add whatever data they wish to type in. It handles cursor movements within the text box, as well as clipboard interaction with the operating system. If you need a more robust textual input option, you may want to look at the CodeInput class. This class lets you embed, essentially, an IDE within your code. You also need to have the Python module pygments installed, as it provides highlighting to the widget. Any of the languages that are supported by pygments gets highlighted within the code editor window. For example, the following code creates a code input widget that highlights Cython code.
 /c/
 from kivy.uix.codeinput import CodeInput
 from pygments.lexers import CythonLexer
@@ -139,33 +125,61 @@ btn1.bind(state=callback)
 /c/
 This binds the callback function to the state property of the button. Anytime it changes, the callback function gets fired. You can even create your own with the 'register_event_type()' method of the widget class.
 
-Along with these class events, there are also input events. 
+Along with these class events, there are also input events. Things like mouse clicks, touches and scroll wheel events are all handled by the class MotionEvent. These are actually dispatched by the 'on_motion()' method of the Window class. They then generate 'on_touch_down()', 'on_touch_move()' and 'on_touch_up()' events in the Widget class. You can override any of these event handlers. The code below is an example.
+/c/
+def on_touch_down(self, touch):
+    if super(OurClassName, self).on_touch_down(touch):
+        return True
+    if not self.collide_point(touch.x, touch.y):
+        return False
+    print('you touched me!')
+    return True
+/c/
+You should have noticed the references to 'super' in the above example. This is because, when you override one these event handlers, you become responsible for all of the required functionality. For the sections that you are not interested in overriding, you can use 'super' to use the code from the base class.
+
+The last category of events are those generated by the Clock object. Because of the way Kivy's event loop manages event handlers, you can't have any kind of infinite loop in you code that executes some code repeatedly. This will end up blocking the rest of the system and staying stuck in your loop. But, you may have a legitimate reason for wanting to repeat a chunk of code in your event handler. If so, the correct way to do this is with the Clock object. With the Clock, you can schedule function calls for some point in the future, either once or repeatedly. for example, the following code fires your callback function every second.
+/c/
+def my_callback(dt):
+    pass
+Clock.schedule_interval(my_callback, 1.0)
+/c/
+In this example, the callback function doesn't actually do anything. The parameter 'dt' is the delta time, and is always handed in to your callback function.
 
 @ Subheading7  -  Non-widget Stuff
-@ Subheading8  -  Where to now?
+There are several other classes available that provide nice-to-have functionality for your code. The Animation class provides a set of pre-packaged transitions that smoothly move widgets from one state to another. For example, you could have the text for a Label object fade into view, without having to write and debug a bunch of your own code. We didn't get a chance to talk about textures, but there is an include Atlas class that allows you to bundle a number of textures together into a single image file. This helps simplify image downloading. The last extra class is the UrlRequest class. This class provides a way to interact with things out on the Internet outside of the main loop. This way you can do something like downloading a file from a web site without blocking your entire interface while you are waiting for it finish.
+
 
 
 @ Supporting images
-3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+IMAGE1  -  kivy1.png
+IMAGE2  -  kivy2.png
+IMAGE3  -  kivy3.png
 
-If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
 
-If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
 
 @ Captions
-Images need captions, which need to be around 15 words each.
+IMAGE1  -  Kivy does smooth multi-image, multi-touch displays really easy to code.
+IMAGE2  -  Kivy builds up from the low-level interface libraries to the high-level objects like widgets.
+IMAGE3  -  The Kivy examples provide a showcase application that lets you see almost all of the widgets available.
 
-A note on captions:
-These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+
 
 @ 2x boxouts
-60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
+@ Boxout1  -  56 words
+Using Kivy as your GUI toolkit, you can easily do your code development on your desktop. You can then move it off to your Raspberry Pi project with usually no code changes at all. For people who have used a descriptive GUI language, like glade, Kivy provides the Kv language that behaves in the same way.
 
-A note on boxouts:
-Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+@ Boxout2  -  61 words
+With Kivy, you can easily control most of its functionality through the setting of environment variables. For example, you could set KIVY_WINDOW to 'x11'. This will force Kivy to use the X11 windowing environment. You also have control over audio, camera usage, OpenGL implementation to use, among other elements. These options can also be placed within a configuration file, too.
+
+
 
 @ 2x Pullquotes
-Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+@ Pullquote1
+Since Kivy is a full GUI toolkit, it will involve a bit more boilerplate code wrapping the actual functional bits.
+
+@ Pullquote2
+As with many other graphical toolkits, Kivy gives you a set of classes, called layouts, that manage the physical organization of the various elements.
+
 
 
 [IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]
