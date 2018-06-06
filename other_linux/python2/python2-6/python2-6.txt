@@ -127,10 +127,19 @@ from kivy.uix.codeinput import CodeInput
 from pygments.lexers import CythonLexer
 codeinput = CodeInput(lexer=CythonLexer())
 /c/
-
+There are a huge number of lexers available with pygments. In the rare instances where you need a lexer for some obscure language, you can always build your own.
 
 @ Subheading6  -  Events
-We've looked at all sorts of display options, as well as ways that users can input their own data or interact with your program. But how do you manage the actions that are triggered by these interactions? Whenever you actually do anything, such as clicking on a button or typing some text, these actions trigger events within Kivy. Widgets all implement the EventDispatcher to manage these 
+We've looked at all sorts of display options, as well as ways that users can input their own data or interact with your program. But how do you manage the actions that are triggered by these interactions? Whenever you actually do anything, such as clicking on a button or typing some text, these actions trigger events within Kivy. Widgets all implement the EventDispatcher to manage these events in a background thread of execution. As you have seen above, events are managed by callback functions that are bound to one or more of these actions. There are several available as part of the widget class. For example, the following code notifies you of any changes in the state of a button.
+/c/
+def callback(instance, value):
+    print('My button <%s> state is <%s>' % (instance, value))
+btn1 = Button(text='Hello world 1')
+btn1.bind(state=callback)
+/c/
+This binds the callback function to the state property of the button. Anytime it changes, the callback function gets fired. You can even create your own with the 'register_event_type()' method of the widget class.
+
+Along with these class events, there are also input events. 
 
 @ Subheading7  -  Non-widget Stuff
 @ Subheading8  -  Where to now?
