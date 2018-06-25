@@ -1,0 +1,6 @@
+Astronomy on KDE
+
+
+I recently moved to using KDE and plasma as my main desktop environment. As such, I thought I should start digging into some of the scientific software available on KDE. This month, we'll start by looking at kstars, the desktop astronomy program. It probably won't be installed with the standard KDE desktop, so you may need to install it. If you are using a Debian based distribution, you can install kstars with the following command.
+   sudo apt-get install kstars
+When you start it up the first time, kstars will ask you for your current location. It then will give you the option of installing several extra information files to add to the list of objects that kstars knows about and can display.
