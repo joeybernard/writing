@@ -1,0 +1,91 @@
+Pi code-based tutorial, 4 pages
+-feel free to include commands and small segments of code in-line with the body text, but for larger chunks of code please use figure references or refer people to the coverdisc as we can supply them with code, if you send it in with your commission.
+Note: please indicate where code starts and ends with /c/ and any output with /o/, as it enables a non-tech savvy art person to layout the pages e.g.
+/c/
+$ telnet 192.168.1.200 8000
+/c/
+/o/
+Trying 192.168.1.200...
+/o/
+
+Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
+One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
+
+Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
+
+@ Title  -  9 words
+Using ipyparallel to put your Raspberry Pis to work
+
+
+
+@ Standfirst  -  30 words
+There are lots of methods to run parallel code on your network of Raspberry Pis. This month, we will look at how to use ipyparallel to run parallel Python code.
+
+
+
+@ Profile  -  44 words
+[Joey Bernard]
+Joey Bernard has written a column on scientific software, as well as a column on writing Python code for the Raspberry Pi. In his day job, he helps researchers and students at the university level in designing and running HPC projects on supercomputing clusters.
+
+
+
+@ Resources
+List everything required for this tutorial and provide URLs if applicable.
+If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+
+@ Lead image
+Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+
+NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
+
+Total word count is 2,952 (roughly 16,940 char).
+
+
+@ Intro text  -  185 words
+Raspberry Pi provides a very powerful, yet very energy efficient, computing package. While its portability has made a great platform for mobile applications, there is a lot of "real" computing that can be done on them as well. This month, we will look at how you can run parallel Python code on a network of Raspberry Pis. Specifically, we will look at setting up a cluster of Raspberry Pis with ipyparallel, and how to run prallel code on this cluster.
+
+You will want to start by physically connecting the Raspberry Pis together over a network. This may be a small local network, where they are all connected to same router or switch. In all of the examples in the rest of this article, I will be assuming that the Raspberry Pis all have static IP addresses in the range of 192.168.0.1 to 192.168.0.255, since these are reserved for internal local networks. From here, we will move on to setting up the software and actually running jobs. You should end up with probably the quietest and most energy efficient supercomputing.
+
+
+
+@ Body text
+2,752 words (rouhgly 15,800 chars)
+Use 8 subheadings (or crossheads) to break this text up.
+@ Subheading 1  -  Introduction
+Ipyparallel is a Python module that adds the ability to to Ipython run multiple Ipython engines and have them talk to each other. These could be on a single machine, but in order to maximize the amount of computing you can do, they can be run on multiple separate machines.
+
+@ Subheading 2  -  Installation
+@ Subheading 3  -  Setting up the clients
+@ Subheading 4  -  Setting up the master
+@ Subheading 5  -  Running a test
+@ Subheading 6  -  Running tasks  
+@ Subheading 7  -  Connecting from jupyter
+@ Subheading 8  -  Where to now?
+
+
+
+
+@ Supporting images
+3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+
+If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
+
+If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
+
+@ Captions
+Images need captions, which need to be around 15 words each.
+
+A note on captions:
+These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+
+@ 2x boxouts
+60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
+
+A note on boxouts:
+Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+
+@ 2x Pullquotes
+Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+
+
+[IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]
