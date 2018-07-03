@@ -52,11 +52,30 @@ You will want to start by physically connecting the Raspberry Pis together over 
 2,752 words (rouhgly 15,800 chars)
 Use 8 subheadings (or crossheads) to break this text up.
 @ Subheading 1  -  Introduction
-Ipyparallel is a Python module that adds the ability to to Ipython run multiple Ipython engines and have them talk to each other. These could be on a single machine, but in order to maximize the amount of computing you can do, they can be run on multiple separate machines.
+Ipyparallel is a Python module that adds the ability to to Ipython run multiple Ipython engines and have them talk to each other. These could be on a single machine, but in order to maximize the amount of computing you can do, they can be run on multiple separate machines. Ipyparallel is built on a layered structure of three main parts: a controller, one or more clients and one or more engines. The engines are the IPython kernels that actually run your Python code. In our setup here, these engines will be distributed across all of the connected Raspberry Pis. The clients are the Python programs that connect to your ipyparallel cluster and request for computations to be done. This is where you actually define the tasks that need to be done and fire them off. The controller is the core of your ipyparallel cluster. It is actually made up of a hub and one or more schedulers. The hub manages the entire cluster and all of the communications between all of the parts. The schedulers wrap the engines and manage the amount of work being given to them.
 
 @ Subheading 2  -  Installation
-@ Subheading 3  -  Setting up the clients
-@ Subheading 4  -  Setting up the master
+The first step is to install ipyparallel on your Raspberry Pi. It is not likely to be in the package repository of whatever distribution you are using. This means that in most cases, you will need to install it using pip. This also means that you will need to install pip first. In Debian-based distributions, like Raspbian, you can install it with the following command.
+/c/
+sudo apt-get install python-pip
+/c/
+If you are using Python 3.X, you will want to install 'python3-pip' instead. Once pip installed, you can install ipyparallel with the following command.
+/c/
+sudo pip install ipyparallel
+/c/
+If you are using Python 2.X, you may run into an issue here. The latest versions of ipyparallel don't support older versions of Python 2.X and 3.X, and you are more likely to have an older version of Python 2.X. This is because most projects are moving to Python 3.X. If you run into this problem, your two choices are either to move to Python 3.X or install an updated Python 2.X. That will depend on the other requirements of your project. While you don't necessarily need to do the same thing on every Raspberry Pi, especially the clients, it is probably the easiest way to make sure that all of the support libraries and Python modules are installed. So, for the rest of this article, I will assume that you went ahead and simply installed the full ipyparallel module on all of the Raspberry Pis being used.
+
+@ Subheading 3  -  Setting up the master
+The master Raspberry Pi node will be the main controller that will be called the master node in the rest of this article. On this master node, you need to start up the controller portion of ipyparallel so that all of the other nodes have somewhere to connect to. The program you use for this step is the 'ipcontroller' executable. One of the most important command line options to this command is '--ip=XXXX', where 'XXXX' is the IP address that the ipyparallel controller is allowed to listen on. If your Raspberry Pi cluster is completely isolated on its own private network, you can set this option to '*'. The complete command would look like the following.
+/c/
+ipcontroller --ip='*'
+/c/
+Otherwise, you should be sure to set this to the IP address of the master node. Once this has started up, you will see 
+
+@ Subheading 4  -  Setting up the clients
+The bulk of your Raspberry Pis will be setup as clients to execute all of the parallel code that you will be running. These clients need to be 
+
+
 @ Subheading 5  -  Running a test
 @ Subheading 6  -  Running tasks  
 @ Subheading 7  -  Connecting from jupyter
