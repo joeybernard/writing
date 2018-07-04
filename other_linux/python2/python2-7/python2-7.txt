@@ -1,17 +1,3 @@
-Pi code-based tutorial, 4 pages
--feel free to include commands and small segments of code in-line with the body text, but for larger chunks of code please use figure references or refer people to the coverdisc as we can supply them with code, if you send it in with your commission.
-Note: please indicate where code starts and ends with /c/ and any output with /o/, as it enables a non-tech savvy art person to layout the pages e.g.
-/c/
-$ telnet 192.168.1.200 8000
-/c/
-/o/
-Trying 192.168.1.200...
-/o/
-
-Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
-One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
-
-Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
 
 @ Title  -  9 words
 Using ipyparallel to put your Raspberry Pis to work
@@ -30,29 +16,27 @@ Joey Bernard has written a column on scientific software, as well as a column on
 
 
 @ Resources
-List everything required for this tutorial and provide URLs if applicable.
-If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+https://github.com/ipython/ipyparallel
+https://ipyparallel.readthedocs.io/en/latest/
+https://github.com/jjhelmus/berryconda
+
+
 
 @ Lead image
-Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
+I was thinking of something where we have multiple Python logos, linked by arrows to the Jupyter logo. Implying parallel Python engines.
 
-NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
-
-Total word count is 2,952 (roughly 16,940 char).
 
 
 @ Intro text  -  185 words
-Raspberry Pi provides a very powerful, yet very energy efficient, computing package. While its portability has made a great platform for mobile applications, there is a lot of "real" computing that can be done on them as well. This month, we will look at how you can run parallel Python code on a network of Raspberry Pis. Specifically, we will look at setting up a cluster of Raspberry Pis with ipyparallel, and how to run prallel code on this cluster.
+Raspberry Pi provides a very powerful, yet very energy efficient, computing package. While its portability has made a great platform for mobile applications, there is a lot of "real" computing that can be done on them as well. This month, we will look at how you can run parallel Python code on a network of Raspberry Pis. Specifically, we will look at setting up a cluster of Raspberry Pis with ipyparallel, and how to run parallel code on this cluster.
 
 You will want to start by physically connecting the Raspberry Pis together over a network. This may be a small local network, where they are all connected to same router or switch. In all of the examples in the rest of this article, I will be assuming that the Raspberry Pis all have static IP addresses in the range of 192.168.0.1 to 192.168.0.255, since these are reserved for internal local networks. From here, we will move on to setting up the software and actually running jobs. You should end up with probably the quietest and most energy efficient supercomputing.
 
 
 
-@ Body text
-2,752 words (rouhgly 15,800 chars)
-Use 8 subheadings (or crossheads) to break this text up.
+@ Body text  -  2657 words
 @ Subheading 1  -  Introduction
-Ipyparallel is a Python module that adds the ability to to Ipython run multiple Ipython engines and have them talk to each other. These could be on a single machine, but in order to maximize the amount of computing you can do, they can be run on multiple separate machines. Ipyparallel is built on a layered structure of three main parts: a controller, one or more clients and one or more engines. The engines are the IPython kernels that actually run your Python code. In our setup here, these engines will be distributed across all of the connected Raspberry Pis. The clients are the Python programs that connect to your ipyparallel cluster and request for computations to be done. This is where you actually define the tasks that need to be done and fire them off. The controller is the core of your ipyparallel cluster. It is actually made up of a hub and one or more schedulers. The hub manages the entire cluster and all of the communications between all of the parts. The schedulers wrap the engines and manage the amount of work being given to them.
+Ipyparallel is a Python module that adds the ability to run multiple IPython engines and have them talk to each other. These could be on a single machine, but in order to maximize the amount of computing you can do, they can be run on multiple separate machines. Ipyparallel is built on a layered structure of three main parts: a controller, one or more clients and one or more engines. The engines are the IPython kernels that actually run your Python code. In our setup here, these engines will be distributed across all of the connected Raspberry Pis. The clients are the Python programs that connect to your ipyparallel cluster and request for computations to be done. This is where you actually define the tasks that need to be done and fire them off. The controller is the core of your ipyparallel cluster. It is actually made up of a hub and one or more schedulers. The hub manages the entire cluster and all of the communications between all of the parts. The schedulers wrap the engines and manage the amount of work being given to them.
 
 @ Subheading 2  -  Installation
 The first step is to install ipyparallel on your Raspberry Pi. It is not likely to be in the package repository of whatever distribution you are using. This means that in most cases, you will need to install it using pip. This also means that you will need to install pip first. In Debian-based distributions, like Raspbian, you can install it with the following command.
@@ -148,44 +132,61 @@ With this load-balanced view, we can duplicate the above example with the follow
 lview.block = True
 result = lview.map(lambda x:x**10, range(64))
 /c/
-The first line tells ipyparallel to block until all of the results are calculated and returned. The second line uses the map method of the load-balanced view to get the work of calculating the powers of tens scattered to all available engines. By default, ipyparallel hands out one task at a time. In your particular algorithm, you may know that it makes more sense to hand out tasks 10 ata time to each engine. You can do this by adding the parameter 'chunksize=10' to the call to the map method.
+The first line tells ipyparallel to block until all of the results are calculated and returned. The second line uses the map method of the load-balanced view to get the work of calculating the powers of tens scattered to all available engines. By default, ipyparallel hands out one task at a time. In your particular algorithm, you may know that it makes more sense to hand out tasks 10 at a time to each engine. You can do this by adding the parameter 'chunksize=10' to the call to the map method.
 
-One thing to note is what to do when you use non-blocking calls to map or apply. In these cases, you will get an 'AsyncResult' object returned. This happens before the results are done, which means that it is your responsibility to check to see when they are actually finished. A transparent way of working with the results is simply interating over them, as in the following example.
+One thing to note is what to do when you use non-blocking calls to map or apply. In these cases, you will get an 'AsyncResult' object returned. This happens before the results are done, which means that it is your responsibility to check to see when they are actually finished. A transparent way of working with the results is simply iterating over them, as in the following example.
 /c/
 for i in enumerate(result):
     print(i)
 /c/
-If, instead, you want to simply check in on your progress before starting to work with the results, you can use the progress property of the AsyncResult object to see how many tasks have been completed. You can use this to take care of other pieces of work while periodically checking to see whether all of the tasks have finished or not.
+If, instead, you want to simply check in on your progress before starting to work with the results, you can use the progress property of the AsyncResult object to see how many tasks have been completed. You can use this to take care of other pieces of work while periodically checking to see whether all of the tasks have finished or not. Once it equals the number of tasks that have been farmed out, you know that all of the work is done. You could use it to display a progress bar with something like the following.
+/c/
+fractional_progress = 1.0 * async_result.progress / len(async_result)
+/c/
+This something that is done often enough to have its own method, 'wait_interactive()'. This lets your end user know that work is still being done when you hit a point where you need to wait for results to finish being calculated.
 
 @ Subheading 7  -  Connecting from jupyter
-@ Subheading 8  -  Where to now?
+All of the examples above assume that you are just running Python code directly within the interpreter, or as scripts. But, a growing number of people see the jupyter notebook as their first exposure to Python, especially in data science. Thankfully, the jupyter notebook is able to talk to your ipyparallel cluster and farm work out to it when you get into larger problems. While you can have very complex configurations, we only look at the simplest. If you run the jupyter notebook on the master node, using the same profile that you used to run the ipcontroller program, then the jupyter process should be able to find all of the needed configuration files. You can see the available ipyparallel clusters in the 'IPython Clusters' tab of the notebook. This functionality seems to be fairly brittle, at least in my experience, so you may end up sticking with the basic ipython interface. It very much seems like a 'your mileage may vary' situation. Hopefully you will have good luck if jupyter notebooks are your preferred interface. An option to consider if you do run into issues is to not use your system installation of Python, but instead to move to berryconda, the port of Anaconda to the Raspberry Pi. You may have better luck with this as your environment.
 
+@ Subheading 8  -  Where to now?
+Hopefully, this article has given you enough information to put all of those Raspberry Pis that you have been collecting to some serious computational work. You can have the most power efficient supercomputer in your neighborhood. In all seriousness, though, this is a really inexpensive way to start to teach computer science techniques around parallel programming, so well worth your time to explore.
 
 
 
 @ Supporting images
-3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+@ Image1  -  two_digit_counts.png
+@ Image2  -  ipyparallel_architecture.png
+@ Image3  -  ipyparallel_tab.png
 
-If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
 
-If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
 
 @ Captions
-Images need captions, which need to be around 15 words each.
+@ Caption1  -  25 words
+You can do rather larger problems going parallel, such as calculating the number two-digit pairs in in the first 150 million digits of pi.
 
-A note on captions:
-These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+@ Caption2  -  11 words
+Ipyparallel is built with a controller, managing several separate computing engines.
+
+@ Caption3  -  18 words
+Your ipyparallel clusters are visible from the jupyter notebook, listed in the cluster tab of the web interface.
+
+
 
 @ 2x boxouts
-60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
 
-A note on boxouts:
-Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
-@ persistent json files
-@ reuse
+@ Boxout1  -  67 words
+By default, the control JSON files only exist while ipcontroller is running. If you want to keep them and reuse them, you can add the command line option '--reuse' to the ipcontroller command. This way, you won't need to update the JSON files being used by the ipengine processes. Otherwise, you will need to copy over the new JSON files each time you restart the cluster.
+
+@ Boxout2  -  54 words
+If you wish to, you can combine ipyparallel with MPI. This is familiar to anyone who has done parallel programming on traditional high performance computing clusters. You can either use the option '--engines=MPIEngineSetLauncher' to the ipcluster command, or you can use mpiexec to explicitly start ipengine processes across the network of machines.
+
 
 @ 2x Pullquotes
-Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
 
+@ Pullquote1  -  22 words
+Ipyparallel is built on a layered structure of three main parts: a controller, one or more clients and one or more engines.
+
+@ Pullquote2  -  23 words
+The bulk of your Raspberry Pis will be setup as clients to execute all of the parallel code that you will be running.
 
 [IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]
