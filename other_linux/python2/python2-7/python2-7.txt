@@ -70,14 +70,93 @@ The master Raspberry Pi node will be the main controller that will be called the
 /c/
 ipcontroller --ip='*'
 /c/
-Otherwise, you should be sure to set this to the IP address of the master node. Once this has started up, you will see 
+Otherwise, you should be sure to set this to the IP address of the master node. Once this has started up, you will see diagnostic messages being printed out to the terminal window where you started the controller. Some of these messages include the location of several files being created. On my machine, this happens to be '/home/jbernard/.ipython/profile_default'. One of the files, './security/ipcontroller_engine.json', will be used in the next section of this article. There are also several other files, some of which we will look into.
+
+You should have noticed that all of these files are located under the subdirectory 'profile_default'. Ipyparallel uses profiles to allow you to have tuned configurations for different situations. You have a default one created the first time you start the ipcontroller program, and it gets used unless you say otherwise. If you have more than one use-case in mind, you can create a new profile with the following command.
+/c/
+ipython profile create --parallel --profile=myprofile
+/c/
+You can then use it by adding the command line option '--profile=myprofile'. All of the options that we have been including in the ipcontroller command can all be placed in configuration files in the profile directory. For example, the command line option '--ip=' would have the following lines placed in the file '/home/jbernard/.ipython/profile_default/ipcontroller_config.py'.
+/c/
+# in ipcontroller_config.py
+HubFactory.ip = '*'
+/c/
+The documentation covers many more options that you can configure to tune your controller.
 
 @ Subheading 4  -  Setting up the clients
-The bulk of your Raspberry Pis will be setup as clients to execute all of the parallel code that you will be running. These clients need to be 
-
+The bulk of your Raspberry Pis will be setup as clients to execute all of the parallel code that you will be running. These clients need to be configured so that they know where the controller is running. They also need to be able to authenticate with the controller, so that they will be allowed to connect. This is where the file '/home/jbernard/.ipython/profile_default/security/ipcontroller_engine.json', from the master node, comes into play. You will need to copy this file to the directory '.../security/' on each of the Raspberry Pi engine nodes. Once this has been done on each engine node, you can start them with the following command.
+/c/
+ipengine --file=/path/to/my/ipcontroller-engine.json
+/c/
+The engines also use profiles, just like the controllers. You can create specific ones for special use-cases. In a similar fashion to the controller, the engines can use a configuration file. Specifically, they will use the file 'ipengine_config.py' in the profile directory. You can configure things like some command to run at start up, as in the example below.
+/c/
+c.IPEngineApp.startup_command = 'import numpy, scipy'
+/c/
+This would be a good choice if you were going to be doing scientific computations. After reading the relevant documents, you should be able to do quite a bit of tuning to the engines.
 
 @ Subheading 5  -  Running a test
+Now that your cluster is up and running, how do you test it? Of course, you need to write a "Hello World" program. You initialize your program with the following code.
+/c/
+import ipyparallel as ipp
+c = ipp.Client()
+/c/
+This should work if you run it on the master node. If you are actually running on yet another machine, you will need to point to the 'ipcontroller-client.json' file as a parameter to the call to 'Client()'. You also have the option of including parameters to setup an SSH connection, if your network configuration requires you to do so. You can verify that your Client object can see all of the engines with the following.
+/c/
+c.ids
+/c/
+/o/
+[0,1,2,3]
+/o/
+This is assuming that you have 4 engines fired up. The following code actually handles the "Hello World" part of your program.
+/c/
+c[:].apply_sync(lambda : "Hello World")
+/c/
+/o/
+[ 'Hello World', 'Hello World', 'Hello World', 'Hello World' ]
+/o/
+As you can see, this line selects all of the IDs from the Client object c and calls 'apply_sync()' on them, where a lambda function is handed in as the function to be applied. The lambda function simply returns the string 'Hello World'. Assuming you did not run into any problems, you should be good to move on to more productive work.
+
 @ Subheading 6  -  Running tasks  
+Now that you have a functioning ipyparallel cluster, how do you put it to use? If you have done any type of parallel programming in another language, you may be used to the workflow of scattering your data, running your code and then gathering your results. The first step is to create a DirectView object that you can use. This is as simple as the following code.
+/c/
+dview = c[:]
+/c/
+For this example, we will get our cluster to calculate the first 64 powers of 10.
+/c/
+dview.scatter('x',range(64))
+%px y = [i**10 for i in x]
+/c/
+/o/
+Parallel execution on engines: [0, 1, 2, 3]
+/o/
+As you can see, we create a list of 64 integers and scatter them using the variable name 'x'. The second line uses the magic '%px' to execute the single Python command 'y = [i**10 for i in x]'. Ipyparallel has a full selection of magic commands, similar to IPython. The following code gets the results from this parallel run.
+/c/
+y = dview.gather('y')
+print y
+/c/
+/o/
+[0, 1, 1024, 59049, 1048576, 9765625, 60466176, 282475249, 1073741824,...]
+/o/
+This gathers the results from the remote 'y' variables and stores them in the local 'y' variable.
+
+One issues with the above code is that all of the work simply divided across all of the engines. If one or more of the engines is faster than the others, it could be picking up work from the slower engines. If this is a possible outcome in your situation, you can use the load-balanced view, rather than the direct view, to manage the work being sent to the engines. You can get this view with the following code.
+/c/
+lview = c.load_balanced_view()
+/c/
+With this load-balanced view, we can duplicate the above example with the following code.
+/c/
+lview.block = True
+result = lview.map(lambda x:x**10, range(64))
+/c/
+The first line tells ipyparallel to block until all of the results are calculated and returned. The second line uses the map method of the load-balanced view to get the work of calculating the powers of tens scattered to all available engines. By default, ipyparallel hands out one task at a time. In your particular algorithm, you may know that it makes more sense to hand out tasks 10 ata time to each engine. You can do this by adding the parameter 'chunksize=10' to the call to the map method.
+
+One thing to note is what to do when you use non-blocking calls to map or apply. In these cases, you will get an 'AsyncResult' object returned. This happens before the results are done, which means that it is your responsibility to check to see when they are actually finished. A transparent way of working with the results is simply interating over them, as in the following example.
+/c/
+for i in enumerate(result):
+    print(i)
+/c/
+If, instead, you want to simply check in on your progress before starting to work with the results, you can use the progress property of the AsyncResult object to see how many tasks have been completed. You can use this to take care of other pieces of work while periodically checking to see whether all of the tasks have finished or not.
+
 @ Subheading 7  -  Connecting from jupyter
 @ Subheading 8  -  Where to now?
 
@@ -102,6 +181,8 @@ These are a device intended to provide additional information that's not directl
 
 A note on boxouts:
 Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+@ persistent json files
+@ reuse
 
 @ 2x Pullquotes
 Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
