@@ -1,0 +1,37 @@
+Doing Math in KDE
+
+
+Many of the programs we've looked at in previous issues have been desktop environment agnostic. They didn't actually depend on any particular desktop environment being installed, as long as you have some sort of graphical display running. This month, we'll look at one of the programs available in the KDE desktop environment, KAlgebra. KAlgebra is one of the many math programs available in KDE. You can use your distribution's package management system to install it, or you can use 'Discover', the package manager in KDE. After it's been installed, you can start it up either from the command line or from the launch menu.
+
+When you first start KAlgebra up, you get a blank slate to start doing calculations. [kalgebra1.png] The screen layout is a large main pane where all of the calculations and their results get displayed. At the top of this pane, there is a collection of four tabs: Calculator, 2D Graph, 3D Graph and Dictionary. We will start with the calculator and look at each of the other ones later in the article. There is also a smaller pane on the right-hand side that is used for different purposes for each tab. In the calculator tab, this side pane gives a list of variables. There is a list of predefined variables, for things like pi or euler, available when you start your new session. You can add new variables with the following syntax:
+   a := 3
+This will create a new variable, named a, with an initial value of 3. This new variable will also be visible in the list on the right-hand side. Using these variables is as easy as simply executing them. So, you can double it with the following,
+   a * 2
+There is a special variable, named 'ans', that you can use to get the result from the most recent calculation. All of the standard mathematical operators are available to do your calculations.
+
+There is also a very complete set of functions available to do more complex calculations. These include items like the trigonometric functions, mathematical functions like absolute value or floor, and even calculus functions like finding the derivative. So, the following would let you find the sine of 45 degrees:
+   sin(45)
+You can also define your own functions. The core of this is done with the lambda operator '->'. If you wanted to create a function that calculated cubes, you could use the following.
+   x -> x^3
+This is pretty hard to use, so you will want to assign it to a variable name.
+   cube := x -> x^3
+You can then use it, just like any other function. It also shows up in the list of variables on the right-hand side pane.
+
+KAlgebra also has graphing capabilities built in. Clicking on the '2D Graph' tab brings up an empty graphing pane. [kalgebra3.png] If you don't already have any functions defined, you will be given a pane on the right-hand side where you can add a new one. You can have several functions listed and select which ones you want to have plotted on the graph. The display includes two red lines that define the x and y coordinates, as well as a blue line that shows the slope of the function at the location of the cursor. If you right-click the graph, you will get a dropdown menu with options like changing the resolution of the graph, or whether the grid is displayed. These options are also available from the menu item '2D Graph'. Once you get the plots you are interested in generated, you can save off the results to either an image file or an SVG file.
+
+One capability that KAlgebra has, that isn't as common, is 3D graphing. Clicking the '3D Graph' tab shows a new grphing pane that takes up the entire window. [kalgebra4.png] At the bottom of the pane, there is a textbox where you can enter the function that you wish to plot. For example, the 3D plot you see here was generated with the following formula.
+   sin(x)*cos(y)
+You can interact with the plot window with your mouse by grabbing and dragging the entire frame to get other views of the surface. You can also zoom in and out with your mouse. If you wish to change how the function is actually displayed, you can click on the menu item "3D Graph". Here, you can choose either dots, lines or a solid surface to show the results of the function of interest.
+
+The last tab provides a dictionary of all of the functions available in KAlgebra. [kalgebra5.png] This lets you explore the provided functions to help you figure out what you might be able to use in your own calculations. As you can see, there is an information pane which provides a description, a list of parameters and a number of example. Below this information pane is a plot window that graphs the given function, so that you can easily visualize the behavior of the selected function. This is a handy way to select the base functions that you want to use to build up more complex functions.
+
+The last thing we will look at is how to save your work and continue later on. Switching back to the 'Calculator' tab, this will activate the menu item 'Calculator'. Under this menu item, you have the ability to save and load script files. These files 
+
+
+
+IMAGES
+kalgebra1.png  -  Starting KAlgebra up, you get a blank canvas to start doing you calculations.
+kalgebra2.png  -  KAlgebra allows you to create your own variables and functions to do even more complex calculations.
+kalgebra3.png  -  Kalgebra allows you to plot multiple functions to make comparisons easier.
+kalgebra4.png  -  KAlgebra has the ability to do 3D plots of multivariable functions.
+kalgebra5.png  -  The dictionary tab gives you detailed information on the builtin functions available in KAlgebra, along with a plot of the function.
