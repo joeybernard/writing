@@ -13,15 +13,21 @@ One line of code is equal to 30 words (we have a line break before and after cod
 
 Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
 
-@ Title
-10 words; titles are run over two lines to allow for a thorough explanation of what the tutorial is about.
+@ Title  -  7 words
+PyInstaller - How to share your Pi projects
 
-@ Standfirst
-15-20 words; provide a brief, descriptive intro to the piece. As you can see from the example PDF these are two lines.
+
+
+@ Standfirst  -  19 words
+This month, we will look at one of the options available to make sharing your Raspberry Pi project easier.
+
+
 
 @ Profile
-[Your name]
-30 words (roughly 123 chars); sell your strengths as an expert, but keep the profile concise to avoid a long profile taking up too much space on the left. See example PDF for an idea of what the profile space.
+[Joey Bernard]
+Joey Bernard has written a column on scientific software, as well as a column on writing Python code for the Raspberry Pi. In his day job, he helps researchers and students at the university level in designing and running HPC projects on supercomputing clusters.
+
+
 
 @ Resources
 List everything required for this tutorial and provide URLs if applicable.
@@ -34,11 +40,32 @@ NOTE: this compulsory as you can see from the PDF this is large on the first pag
 
 Total word count is 2,952 (roughly 16,940 char).
 
-@ Intro text
-200 words (roughly 1300 characters); Use the first 190 to 200 introduce the topic and tools, explain to the reader what they are about to learn and what the benefit is.
+@ Intro text  -  175 words
+Over the life of this column, we have looked at several techniques in Python programming that you can add to your own project. But, once you have a project put together, how do you share it out with the broader audience of DIY and maker people out there? This month, we will look at one of the options available to package your Python program, specifically PyInstaller. PyInstaller is designed to package together everything you would need in order to run your code on a different machine. This is probably the easiest way for a new user to pick up your project and to start using it right away. We will look at installing PyInstaller, configuring it for your project, and also some possible problem areas that might come up in special cases. As well, we will look at other options, such as py2exe, that might offer a different set of capabilities that could fit your requirements better. As in most cases, there are different tools because people have different requirements that need to be fulfilled.
+
 
 
 @ Body text
+@ Subheading1  -  Introduction
+So, what does PyInstaller actually do to package your project up? Normally, you give it a single Python script that is the starting point for your project. PyInstaller then goes through it and collects a list of all of the other modules and scripts that is used by this main script. All of this code is then copied into a distribution directory, along with the active Python distribution that is being used on the system. At this stage, you should have everything you need to run the project on a similar system. A similar system, in this case, means the same type of hardware and the same operating system. This means that if you want to create a package for a particular system, say Mac OSX for example, you will need to build the PyInstaller package on that same system.
+
+Once all of the files are collected together into one location, you can then create an executable file that can include all of the files that are needed. There are several options available to control how these files are unpacked on the end-user's system. We will look at a few of them later in this article, to see what options you might find most useful.
+
+@ Subheading2  -  Installation
+Installation is the same for most people. Most distributions do not include PyInstaller as a module managed by the system package management system. This means that you will need to install PyInstaller using pip. Most Linux distributions have different versions of pip for Python 2.X and Python 3.X. For example, if you wanted to install PyInstaller for Python 3, you could use the following command.
+/c/
+sudo pip3 install pyinstaller
+/c/
+This will install PyInstaller in to the system library 
+
+@ Subheading3  -  Basic Usage
+@ Subheading4  -  Adding Extra Files
+@ Subheading5  -  Spec files
+@ Subheading6  -  Possible Problems
+@ Subheading7  -  Comparing to py2exe and freeze
+@ Subheading8  -  What now?
+
+
 
 2,752 words (rouhgly 15,800 chars)
 
