@@ -1,17 +1,3 @@
-Pi code-based tutorial, 4 pages
--feel free to include commands and small segments of code in-line with the body text, but for larger chunks of code please use figure references or refer people to the coverdisc as we can supply them with code, if you send it in with your commission.
-Note: please indicate where code starts and ends with /c/ and any output with /o/, as it enables a non-tech savvy art person to layout the pages e.g.
-/c/
-$ telnet 192.168.1.200 8000
-/c/
-/o/
-Trying 192.168.1.200...
-/o/
-
-Code takes up a lot of space, so if you decide to separate out any code onto a line on its own you will need to REMOVE words from the total word count for the section your writing. This works out as follows:
-One line of code is equal to 30 words (we have a line break before and after code that is being pulled out of the body copy, which is why it takes up more space), two lines of code are equal to 40 words and three lines are equal to 50 words and so on.
-
-Note: We've included the number of characters as an extra useful reference for each section as sometimes a word count can be less accurate depending on the length of words that are used.
 
 @ Title  -  7 words
 PyInstaller - How to share your Pi projects
@@ -33,6 +19,8 @@ Joey Bernard has written a column on scientific software, as well as a column on
 List everything required for this tutorial and provide URLs if applicable.
 If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
 
+
+
 @ Lead image
 Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
 
@@ -40,12 +28,15 @@ NOTE: this compulsory as you can see from the PDF this is large on the first pag
 
 Total word count is 2,952 (roughly 16,940 char).
 
+
+
 @ Intro text  -  175 words
 Over the life of this column, we have looked at several techniques in Python programming that you can add to your own project. But, once you have a project put together, how do you share it out with the broader audience of DIY and maker people out there? This month, we will look at one of the options available to package your Python program, specifically PyInstaller. PyInstaller is designed to package together everything you would need in order to run your code on a different machine. This is probably the easiest way for a new user to pick up your project and to start using it right away. We will look at installing PyInstaller, configuring it for your project, and also some possible problem areas that might come up in special cases. As well, we will look at other options, such as py2exe, that might offer a different set of capabilities that could fit your requirements better. As in most cases, there are different tools because people have different requirements that need to be fulfilled.
 
 
 
 @ Body text
+
 @ Subheading1  -  Introduction
 So, what does PyInstaller actually do to package your project up? Normally, you give it a single Python script that is the starting point for your project. PyInstaller then goes through it and collects a list of all of the other modules and scripts that is used by this main script. All of this code is then copied into a distribution directory, along with the active Python distribution that is being used on the system. At this stage, you should have everything you need to run the project on a similar system. A similar system, in this case, means the same type of hardware and the same operating system. This means that if you want to create a package for a particular system, say Mac OSX for example, you will need to build the PyInstaller package on that same system.
 
@@ -56,20 +47,89 @@ Installation is the same for most people. Most distributions do not include PyIn
 /c/
 sudo pip3 install pyinstaller
 /c/
-This will install PyInstaller in to the system library 
+This will install PyInstaller in to the system Python library. If you want to have the latest development version, you can hand a URL to pip, as in the following example.
+/c/
+sudo pip3 install https://github.com/pyinstaller/pyinstaller/tarball/develop
+/c/
+Once this is done, you should everything you need to start packaging your project up. You can verify that everything installed correctly by running the following.
+/c/
+pyinstaller --version
+/c/
 
 @ Subheading3  -  Basic Usage
+With PyInstaller installed, you can use it right away with very little effort. For small projects, at least. Let's say your project fits all inside a single Python script and uses just a few of the most common modules. In this case, you can simply change directory to the one where your script resides and run the following command.
+/c/
+pyinstaller myscript.py
+/c/
+This creates a subdirectory named 'myscript', and places all of the requirements for your script there. This includes the Python engine that was used to run your script. To run your program, an executable is also created there, named 'myscript', that launches your code for the end user. Shipping is as easy as zipping the entire folder up and sending it to interested parties. They then simply have to unzip the file and run the executable.
+
+One big advantage to this method, at least for initial development, is that everything that PyInstaller thinks you need is copiied into a single location. You can then verify that it did the right thing very simply by going through this destination directory. If PyInstaller did make some mistakes, you can easily figure out what these mistakes are and correct them before they go out. Once you are confident that everything is working correctly, you can use a different option to create a single big executable that contains everything needed, as in the command below.
+/c/
+pyinstaller --onefile myscript.py
+/c/
+This single executable file can then be sent out to your users. This is a much more comfortable experience for your end users, so you will likely want to use this method as the final delivery option. When your ennd user runs this executable, it self-unpacks into a temporary directory, and then runs the executable, just as in the folder method above. When it finishes, it should clean up after itself and delete all of the temporary files. If anything fails here, there may be temprary files and directories that will need to be cleaned up manually. Just a potential event that you should be aware of.
+
 @ Subheading4  -  Adding Extra Files
+If you have everything contained within your Python code, then you are done at this point. But, for many programs, you will have some extra data or files that are necessary as part of the package that needs to be sent out. For example, say you had a readme file that contained important information for the user. In these cases, you can include them with a command like the one below.
+/c/
+pyinstaller --add-data "src/README.txt:." myscript.py
+/c/
+The format is "SOURCE:DESTINATION" for the "--add-data" option. In the above example, we are taking the readme file from the "src" subdirectory and putting it in the root distribution directory. If you have multiple files, you can include as many "--add-data" options as needed.
+
+This is fine for data files and documentation, but what do you do if you have some piece of optimized code in a shared library. In these cases, you would use the "--add-binary" option to include in the list of files to be included in the final executable. It has the same format as the "--add-data" option, and you can also have multiple "--add-binary" options. With this option, you are telling PyInstaller to include those binary files in the list of files to package, but also to check these binary files to see what dependencies they have. This is where PyInstaller may have the most difficulty, so you will want definitely test the executable being created before sending it out to the wider world.
+
 @ Subheading5  -  Spec files
+For smaller projects, you can probably manage the executable creation with the options "--add-data" and "--add-binary" directly on the command line. This way of doing things will very quickly become untenable, however. Luckily, there is another way of organizing everything that needs to be bundled together into the executable version of your program. Namely, the spec file. This file contains everything that you might want to configure in how your executable operates. The first step is to create a spec file that you can edit for your project. The following command does just this.
+/c/
+pyi-makespec myscript.py
+/c/
+To make this starting spec file as specific as possible to your project, you can include any command line options that you would have included when calling PyInstaller directly. As a look at a minimal spec file, you should see the following for a very simple, one folder, Python script.
+/c/
+block_cipher = None
+a = Analysis(['myscript.py'],
+             pathex=['/home/jbernard/work/myscript'],
+             binaries=None,
+             datas=None,
+             hiddenimports=[],
+             hookspath=None,
+             runtime_hooks=None,
+             excludes=None,
+             cipher=block_cipher)
+pyz = PYZ(a.pure, a.zipped_data,
+          cipher=block_cipher)
+exe = EXE(pyz,... )
+coll = COLLECT(...)
+/c/
+This script is run as code by PyInstaller, and ends up creating objects of the four classes Analysis, PYZ, EXE and COLLECT. The Analysis object checks for all of the files that are meant to be included and generates the list. The COLLECT object actually puts copies of all of the required files into the distribution directory. The EXE object generates the executable file that will be used to run the program. If you are sending out a zip file containing the distribution folder, this is where PyInstaller stops. If, instead, you generate a single executable file, PyInstaller uses the PYZ object to handle this step.
+
+As you can see in the above example, there are several entries to manage the creation of your standalone application. Equivalent to the two command line options we looked at earlier, "--add-data" and "--add-binary", are the entries "datas" and "binaries". So, you could use the code below to add a readme file to your packaged application.
+/c/
+datas=[('src/README.txt', '.')]
+/c/
+As you can see, the list of files is simply a Python list. This means you can easily add a large number of files without too much trouble.
+
+There is a lot more you can do during the generation of your executable. For example, you can add command line options to Python for when it goes to run your program. The following code adds the Python command line options "v" (to write a message to stdout each time a module is initialized) and "W ignore" (an option to change warning behavior).
+/c/
+options = [ ('v', None, 'OPTION'), ('W ignore', None, 'OPTION') ]
+a = Analysis( ...
+             )
+/c/
+In order to use these options, you need to add the following to the creation of the EXE object:
+/c/
+exe = EXE(pyz,
+          options, ...
+          )
+/c/
+If your project actually involves several different Python programs that make sense to be packaged together, PyInstaller includes a function named "MERGE". You can create a spec file where you define a series of Analysis objects, one for each program. You then define a MERGE entry listing each of the Analysis objects to process.
+
 @ Subheading6  -  Possible Problems
+Because the Python environment is a large, complex and ever changing one, you will inevitably run into issues where PyInstaller fails to generate a working executable version of your program. Luckily, PyInstaller provides some tools that you can use to debug these problems. The first option is to look at the output file where all warning messages are written out. PyInstaller creates a subdirectory, named "build", where the program is collected and built. Within this subdirectory is another subdirectory named after your script. So in our example, the warning file would be named "./build/myscript/warnmyscript.txt". All of the warnings from PyInstaller are written here. You can find messages like "module not found" here.
+
 @ Subheading7  -  Comparing to py2exe and freeze
+
 @ Subheading8  -  What now?
 
 
-
-2,752 words (rouhgly 15,800 chars)
-
-Use 8 subheadings (or crossheads) to break this text up.
 
 @ Supporting images
 3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
@@ -92,6 +152,3 @@ Boxouts are intended to be 'access points' into the page, so they are meant to b
 
 @ 2x Pullquotes
 Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
-
-
-[IMAGE USAGE FORM INFO: PLEASE GIVE COMPANY AND CONTACT DETAILS FOR THE IMAGES USED IN THIS FEATURE]
