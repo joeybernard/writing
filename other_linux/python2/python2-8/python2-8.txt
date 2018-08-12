@@ -16,17 +16,14 @@ Joey Bernard has written a column on scientific software, as well as a column on
 
 
 @ Resources
-List everything required for this tutorial and provide URLs if applicable.
-If you are using hardware, mention it and a possible stockist. For software, please provide a URL.
+https://www.pyinstaller.org/index.html
+http://www.py2exe.org
+https://anthony-tuininga.github.io/cx_Freeze/
 
 
 
 @ Lead image
-Supply an engaging main image to illustrate the feature (grey box in the example PDF); either an interesting, representative and uncropped screenshot of the software, or if there is nothing appropriate then either round up all of the relevant icons or suggest a possible illustration or diagram recreation and we will create some artwork in-house.
-
-NOTE: this compulsory as you can see from the PDF this is large on the first page. If you have an idea for an illustration or a hardware shot, please contact us as early as you can to allow us to get that organised.
-
-Total word count is 2,952 (roughly 16,940 char).
+I was thinking of using the PyInstaller logo?
 
 
 
@@ -35,7 +32,7 @@ Over the life of this column, we have looked at several techniques in Python pro
 
 
 
-@ Body text
+@ Body text  -  2731 words
 
 @ Subheading1  -  Introduction
 So, what does PyInstaller actually do to package your project up? Normally, you give it a single Python script that is the starting point for your project. PyInstaller then goes through it and collects a list of all of the other modules and scripts that is used by this main script. All of this code is then copied into a distribution directory, along with the active Python distribution that is being used on the system. At this stage, you should have everything you need to run the project on a similar system. A similar system, in this case, means the same type of hardware and the same operating system. This means that if you want to create a package for a particular system, say Mac OSX for example, you will need to build the PyInstaller package on that same system.
@@ -63,11 +60,11 @@ pyinstaller myscript.py
 /c/
 This creates a subdirectory named 'myscript', and places all of the requirements for your script there. This includes the Python engine that was used to run your script. To run your program, an executable is also created there, named 'myscript', that launches your code for the end user. Shipping is as easy as zipping the entire folder up and sending it to interested parties. They then simply have to unzip the file and run the executable.
 
-One big advantage to this method, at least for initial development, is that everything that PyInstaller thinks you need is copiied into a single location. You can then verify that it did the right thing very simply by going through this destination directory. If PyInstaller did make some mistakes, you can easily figure out what these mistakes are and correct them before they go out. Once you are confident that everything is working correctly, you can use a different option to create a single big executable that contains everything needed, as in the command below.
+One big advantage to this method, at least for initial development, is that everything that PyInstaller thinks you need is copied into a single location. You can then verify that it did the right thing very simply by going through this destination directory. If PyInstaller did make some mistakes, you can easily figure out what these mistakes are and correct them before they go out. Once you are confident that everything is working correctly, you can use a different option to create a single big executable that contains everything needed, as in the command below.
 /c/
 pyinstaller --onefile myscript.py
 /c/
-This single executable file can then be sent out to your users. This is a much more comfortable experience for your end users, so you will likely want to use this method as the final delivery option. When your ennd user runs this executable, it self-unpacks into a temporary directory, and then runs the executable, just as in the folder method above. When it finishes, it should clean up after itself and delete all of the temporary files. If anything fails here, there may be temprary files and directories that will need to be cleaned up manually. Just a potential event that you should be aware of.
+This single executable file can then be sent out to your users. This is a much more comfortable experience for your end users, so you will likely want to use this method as the final delivery option. When your end user runs this executable, it self-unpacks into a temporary directory, and then runs the executable, just as in the folder method above. When it finishes, it should clean up after itself and delete all of the temporary files. If anything fails here, there may be temporary files and directories that will need to be cleaned up manually. Just a potential event that you should be aware of.
 
 @ Subheading4  -  Adding Extra Files
 If you have everything contained within your Python code, then you are done at this point. But, for many programs, you will have some extra data or files that are necessary as part of the package that needs to be sent out. For example, say you had a readme file that contained important information for the user. In these cases, you can include them with a command like the one below.
@@ -102,7 +99,7 @@ coll = COLLECT(...)
 /c/
 This script is run as code by PyInstaller, and ends up creating objects of the four classes Analysis, PYZ, EXE and COLLECT. The Analysis object checks for all of the files that are meant to be included and generates the list. The COLLECT object actually puts copies of all of the required files into the distribution directory. The EXE object generates the executable file that will be used to run the program. If you are sending out a zip file containing the distribution folder, this is where PyInstaller stops. If, instead, you generate a single executable file, PyInstaller uses the PYZ object to handle this step.
 
-As you can see in the above example, there are several entries to manage the creation of your standalone application. Equivalent to the two command line options we looked at earlier, "--add-data" and "--add-binary", are the entries "datas" and "binaries". So, you could use the code below to add a readme file to your packaged application.
+As you can see in the above example, there are several entries to manage the creation of your stand-alone application. Equivalent to the two command line options we looked at earlier, "--add-data" and "--add-binary", are the entries "datas" and "binaries". So, you could use the code below to add a readme file to your packaged application.
 /c/
 datas=[('src/README.txt', '.')]
 /c/
@@ -123,32 +120,76 @@ exe = EXE(pyz,
 If your project actually involves several different Python programs that make sense to be packaged together, PyInstaller includes a function named "MERGE". You can create a spec file where you define a series of Analysis objects, one for each program. You then define a MERGE entry listing each of the Analysis objects to process.
 
 @ Subheading6  -  Possible Problems
-Because the Python environment is a large, complex and ever changing one, you will inevitably run into issues where PyInstaller fails to generate a working executable version of your program. Luckily, PyInstaller provides some tools that you can use to debug these problems. The first option is to look at the output file where all warning messages are written out. PyInstaller creates a subdirectory, named "build", where the program is collected and built. Within this subdirectory is another subdirectory named after your script. So in our example, the warning file would be named "./build/myscript/warnmyscript.txt". All of the warnings from PyInstaller are written here. You can find messages like "module not found" here.
+Because the Python environment is a large, complex and ever changing one, you will inevitably run into issues where PyInstaller fails to generate a working executable version of your program. Luckily, PyInstaller provides some tools that you can use to debug these problems. The first option is to look at the output file where all warning messages are written out. PyInstaller creates a subdirectory, named "build", where the program is collected and built. Within this subdirectory is another subdirectory named after your script. So in our example, the warning file would be named "./build/myscript/warnmyscript.txt". All of the warnings from PyInstaller are written here. You can find messages like "module not found" here. If you wanted to see these messages on the console, you can use the command line option "--log-level".
+
+A second tool that is available to you is the dependency graph. An HTML version of this is built automatically by PyInstaller. You can find it in the file "./build/myscript/xref-myscript.html". This file lists the contents of the import graph. You can navigate it by clicking the "imported by" labels. If you you use the "--log-level" command line option and set it to "DEBUG", then PyInstaller will also generate a GraphViz file named "./build/myscript/graph-myscript.dot". This file can then be run through GraphViz to generate a graphical representation of the dependency graph. This file can get rather large, since there are so many imported Python modules, even in the simplest of programs.
+
+These two tools will help you to identify what PyInstaller is looking for, and what it is having difficulty finding. There are also a number of special cases that have already been identified, such as building django files or packaging multiprocessing programs. They are available under the recipes section of the PyInstaller documentation site.
 
 @ Subheading7  -  Comparing to py2exe and freeze
+PyInstaller is not the only option available to package Python programs. Two other options that are very popular are freeze and py2exe. Freeze actually comes in a couple of implementations, cx_Freeze and bbFreeze. Cx_Freeze produces results similar to the distribution folder output from PyInstaller. Running the following command
+/c/
+cxfreeze myscript.py --target-dir dist
+/c/
+will produce an executable file, plus all of the required libraries, within the dist subdirectory. If you wanted to distribute this to end users, you would need to zip the target directory up and have the end user unzip it locally. One part that is different from PyInstaller is that cx_Freeze doesn't handle external data files as cleanly. You would need to add some extra code to manage locating them, as discussed in the cx_Freeze documentation.
+
+Py2exe is a very different option to cx_Freeze and PyInstaller. Py2exe is actually an extension to distutil. This means that you need to create a "setup.py" file in order to generate an executable version of your program. Using our example above, the following would be a basic setup file.
+/c/
+from distutils.core import setup
+import py2exe
+
+setup(console=['myscript.py'])
+/c/
+As you can see, the "setup.py" file imports both distutils and py2exe. You can then run this file with the following command.
+/c/
+python setup.py py2exe
+/c/
+This process generates a huge amount of output, and also creates two subdirectories named "dist" and "build". The build subdirectory is the working location where all of the work of creating the executable happens. The dist subdirectory contains the final form of the executable. In order to test it, you will want to change directory to the dist subdirectory. You can then test it with the command "./myscript". To distribute this executable, you would need to zip up the dist subdirectory, as with cx_Freeze.
+
+In both of these cases, dealing with special cases is more difficult than with PyInstaller. If your project is basic, then any of the executable creation tools should be sufficient. If your project is more complex, or uses much external data and/or code, then PyInstaller might be your better option.
 
 @ Subheading8  -  What now?
+Sharing Python code has always been an issue. The combination of being an interpreted language, along with having a huge collection of third party modules, is usually a powerful environment for program development. However, this very same strength becomes a weakness when you want to share your work with others. How do you replicate this environment somewhere else? Hopefully, this article has presented some ideas that you can use in order to share your Raspberry Pi projects with others.
 
 
 
 @ Supporting images
-3 images required; please indicate whether we need to crop in on a particular part of a screenshot.
+@ Image1  -  pyinstaller1.png
+@ Image2  -  pyinstaller2.png
+@ Image3  -  myscript.png
 
-If you wish to include diagrams, supply a reference copy and we will re-create this in-house.
 
-If you are referencing sections of code, please make them as Figure 1, 2 and so on and mention them in the copy.
 
 @ Captions
-Images need captions, which need to be around 15 words each.
+@ Caption1  -  By default, PyInstaller builds a dependency graph for all of the imported modules of your program.
 
-A note on captions:
-These are a device intended to provide additional information that's not directly in the text of the tutorial or simply stating what the picture is of. A caption that effectively says 'This is X' isn't a good caption.
+@ Caption2  -  PyInstaller starts by creating a spec file. You can edit it to add everything you need.
+
+@ Caption3  -  You can construct an image of your dependency graph. As you can see, even for a simple program these graphs become rather large.
+
+
 
 @ 2x boxouts
-60 words each (roughly 350 chars); Needs a title up to 5 words. The contents can be a general tip/trick or piece of knowledge related to this tutorial, or you can go into greater depth on one particular aspect of it.
 
-A note on boxouts:
-Boxouts are intended to be 'access points' into the page, so they are meant to be interesting little reads in their own right that hopefully encourage someone scanning the page to dip into the whole tutorial. You can never assume that the reader is actually going to read your words, you have to use all the tricks to encourage them to read.
+@ Boxout1  -  58 words
+Finding the modules being imported is one of the issues you may run into. You can add extra paths to the list being searched with the following option:
+/c/
+pyi-makespec --paths=/path/to/thisdir myscript.py
+/c/
+
+@ Boxout2  -  63 words
+If you need to do some environment setup for your project, you can add the following option to pyinstaller.
+/c/
+--runtime-hook=file1.py --runtime-hook=file2.py
+/c/
+These Python scripts get run, in the order given, before your program gets run.
+
+
 
 @ 2x Pullquotes
-Choose a short quote, around 15 words, to pull the reader in as they flick through the pages.
+
+@ Pullquote1
+When your end user runs this executable, it self-unpacks into a temporary directory, and then runs the executable, just as in the folder method above.
+
+@ Pullquote2
+If your project actually involves several different Python programs that make sense to be packaged together, PyInstaller includes a function named "MERGE".
