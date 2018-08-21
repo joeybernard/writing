@@ -1,0 +1,22 @@
+Becoming a Genius at Mathematics
+
+
+We have looked at lots of scientific software in the past issues. Sometimes, you just need to be able to do some math directly in order to get your work done. This month, we will look at an advanced scientific calculator available on Linux, genius. Genius is a calculator program that has both a command line version and a Gnome version. You should have genius available in the package management system for your distribution. For Debian-based distributions, the GUI version and the command line version are two separate packages. Assuming that you wanted both installed, you could do it with the following command.
+   sudo apt-get install genius gnome-genius
+Starting the command line version gives you an interpreter that should be familiar to users of Python or R. [genius1.png] If you start gnome-genius, you get a graphical interface that is likely to be more comfortable to new users. [genius2.png] For the rest of this article, we will use the GUI version in order to demonstrate what kind of things you can do with genius.
+
+Genius can be used just as a general purpose calculator. You can do things like
+   genius> 4+5
+   = 9
+Along with the basic math operators, you can also use the trigonometric functions, So the sine of 45 degrees is given by the command below.
+   genius> sin(45)
+   = 0.850903524534
+These types of    
+
+
+
+
+IMAGES
+genius1.png  -  When you start genius, you get the version and some license information, and then get presented with an interpreter prompt.
+genius2.png  -  The GUI interface provides easy menu access to most of the functionality within genius.
+

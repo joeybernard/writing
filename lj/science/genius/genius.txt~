@@ -1,0 +1,5 @@
+Becoming a Genius at Mathematics
+
+
+We have looked at lots of scientific software in the past issues. Sometimes, you just need to be able to do some math directly in order to get your work done. This month, we will look at an advanced scientific calculator available on Linux, genius. Genius is a calculator program that has both a command line version and a Gnome version. You should have genius available in the package management system for your distribution. For Debian-based distributions, the GUI version and the command line version are two separate packages. Assuming that you wanted both installed, you could do it with the following command.
+   sudo apt-get install genius 
