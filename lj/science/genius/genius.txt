@@ -3,7 +3,7 @@ Becoming a Genius at Mathematics
 
 We have looked at lots of scientific software in the past issues. Sometimes, you just need to be able to do some math directly in order to get your work done. This month, we will look at an advanced scientific calculator available on Linux, genius. Genius is a calculator program that has both a command line version and a Gnome version. You should have genius available in the package management system for your distribution. For Debian-based distributions, the GUI version and the command line version are two separate packages. Assuming that you wanted both installed, you could do it with the following command.
    sudo apt-get install genius gnome-genius
-Starting the command line version gives you an interpreter that should be familiar to users of Python or R. [genius1.png] If you start gnome-genius, you get a graphical interface that is likely to be more comfortable to new users. [genius2.png] For the rest of this article, we will use the GUI version in order to demonstrate what kind of things you can do with genius.
+If you use Ubuntu, one thing to be aware of is that the package gnome-genius doesn't appear to be in Bionic. It is in earlier versions (trusty, xenial, arty), and appears to be in the next version (cosmic). I ran into this problem and thought that it should be mentioned to hopefully save you some aggravation. Starting the command line version gives you an interpreter that should be familiar to users of Python or R. [genius1.png] If you start gnome-genius, you get a graphical interface that is likely to be more comfortable to new users. [genius2.png] For the rest of this article, we will use the GUI version in order to demonstrate what kind of things you can do with genius.
 
 Genius can be used just as a general purpose calculator. You can do things like
    genius> 4+5
@@ -11,7 +11,48 @@ Genius can be used just as a general purpose calculator. You can do things like
 Along with the basic math operators, you can also use the trigonometric functions, So the sine of 45 degrees is given by the command below.
    genius> sin(45)
    = 0.850903524534
-These types of    
+These types of calculations can be of essentially arbitrary size. You can also use complex numbers out of the box. Many other standard mathematical functions are available to you, as well. These include items like logarithms, statistics, combinatorics and even calculus functions. We will dig into some of these shortly.
+
+Along with functions, genius also provides control structures like conditionals and looping structures. For example, the following code gives you a basic for loop that prints out the sine of the first 90 degrees.
+   for i = 1 to 90 do (
+      x = sin(i);
+      print(x)
+   )
+As you can see, the syntax is almost C-like. At first blush, it looks like the semicolon is being used as a line ending character, but it is actually a command separator. This why there is a semicolon on the line with the sine function, but there is no semicolon on the line with the print function. This means that you could write the for loop as the following.
+   for i = 1 to 90 do ( x = sin(i); print(x) )
+Along with for loops, there are while loops, until loops, do-while loops, do-until loops and foreach loops. You also have the ability to control whether to pop out of the loop or not with the commands break and continue. They behave the same way as they do in languages like C. The conditional structure in genius is a very basic if structure. A basic if-then statement would look like the following.
+   if (a==5) then (a=a-1)
+You can use an else statement, as in the following.
+   if (c>0) then (c=c-1) else (c=0)
+There is no elseif statement in genius. You can use conditionals anywhere you would put an expression. This means that you could use an if structure to set a variable value.
+   a = (if b>0 then b else 1)
+As you can see, we didn't use parentheses here. You only need to use them in cases where the order of operations might be confusing.
+
+So far, we have seen that we have commands, variables, conditionals and looping structures. Genius claims that it uses a programming language called GEL. A programming language should have one last structure, the ability to organize code into reusable chunks. And, of course, GEL has the ability for the end user to define their own functions. The basic syntax of a function definition would look like
+   function <identifier>(<comma separated arguments>) = <function body>
+As a really simple example, the following code defines a cubing function.
+   function my_cube(x) = x*x*x
+You can then use it just like any other function.
+   genius> my_cube(3)
+   = 27
+Sometimes, you may need to be able to handle a variable list of input parameters to your function. In these cases, you need to define your function with the last parameter being "...". This would look like the following.
+   function my_func(a, b, c...) = <function body>
+In these cases, the input parameters get handed to your function body as a vector of values.
+
+When you start writing larger pieces of code, you will likely need to start handling error conditions. Genius, and hence GEL, has basic error handling capabilities. When you detect an error in your code, you can send a message to the end user with the error command, as in the following.
+   if not IsMatrix (M) then (
+      error("M is not a matrix")
+   )
+This might not be enough, however. If the error is not recoverable, then you will need to stop execution somehow. GEL gives you two options. The first is to stop the current function and go back to the calling code. You can do this with the command bailout. If the error is extremely horrendous, you may need to stop all execution. In these cases, you can use the command exception.
+
+There are a huge number of advanced functions available within genius. Just as an example of the kinds of advanced calculations that you can make, we will look at doing a numerical integration. You can integrate a function, from a start limit to an end limit. For example, you can find the numerical integral of the sine function from 0 degrees to 180 degrees with the following.
+   genius> NumericalIntegral(sin, 0, 180)
+   = 1.59846942736
+You can also do infinite sums, numerical derivatives and limits.
+
+The last item we will look at is only available with the Gnome version of genius. In this case, you have the ability to plot data and functions and have them displayed on the screen. When you click on the plot button on the main window, you will get a new window where you can define the plot parameters. [genius3.png] Since you can plot multiple functions, you can see them side-by-side in the same window. [genius4.png] If, instead, you need to do a 3D plot of a surface, you can select the surface plot tab of the plotting window and define a function in terms of x and y. [genius5.png] Within the plot window, you have several options to change the view. For the surface plot, you can even have it rotate so you can see the resultant plot from all angles. When you have the plot looking exactly the you want it to, you click on the Graph menu entry and export it to one of several file formats so that you can use it in other publications or reports.
+
+As you can see, genius provides a fair bit of functionality within a small package. It has been used in education, in order to allow students to see quickly the results of different calculations and how they vary based on inputs or changes in algorithm. As well, it provides the essentials of an advanced scientific calculator. People who have used the HP or TI advanced handheld calculators will find genius a very powerful replacement on the desktop. You can find much more information at the main website (https://www.jirka.org/genius.html), including the main manual and a set of examples. Hopefully this can be a tool that you keep in your back pocket.
 
 
 
@@ -19,4 +60,6 @@ These types of
 IMAGES
 genius1.png  -  When you start genius, you get the version and some license information, and then get presented with an interpreter prompt.
 genius2.png  -  The GUI interface provides easy menu access to most of the functionality within genius.
-
+genius3.png  -  The "Create Plot" window lets you define both line plots and surface plots for multiple functions.
+genius4.png  -  Gnome genius lets you plot multiple functions easily. For example, you could plot sine and tangent in order to see how they compare to each other.
+genius5.png  -  You can easily plots a single function in terms of x and y (for example, x*sin(y)).
