@@ -1,0 +1,85 @@
+Scilab for Scientific Labs
+
+
+This month, we will look at one of the larger scientific packages available on Linux, scilab. Scilab is meant to be an overall package for numerical science, along the lines of Maple, Matlab or Mathematica. While there is a lot of built in functionality for all sorts of scientific computations,  Scilab includes its own programming language in order to use this functionality to its utmost. Or, you can use this language in order to extend the functionality of Scilab to completely new arenas of research. Some of the functionality includes 2D and 3D visualization, optimization tools, as well as statistical functions. Also included is Xcos, an editor to design dynamical systems models.
+
+You have several options to install Scilab on your system. Most package management systems should have one or more packages available for Scilab. This will also install several support packages. You also have the option of simply downloading and installing a tarball that contains everything you need to be able to run Scilab on your system. Once you have it installed, you can start the GUI version of Scilab with the command "scilab". If you used the tarball to install Scilab, this command will be located in the bin subdirectory where you unpacked the tarball. When it first starts up, you should see the full workspace created for your project. [scilab1.png] On the left-hand side, there is a file browser where you can see data files and Scilab scripts. On the right-hand side, there are several panes. The top pane is a variable browser, where you can see what currently exists within the current workspace. The middle pane contains a list of commands within the current workspace. The bottom pane contains a news feed of Scilab news. The centre of the workspace contains the actual Scilab console, where you can interact with the execution engine.
+
+The first thing to play with is basic mathematics. For example, you do basic division.
+   --> 23/7
+    ans  =
+   
+      3.2857143
+As you can see, the command prompt is "-->" where you enter the next command to the execution engine. In the variable browser, you can see a new variable named "ans" that contains the results of the calculation. Along with basic arithmetic, there is also a number of built in functions. One thing to be aware of is that these function names are case sensitive. For example, the statement "sqrt(9)" gives the answer of 3, where as the statement "SQRT(9)" gives you an error. There are also built in constants for numbers such as e or pi. You can use them in statements, like the following command to find the sine of pi/2.
+   --> sin(%pi / 2)
+    ans  =
+   
+      1.
+If you don't remember exactly what a function name is, but remember how it starts, you can use the tab completion functionality in the Scilab console. For example, you can see what functions start with "fa" by typing these two letters in and then pressing the TAB key. [scilab2.png]
+
+Variables are assigned by using the "=" symbol. For example, you could assign your age to the variable "age" with the following command.
+   --> age = 47
+    age  = 
+
+      47.
+You can then access this variable directly, as below.
+   --> age
+    age  = 
+
+      47.
+This variable will also be visible in the variable browser pane. Accessing variables this way basically executes the variable. This is why you also get extra output. If you only want to see the value, you can use the function "disp()". This gives you output like the following.
+   --> disp(age)
+
+      47.
+Before we move into more complex ideas, we will need to move out of the console. The advantage of the console is that statements are executed immediately. But this is also its disadvantage. In order to write up larger pieces of code, you will want to use the included editor. Clicking on the menu item "Applications->SciNotes" pops up a new window where you can enter larger programs. [scilab3.png] Once you have your code finished, you can run it by either clicking the run icon on the toolbar or selecting one of the options under the "Execute" menu item. When you do this, SciNotes will ask you to save your code to a file, with the file ending ".sce", before running. Then, it gets the console to run this file with the following command
+   exec('/home/jbernard/temp/scilab-6.0.1/bin/test1.sce', -1)
+If you create or get a Scilab file outside of Scilab, you could run it yourself using a similar command.
+
+In order to build more complex calculations, you will also need a way to make comparisons and a way to loop over several calculations. Comparisons can be done with either
+   if .... then
+      stmts
+   end
+or
+   if .... then
+      stmts
+   else
+      stmts
+   end
+or
+   if .... then
+      stmts
+   elseif .... then
+      stmts
+   else
+      stmts
+   end
+As you can see, the if and elseif lines need to end with then. You can have as many elseif sections as you need for your particular case. Also, the entire comparison block needs to end with the end statement. There are also two types of looping commands, for loops and while loops. As an example, you could use the following code to find the square roots of the first 100 numbers.
+   for i=1:100
+       a = sqrt(i)
+       disp(a)
+   end
+The for loop takes a sequence of numbers, defined by "start:end", and each value is iteratively assigned to the dummy variable i. Then you have your code block within the for loop, and close it with the statement end. The while loop is similar, except it uses a comparison statement to decide when to exit the loop.
+
+The last quick item we will look at is the graphing functionality available within Scilab. You can create both 2D and 3D graphs with the tools available. You can plot data files, or plot the results of functions. For example, the following code will plot the sine function from 0 to pi*4. [scilab4.png]
+   t = linspace(0, 4 * %pi, 100)
+   plot(t, sin(t))
+You can use the the command linspace to generate the list of values over which the function will be executed. The plot function pops up a new window to display the resultant graph. You can use the commands under the "Edit" menu item to change details of the plot before saving off the results to an image file. You can also do 3D graphs just as simply. The following code plots a parametric curve over 0 to 4*pi.
+   t=linspace(0,4*%pi,100);
+   param3d(cos(t),sin(t),t)
+This also pops up a new plotting window to display the results. If the default view isn't appropriate, you can click on the menu item "Tools->2D/3D Rotation". With this selected, you can then right-click on the graph and rotate it around so that you get a better view of the result.
+
+Scilab is a very powerful option available for doing many types of computational science. Since it is available on Linux, Mac OSX and Windows, it is a good option for people who are collaborating with other people across multiple operating systems. It might also prove to be a very good tool to use in a teaching environment, where students can have access to a very powerful computational platform for no cost, no matter what type of computer they are using. Hopefully this short article has given you some ideas on how it might be useful to you. Unfortunately, we have barely covered the large number of capabilities available in such a short article. Luckily, there are a number of very good tutorials available at the main Scilab web site.
+
+
+
+IMAGES
+scilab1.png  -  When you first start Scilab up, you will see an empty workspace ready for you start a new project.
+scilab2.png  -  You can use tab completion to avoid typos while typing commands in the Scilab console.
+scilab3.png  -  The SciNotes application lets you write larger programs and then run them within Scilab as a single unit.
+scilab4.png  -  Calling the plot function will pop up a new viewing window where you can see the generated graphs.
+scilab5.png  -  Generating 3D graphs is as easy as generating 2D plots, as this parametric curve example shows.
+
+
+
+URLS
+https://www.scilab.org/  -  Main Scilab web site
