@@ -1,18 +1,32 @@
-Modelling the entire universe
+Modeling the entire universe
 
 
-This month we will look at the largest thing possible, the whole universe. At least that is the claim made by celestia, the software package we are going to look at this month. In all seriousness, though, celestia is a very well done astronomical simulator, similar to other software packages like stellarium. Celestia is completely open-source, licensed under the GPL. If you don't have celestia available under the package management system for your favourite distribution, you can always get the latest stable version from the main web site for celestia as an installable binary package. If you really need the absolute latest version, you can grab the github repository. There are also binaries available for Windows and Mac OSX, just in case you need to travel on the dark side of computing.
+This month we will look at the largest thing possible, the whole universe. At least that is the claim made by celestia, the software package we are going to look at this month. In all seriousness, though, celestia is a very well done astronomical simulator, similar to other software packages like stellarium. Celestia is completely open-source, licensed under the GPL. If you don't have celestia available under the package management system for your favorite distribution, you can always get the latest stable version from the main web site for celestia as an installable binary package. If you really need the absolute latest version, you can grab the GitHub repository. There are also binaries available for Windows and Mac OSX, just in case you need to travel on the dark side of computing.
 
 Once you have celestia installed, starting it up will give you a view of the Earth from space. [celestia1.png] You are placed on a track that will follow the Earth through space. This is necessary because celestia is actually a real-time simulation. If you were in a fixed location in space, the object that you are looking at would quickly leave your field of view. You can pause the simulation by hitting the space bar. Once you are following an object, you can rotate your view by clicking the left mouse button and dragging left/right or up/down. You may be more interested in observing the centered object, instead. In this case, clicking the right mouse button and dragging will move you around the object instead. This way, you can see the details of the object. You can zoom in or out by using the mouse wheel. All of these navigation actions also have keyboard shortcuts, for those who prefer that to using a mouse.
 
-But, how do you select which object you are centered on? The easiest option is to click the menu item "Navigation->Solar System Browser" to pop up a selection window. [celestia2.png] From here, you can pick from the planets, moons, asteroids and other solar system objects available by default within celestia.
+But, how do you select which object you are centered on? The easiest option is to click the menu item "Navigation->Solar System Browser..." to pop up a selection window. [celestia2.png] From here, you can pick from the planets, moons, asteroids and other solar system objects available by default within celestia. We'll talk about how to add even more items shortly. If you are looking at items beyond the solar system, you can click on the menu item "Navigation->Star Browser..." to pop up a new window. [celestia3.png] From here, you can select from a large number of stars that are available in the standard library. If you wanted to go to a specific object or a specific location, you can click on the menu item "Navigation->Goto Object..." to pop up an input dialog where you can enter the details of where you wanted to go. [celestia4.png]
+
+Until now, all of the objects that are available for viewing come with the standard installation of celestia. However, celestia includes the ability to add extra items to the catalog. You can add object files for these additional objects in the "extras" sub-directory where celestia is installed. There is a large number of available objects hosted at the Celestia Motherlode web site. These are zip files, containing everything you need if you want to include that object in your installation of celestia. You can create your own extra objects and upload them the Celestia Motherlode site in order to share it with other users.
+
+Interacting with celestia is done mostly through text files. You can define how it behaves at start up by editing the files 'start.cel' and 'celestia.cfg'. These files are well commented, so you should be able to tune the way celestia behaves relatively easily. This interaction extends out to being able to script celestia. This is handy if you wanted to be able to use it to create guided tours of celestial objects to show other people. These scripts are text files, with the file name ending in '.celx'. There is a complete scripting language that allows you to control most aspects of celestia.
+
+Once you have some view prepared, there are a few ways to share them with others. If you click on the menu item 'File->Capture Image...', a pop up window will be displayed where you can save the currently rendered view as either a JPEG or PNG image file. Clicking 'File->Capture Movie...' pops up a window where you can record a video file of what's occurring on the screen right now. You can select the compression scheme to use, or leave it as raw video. [celestia5.png] This is handy if you want to share a tour of the universe with someone who may not have celestia installed. Instead of sharing images or videos, you can also share something called a celestia URL (or Cel: URL). This URL includes the details of the rendered view and can be shared with others. When you do share them, the other person will need to have celestia installed. One thing to be aware of, though, is that there are some incompatibilities between versions of celestia. So, you may need to coordinate with the other person if you run into any issues.
+
+Hopefully, celestia can help fill a role, especially when you are thinking of doing anything educational. The ability to script views is especially useful in order to share with several students. This is just another tool to add to your astronomy toolkit.
+
 
 
 IMAGES
 celestia1.png  -  Celestia begins your exploration of space with a 3D view of our home, Earth.
 celestia2.png  -  You can use the solar system browser to select objects to center on within our solar system.
+celestia3.png  -  You can view object beyond the solar system by bringing up the star browser window.
+celestia4.png  -  You can go to a specific location within the universe.
+celestia5.png  -  You can choose the video compression scheme to use when you record a video from celestia.
 
 
 
 URLS
 https://celestia.space/index.html  -  The main web site for celestia
+http://celestiamotherlode.net  -  The master list of available addons for celestia
+https://en.wikibooks.org/wiki/Celestia  -  The celestia wikibook
