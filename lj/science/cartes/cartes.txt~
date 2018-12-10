@@ -1,0 +1,18 @@
+Astronomy Software by Any Other Name
+
+
+This month, we will be looking into another option available for the astronomers out there. Specifically, we will be looking at Cartes du Ciel, also known as SkyChart. Similar to other larger astronomy programs, you can use SkyChart from the desktop to the observatory. You probably won't have SkyChart available in your distribution's package management system, so you will have to go to the main web site in order to download it. They have DEB, RPM and TAR files availble, so you should be able to use it for just about any distribution out there. There are also downloads available for other operating systems, and even other hardware. You can download a version to run a Raspberry Pi.
+
+When you first start up Cartes du Ciel, you will be asked where on the globe your observatory is located. [cartes1.png] There are a number of locations already listed in the database. If your location is not there, you can enter the latitude and longitude. Once you are done, clicking on the OK button will pop up a new window with the sky at the current time and location. [cartes2.png] Unlike many other astronomy programs, time does not progress automatically. The design is more along the lines of being able to generate viewing charts for observation. There are buttons in the toolbar at the top which allow you to easily update the time.
+
+The default view is to look at the sky at due south. You can change this view by clicking and dragging the star field. If you wanted to center it on a cardinal direction, there are buttons along the bottom right-hand side of the screen. Just above these cardinal direction buttons, there are field of view (FOV) buttons that set the amount of the sky that is visible.
+
+
+IMAGES
+cartes1.png  -  The first step is to set the location that observations will be made from.
+cartes2.png  -  The initial display is the sky over your location at the current time.
+
+
+
+LINKS
+https://www.ap-i.net/skychart/en/start  -  The main web site for SkyChart/Cartes du Ciel
