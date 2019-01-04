@@ -1,0 +1,18 @@
+Antennas in Linux
+
+
+This month, we will look at a piece of software that I have actually used recently in my own work. My new day job involves studying the ionosphere using an instrument called an ionosonde. This device is basically a giant radio transmitter that bounces radio waves off of the ionosphere to see its structure and composition. Obviously, an important part of this is knowing the radiation pattern of the various transmitters and receivers. There are several methods of modelling the electromagnetic fields around conductors, but we will be looking at one called NEC2 (Numerical Electromagnetics Code). It was originally developed in FORTRAN at the Lawrence Livermore National Laboratory in the 1970's. Since then, it has been reimplemented several times in various languages. Specifically, we will look at xnec2c. This package implements NEC2 in C, and also provides a GTK frontend for interacting with the core engine. Xnec2c should be available in most Linux distributions. For example, in Debian-based distributions, you can install it with the command
+   sudo apt-get install xnec2c
+Once it is installed, you can start it with xnec2c. [xnec2c1.png]
+
+Xnec2c's history still affects how it behaves to the present day. This is most clear when you look at the format of the input file. The basic structure is laid out around the idea of a punch card, where each "command" to xnec2c is given by a command card. This is a definite holdover from its FORTRAN roots. Luckily, the GTK frontend to xnec2c provides a reasonably functional way of building up these input files. You should have several example files available with your installation of xnec2c. In my Ubuntu distribution, these files are located in /usr/share/doc/xnec2c/examples. These input files have the filename ending ".nec". You can select one of these as a starting off point in order to play with xnec2c, and then go on and make the required alterations necessary for your own project. [xnec2c2.png] The central window pane gives you a geometric view of the actual antenna structure in three dimensions. You can click and drag the diagram to rotate the view and see it from all angles.
+
+Once you are sure that the physical layout looks correct, you can start to see what the electromagnetic behavior of the system looks like. On the menu bar at the top, there is an entry named "View". Clicking on "Radiation Pattern" pops up a new window where you can view what the electromagnetic radiation pattern looks like. You have a few different options available. The first, "Gain Pattern", gives you what most people will probably think of as the radiation pattern. [xnec2c3.png] Again, you can click and drag the image to get a better view of the pattern from various angles.
+
+
+
+
+IMAGES
+xnec2c1.png  -  Launching xnec2c gives you a pretty boring starting point.
+xnec2c2.png  -  Loading an input file, you begin with a geometric view of the relevant antenna wires, other conductors and any ground planes.
+xnec2c3.png  -  You can easily model the radiation pattern from an antenna system.
