@@ -1,0 +1,35 @@
+Plotting on Linux
+
+
+This issue of Linux Journal is supposed be the 25th anniversary of the magazine. I thought I would look back to see when I wrote my first article and was horrified to see that it was back in 2000. I am too young to have been writing articles for over 18 years. Here's to another 25 years for Linux Journal and all of the authors who have made it what it is.
+
+This month, we'll be looking at the plotting program kmplot. Kmplot is part of the EDU suite of programs from the KDE project. Kmplot was designed to plot functions and interact with these functions to learn about their behavior. Since it is a part of the KDE project, it should exist in most package management systems. For example, in Debian-based systems you can install it with the command
+   sudo apt-get install kmplot
+When you first start it up, you will get a blank workspace where you can start to play with mathematical functions. [kmplot1.png] On the right-hand side, there is a main plot window where all of the graphical display will happen. On the left-hand side, there is a function list window where you can find all of the functions that you have defined and are planning on working with.
+
+The first thing we should look at is creating some functions to use from within kmplot. Clicking on the "Create" button at the bottom of the function window brings up a drop down menu. Here you can select from a number of plot types, such as Cartesian, polar or differential. As an example, clicking on the Cartesian option will pop up a new window where you can create your function. [kmplot2.png] You can use pre-defined constants and simpler functions to build up the specific function that you are interested in studying. Once you have finished, it will update the main window and you will have your plot generated. There are several defaults that get assigned in terms of its appearance. Clicking on the "Advanced" button at the bottom of the left-hand pane pops up a new dialog window where you can change some of these defaults. [kmplot4.png] Here, you can set the labels for the function name, as well as labels for the maxima and minima. On the same lower left-hand pane, there are tabs where you can get kmplot to also show the derivatives and integrals of the selected function. For example, you could plot the first derivative of the function. [kmplot5.png] To better highlight the new plot, you can click on the color button and select a new color for the derivative curve. You also have the ability to plot the integral of the given function. [kmplot6.png]
+
+You can create more complicated plots with combinations of functions. For example, you could plot both a regular Cartesian plot along side a parametric plot. [kmplot7.png] This can be really useful when you want to get a deeper understanding of what the underlying behavior of a given function is. Looking at it from another angle, literally and figuratively, can be invaluable. There are also several other tools available to work with these plots. Clicking on the menu item "Tools->Plot Area..." will pop up a new window where you can select one of the Cartesian plots and calculate the area between said curve and the x-axis. [kmplot8.png] This is useful in physics and engineering contexts, where the area below a curve can have a physical analogue. Clicking the menu item "Tools->Calculator" pops a new window where you can do quick calculations. [kmplot9.png] The last two items in the "Tools" menu are "Find Maximum..." and "Find Minimum...". With these two options, you can ask kmplot to find local maxima or minima. You need to give it a range to search over, so that it can constrain the search. [kmplot10.png] You could have functions, such as the tangent function, which have a global maximum at plus infinity and a global minimum at negative infinity.
+
+One of the most important parts of plotting a function is the coordinate system being used. In kmplot, you can tailor the coordinate system by clicking the menu item "View->Coordinate System...". [kmplot11.png] Here, you can change the x and y limits of the axes. As well, you can set the axis grid spacing. You can even define custom grid spacing functions.
+
+Because kmplot is a part of the KDE project, it inherits several of the capabilities of that project. One interesting ability is that of being able to script the behavior of kmplot. This is done through D-Bus commands. For example, you could tell kmplot to plot a function with the following command
+   qdbus org.kde.kmplot-PID /parser org.kde.kmplot.Parser.addFunction "f(x)=2sin x+3cos x" ""
+You can even activate menu items and dialogs. You can use this functionality to be able to include kmplot as a component in a larger work bench or platform idea.
+
+Once you have put some work into your analysis, you will likely want to be able to save your work. Clicking the menu item "File->Save" or "File->Save As" lets you save the work you have done in a proprietary file format. This lets you save your work and pick it up again later. The other option for saving your work for other uses is to grab images of the plots themselves. Clicking on the menu item "File->Export" lets you save off the plot window in one of the usual image file formats. This way you can import them into documents or presentations. Kmplot is a great tool when you start playing with graphical representations of functions.
+
+
+
+IMAGES
+kmplot1.png  -  Upon start up, you are ready to start entering functions and learning about their behavior.
+kmplot2.png  -  You can use the builtin palettes to select functions and constants to build up the functions that you are interested in.
+kmplot3.png  -  Once you plot a function, an extra pane will appear in the bottom left-hand side where you can manipulate several characteristics of the plot.
+kmplot4.png  -  You can set several options in the plot window by clicking on the "Advanced" button.
+kmplot5.png  -  You can select to plot either the first or second derivatives of the given function.
+kmplot6.png  -  You can set several options for the integral, including the precision that the numerical method must reach when calculating and plotting the result.
+kmplot7.png  -  It sometimes help to see multiple plots together, in order to get better insights into the underlying mathematics.
+kmplot8.png  -  It is sometimes necessary to calculate the area below a curve, especially to get physical insights in a scientific context.
+kmplot9.png  -  Sometimes, you may need to make quick calculations while you are working on plots.
+kmplot10.png  -  You can find the value of both maxima and minima for the functions that you are plotting.
+kmplot11.png  -  You can change several of the options of how the coordinate system is defined for the plots.
