@@ -1,0 +1,4 @@
+Geometry on Linux
+
+
+This month, we will look at one of the options for doing geometry on the Linux desktop - GeoGebra. GeoGebra is 

@@ -1,0 +1,6 @@
+Visualizing Science
+
+
+This month, I thought that we could look at one of the more popular tools used for visualizing data within several scientific disciplines - paraview. Paraview started as a joint project between Kitware Inc. and Los Alamos National Laboratory back in 2000. The first public release was version 0.6, which came out in 2002. Since then, paraview has become one of the most popular visualization packages when trying to visualize large data sets. Since it is open source, it should be available in most, if not all, package repository systems. For example, in Debian-based distributions, you should be able to install it with the command
+   sudo apt-get install paraview
+Starting it up the first time should give you an empty 
