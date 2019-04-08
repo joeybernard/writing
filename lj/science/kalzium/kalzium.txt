@@ -1,0 +1,16 @@
+Elemental Linux
+
+
+In previous issues, we have looked at a number of chemistry packages, and all of the computational chemistry that you can do in a Linux environment. But, what is fundamental to chemistry? Why, the elements of course. So, this month we will focus on learning more about the elements that make up everything around us. To that end, this month we will look at a program called kalzium. Kalzium is kind of like a periodic table on steroids. Not only does it have information on each of the elements, it also has extra functionality to do other types of calculations, etc.
+
+Kalzium should be available within the package repositories for most distributions. In Debian-based distributions, you can install it with the command
+   sudo apt-get install kalzium
+When you start it up, you get a simplified view of the classical periodic table. [kalzium1.png] You can change this overall view by either clicking on the drop down menu in the top left side of the window, or by clicking on the menu item "View->Tables". You can select from 5 different display formats. Clicking one of the elements pops open a new window with detailed information. [kalzium2.png] The default detail pane is an overview the various physical characteristics of the given element. This includes items such as the melting point, electron affinity or atomic mass. There are also 5 other information panes available. The atom model gives you a graphical representation of the electron orbitals around the nucleus of the given atom. The isotopes pane gives you a table of values for each of the known isotopes for the selected element, ordered by neutron number. This includes items such as the atomix mass, or the half-life for radioactive isotopes. The miscellaneous detail pane includes some of the extra facts and trivia that might be of interest. The spectrum detail pane shows the emmission and absorption spectra, both as a graphical display and a table of values.
+
+
+
+
+
+IMAGES
+kalzium1.png  -  The default view is of the classical ordering of the elements.
+kalzium2.png  -  Kalzium provides a large number of details for each element.

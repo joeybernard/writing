@@ -1,0 +1,16 @@
+Elemental Linux
+
+
+In previous issues, we have looked at a number of chemistry packages, and all of the computational chemistry that you can do in a Linux environment. But, what is fundamental to chemistry? Why, the elements of course. So, this month we will focus on learning more about the elements that make up everything around us. To that end, this month we will look at a program called kalzium. Kalzium is kind of like a periodic table on steroids. Not only does it have information on each of the elements, it also has extra functionality to do other types of calculations, etc.
+
+Kalzium should be available within the package repositories for most distributions. In Debian-based distributions, you can install it with the command
+   sudo apt-get install kalzium
+When you start it up, you get a simplified view of the classical periodic table. [kalzium1.png] You can change this overall view by either clicking on the drop down menu in the top left side of the window, or by clicking on the menu item "View->Tables". You can select from 5 different display formats.
+
+
+
+
+
+
+IMAGES
+kalzium1.png  -  The default view is of the classical ordering of the elements.
