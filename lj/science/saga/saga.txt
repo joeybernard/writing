@@ -1,0 +1,12 @@
+GIS on Linux
+
+This month, we'll look at another GIS option available on Linux. Specifically, a program called SAGA (System for Automated Geoscientific Analyses). SAGA was developed at the Department of Physical Geography in Germany. It is built with a plugin module architecture, where various functions are provided by individual modules. There is a very complete API that is available to allow users to extend out the functionality of SAGA with newly written modules.
+
+
+
+IMAGES
+
+
+URLS
+http://www.saga-gis.org/en/index.html  -  Main web site for SAGA
+https://sagatutorials.wordpress.com  -  Tutorials on how to use SAGA
