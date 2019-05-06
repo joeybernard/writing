@@ -1,11 +1,17 @@
 GIS on Linux
 
-This month, we'll look at another GIS option available on Linux. Specifically, a program called SAGA (System for Automated Geoscientific Analyses). SAGA was developed at the Department of Physical Geography in Germany. It is built with a plugin module architecture, where various functions are provided by individual modules. There is a very complete API that is available to allow users to extend out the functionality of SAGA with newly written modules.
+This month, we'll look at another GIS option available on Linux. Specifically, a program called SAGA (System for Automated Geoscientific Analyses). SAGA was developed at the Department of Physical Geography in Germany. It is built with a plugin module architecture, where various functions are provided by individual modules. There is a very complete API that is available to allow users to extend out the functionality of SAGA with newly written modules. We will take a very cursory look at SAGA, and see a few of the things that you might decide to do with it.
+
+Installing SAGA should be as easy as looking at the software repository for your favorite distribution. For Debian-based ones, you can install it with the command
+   sudo apt-get install saga
+When you first start it up, you get a blank workspace to begin your project in. [saga1.png] There are two major categories of data sets that you can use within your projects: satellite imagery and terrain data. There are detailed walkthroughs on the tutorial web site, showing you where you can get access to these types of data sets for use in your own projects. There are also sections on some of the processing tools available to do more detailed analysis.
+
+We can start by looking at terrain analysis in SAGA. You will need digital elevation data, in DEM format, which is available from the SRTM Tile Grabber site (http://dwtkns.com/srtm/). You will get a zip file for each region that you select. 
 
 
 
 IMAGES
-
+saga1.png  -  SAGA starts up with a central project window, several tool panes on the left and console messages at the bottom.
 
 URLS
 http://www.saga-gis.org/en/index.html  -  Main web site for SAGA
