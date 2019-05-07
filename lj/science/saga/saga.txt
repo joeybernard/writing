@@ -2,16 +2,30 @@ GIS on Linux
 
 This month, we'll look at another GIS option available on Linux. Specifically, a program called SAGA (System for Automated Geoscientific Analyses). SAGA was developed at the Department of Physical Geography in Germany. It is built with a plugin module architecture, where various functions are provided by individual modules. There is a very complete API that is available to allow users to extend out the functionality of SAGA with newly written modules. We will take a very cursory look at SAGA, and see a few of the things that you might decide to do with it.
 
-Installing SAGA should be as easy as looking at the software repository for your favorite distribution. For Debian-based ones, you can install it with the command
+Installing SAGA should be as easy as looking at the software repository for your favourite distribution. For Debian-based ones, you can install it with the command
    sudo apt-get install saga
 When you first start it up, you get a blank workspace to begin your project in. [saga1.png] There are two major categories of data sets that you can use within your projects: satellite imagery and terrain data. There are detailed walkthroughs on the tutorial web site, showing you where you can get access to these types of data sets for use in your own projects. There are also sections on some of the processing tools available to do more detailed analysis.
 
-We can start by looking at terrain analysis in SAGA. You will need digital elevation data, in DEM format, which is available from the SRTM Tile Grabber site (http://dwtkns.com/srtm/). You will get a zip file for each region that you select. 
+There are several data file formats that SAGA understands. The usual ones used in GIS, like SHP files or point clouds, are the default options in the file selector window. You can work these types of data, or satellite imagery or terrain data. We can start by looking at terrain analysis in SAGA. You will need digital elevation data, in DEM format, which is available from the SRTM Tile Grabber site (http://dwtkns.com/srtm/). You will get a zip file for each region that you select. These zip files contain geotiff files for the selected regions. You can load the geotiff file by clicking the menu item "File->Open". By default, it will only show the common project file formats. In order to locate your downloaded geotiff files, you will need to change the filter at the bottom of the file selector window to be all files. Once it is loaded, it will show up in the list of data sources in the bottom left window pane. [saga2.png] You may find that the default layout is a bit crowded, so you may decide to close some of the detail panes as I did in the screenshot here. By default, the file is simply added to the list of data sources in the data manager pane in the bottom left of the window and nothing is displayed. In order to view the newly added data, you can right-click on the entry in the data manager and select "Add to Map." There are several other options when you right-clicked the data source. For example, you can click on "Spatial Reference" to get details about the projection, etc. [saga3.png]
+
+Moving to the "Map" tab of the bottom right pane, you can see the current list of maps and their layers. Right-clicking on the layers only provide viewing options, like what layers lie above below other layers. Right-clicking on the map gives you a bit more functionality. You can save maps as images, or even copy them to the clipboard to be used in some other application. You change the overall view to either a 3D view or a print layout. You can even add extra items to your map, such as a base map or a graticule. You can adjust the order of the layers, in order to have all of the appropriate information displayed correctly. There are several other tools available under the "map" menu item at the top of the window.
+
+When you click on the "Geoprocessing" menu item, you will see the massive list of tools available to do processing tasks on the data that you have imported. Some of them are basic, while others are very computationally intensive. For example, if you click on "Terrain Analysis->Basic Terrain Analysis", it can sit and run for quite a while. You pick single analysis tools if you want to look at some specific items. For example, you could look at the solar radiation by clicking on the menu item "Geoprocessing->Terrain Analysis->Lighting->Potential Incoming Solar Radiation". [saga4.png] As you can see, there is a very dense tree of tools available. Many of these tools are also available under the "Tools" tab in the bottom left pane. You can simply find the tool in question and double-click it. You may, however, find that it is difficult to find a specific tool. If this is the case, you can click on the menu item "Geoprocessing->Find and Run Tool" and get a pop up window where you can look for something specific. [saga5.png]
+
+To get a better idea of what you can do, the SAGA tutorial site includes a set of complete application workflows that walk you through entire workflows. For example, the first one in the list is assessing sediment flows from a point field survey. It goes through how to import data from a CSV file, apply coordinate transformations and visualize the resulting data. It then walks you through applying a hydrological analysis tool to better understand how the sediment flow happens based on the terrain information. There are several others that show you other workflows for common GIS tasks.
+
+Hopefully, this short article has whetted your appetite for using GIS within your own project. We only got a small taste of everything that you can do with SAGA, and as with many open-source projects you can always add extra functionality as needed. These get loaded as shared libraries that provide additional tools.
 
 
 
 IMAGES
 saga1.png  -  SAGA starts up with a central project window, several tool panes on the left and console messages at the bottom.
+saga2.png  -  You can load data sources, such as geotiffs, into your project.
+saga3.png  -  You can play with projection settings for a data source.
+saga4.png  -  You can run tools that provide additional layers that can be displayed in your map.
+saga5.png  -  You can do a search for a specific tool, rather than navigating through the menus.
+
+
 
 URLS
 http://www.saga-gis.org/en/index.html  -  Main web site for SAGA
