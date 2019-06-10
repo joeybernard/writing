@@ -1,0 +1,15 @@
+Doing DNA Geometry
+
+This month, we will be looking at a tool that you can use to work on three dimensional DNA origami. The package is called cadnano, and is currently being developed at the Wyss Institute. With this package, you will be able to construct and manipulate the three dimensional representations of DNA structures, as well as generate publication quality graphics of your work. Because this software is research based, you won't likely find it in the package repository for your favorite distribution. Assuming that you don't find it there, you'll need to install it from the github repository where the source code is available. Since cadnano is a Python program, and written to use the Qt framework, you will need to install some packages first. For example, in Debian-based distributions, you will want to run the following commands
+   sudo apt-get install python3 python3-pip
+   sudo apt-get install python3-networkx python3-pyqt
+
+
+
+IMAGES
+
+
+
+URLS
+http://cadnano.org/  -  Cadnano main website
+https://cadnano.readthedocs.io/en/master/index.html  -  Cadnano documentation
