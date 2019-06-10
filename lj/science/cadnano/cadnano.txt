@@ -1,12 +1,40 @@
 Doing DNA Geometry
 
-This month, we will be looking at a tool that you can use to work on three dimensional DNA origami. The package is called cadnano, and is currently being developed at the Wyss Institute. With this package, you will be able to construct and manipulate the three dimensional representations of DNA structures, as well as generate publication quality graphics of your work. Because this software is research based, you won't likely find it in the package repository for your favorite distribution. Assuming that you don't find it there, you'll need to install it from the github repository where the source code is available. Since cadnano is a Python program, and written to use the Qt framework, you will need to install some packages first. For example, in Debian-based distributions, you will want to run the following commands
+This month, we will be looking at a tool that you can use to work on three dimensional DNA origami. The package is called cadnano, and is currently being developed at the Wyss Institute. With this package, you will be able to construct and manipulate the three dimensional representations of DNA structures, as well as generate publication quality graphics of your work. Because this software is research based, you won't likely find it in the package repository for your favourite distribution. Assuming that you don't find it there, you'll need to install it from the GitHub repository where the source code is available. Since cadnano is a Python program, and written to use the Qt framework, you will need to install some packages first. For example, in Debian-based distributions, you will want to run the following commands
    sudo apt-get install python3 python3-pip
-   sudo apt-get install python3-networkx python3-pyqt
+I found that installation was a bit tricky, so I created a virtual Python environment to manage module installations. Once you are in your activated virtualenv, you can install the required Python modules with the command
+   pip3 install pythreejs termcolor pytz pandas pyqt5 sip
+Once these dependencies are installed, you can grab the source code with the command
+   git clone https://github.com/cadnano/cadnano2.5.git
+This will grab the Qt5 version. The Qt4 version is in the repository https://github.com/cadnano/cadnano2.git. Changing directory into the source directory, you can build and install cadnano with the command
+   python setup.py install
+You should now have cadnano available within the virtualenv.
+
+You can now start cadnano by simply executing the command 'cadnano' from a terminal window. [cadnano1.png] You should see an essentially blank workspace, made up of several empty view panes and an empty inspector pane on the far right-hand side. In order to walk through a few of the functions available in cadnano, we'll go through the steps of creating a six strand nanotube. The first step is to create a background that you can use to build upon. At the top of the main window, you will find three button in the toolbar which will allow you to create a "Freeform", "Honeycomb" or "Square" framework. For this example, you will need to click on the honeycomb button. [cadnano2.png] You might notice that the initial rendering of the framework is not ideal for further work. You can zoom in and out by using your mouse wheel within the view pane of interest. You should also notice that the 'Create" button in the toolbar is selected, meaning that you are ready to actually start adding DNA strands. Starting at the nearest circle to the centre, located just above the centre, and going counterclockwise click on the six circles around the centre point. [cadnano3.png] These six strands will now be numbered from 0 to 5, going counterclockwise around the centre point. This representation is what you would see by looking at your nanotube edge-on, as if it had been cut across its thickness. The inspector pane on the far right side now contains entries for six virtual helices. A new pane was opened at the bottom right-hand side, where you can see detailed properties for the selected entry from the inspector pane.
+
+At this point, you will want to zoom in on a particular pane to get further work done. At the top right hand side of the toolbar, you will see three icons for the various views available. You will want to click on the "Toggle Slice" button so that it goes away and the Path viewer pane becomes the main pane. [cadnano4.png] In this view, you can design your strands, breaks and crossovers in greater detail. Clicking and dragging on a particular strand will define sections of scaffolding, where other DNA segments will be attached. You will see a new oligo entry in the inspector pane. You can add a DNA sequence by clicking on "Seq" button in the toolbar. When you now click on a section in the diagram, cadnano will pop up a new window where you can either select from one of the predefined DNA segments or insert a custom one. [cadnano5.png] You can introduce breaks by clicking on the "Break" icon in the toolbar, and then clicking on the section of scaffolding where you want to introduce the break. You can continue these steps to build up your entire origami structure.
+
+When you have a system built up, you will want to save off all of this work. When you click on the menu item "File->Save As", you can save your work into the filename you give it. Cadnano uses JSON as the file format for the structures within your system. This means that you can easily look at the file, and even make manual changes if needed. You can also export the DNA sequences themselves by clicking on the "Export" button in the toolbar. This writes the sequences out as a CSV file of each segment. You can then use this in other genomics software. The last way to save your work is to click on the "SVG" button in the toolbar. This will generate an image file in SVG format that you can then use in publications or reports.
+
+While we have been using the GUI provided with cadnano, this is not the only way to play with DNA origami. Cadnano was written to also act as a standard Python module. This means that you can import cadnano into your own Python code and use it to create and manipulate your DNA structures programmatically. This makes most sense in those cases where you will be generating a larger number of systems, or if you are making more complicated systems that are difficult to create using a mouse and a GUI. A basic boilerplate looks like the following:
+   import cadnano
+   from cadnano.document import Document
+   app = cadnano.app()
+   doc = app.document = Document()
+   doc.readFile('myfile.json')
+   part = doc.activePart()
+This boilerplate code creates a new app, and then a new Document within this app. The Document object contains everything for your DNA origami structure. The fifth line reads in a JSON file that contains the structure that you wanted to manipulate. The last line gets the parent Part object that contains all of the other parts, strands crossovers, etc. You can also use this Python module to create completely new systems that you can then save off for later use.
+
+Hopefully, this very short article gives you a bit of the functionality that is available within cadnano. Because it is used as research software and developed as such, it may not be as heavily worked on as other projects. But, if genomics and building DNA structures is part of your work, cadnano is definitely a good place to start.
 
 
 
 IMAGES
+cadnano1.png  -  When you first start cadnano up, you get a completely blank work space.
+cadnano2.png  -  You need to start your construction with one of the available geometric frameworks.
+cadnano3.png  -  You start by creating an arrangement of DNA strands to define your origami structure.
+cadnano4.png  -  You can select a single viewer pane and zoom in on the DNA structure to get more detailed design work done.
+cadnano5.png  -  You can add DNA segments to the scaffolding that you have built within your strands.
 
 
 
