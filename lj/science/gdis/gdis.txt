@@ -1,0 +1,13 @@
+Displaying Atoms with GTK
+
+
+This month, we will be diving back into software that is useful to chemists. Specifically, we will be looking at GDIS (GTK Display Interface for Structures). With GDIS, you can create and display various atomic and molecular structures. Since GDIS is a fairly popular program for chemistry research, you should be able to find it in the package repository for most distributions. For Debian-based distributions, you can install GDIS with the following command
+   sudo apt-get install gdis
+When you start it up, you get a blank workspace to start your structure. [gdis1.png]
+
+The initial workspace is properly blank, in that you don't have any underlying information to build upon. The first step is to create a new model to contain your work. Once you have a model, you will need to start adding to it. When you click the menu item "Tools->Building->Editing...", you get a new pop up window with lots of options for building your structure. [gdis2.png] 
+
+
+IMAGES
+gdis1.png  -  When you start up GDIS, you get a blank project to start your work.
+gdis2.png  -  The editing tool pane provides lots of options to build up your structures.
